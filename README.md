@@ -3,7 +3,7 @@
 
 
 
-A small application designed to run LLMs locally in GGUF format for fast, reliable instruction following, contextual comprehension, and structured reasoning. It runs entirely on your machine using a **fine-tuned Gemma-3-1B-IT model**, with no cloud APIs, no telemetry, and full control over your data.
+A small application designed to run LLMs locally in GGUF format for fast, reliable instruction following, contextual comprehension, and structured reasoning. It runs entirely on your machine using a fine-tuned version Google's Gemma-3-1B-IT model, with no cloud APIs, no telemetry, and full control over your data.
 
 Bro is intentionally lightweight making it ideal for **everyday analysis, drafting, summarization, and reasoning tasks** on CPU-only systems.
 
