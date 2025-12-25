@@ -34,8 +34,8 @@ Bro is powered by a fine-tuned variant of **Gemma-3-1B-IT**, optimized for:
 
 ### Hugging Face Model Repository
 
-🔗 
-[](https://huggingface.co/datasets/huggingface/badges/blob/main/model-on-hf-lg.svg)(https://huggingface.co/leeroy-jankins/bro)
+
+![HuggingFace|LLM](https://img.shields.io/badge/huggingface-%23FFD21E.svg?style=for-the-badge&logo=huggingface&logoColor=white)(https://huggingface.co/leeroy-jankins/bro)
 
 
 **Model characteristics:**
