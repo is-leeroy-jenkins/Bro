@@ -35,8 +35,7 @@ Bro is powered by a fine-tuned variant of **Gemma-3-1B-IT**, optimized for:
 ### LLM Repository
 
 
-[![HuggingFace|LLM](https://img.shields.io/badge/huggingface-%23FFD21E.svg?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/leeroy-jankins/bro)
-
+[![HuggingFace|LLM](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
 
 **Model characteristics:**
 
@@ -123,7 +122,7 @@ pip install -r requirements.txt
 ## 📥 Download the Bro Model
 
 1. Go to the Hugging Face model page:
-   👉  [![HuggingFace|LLM](https://img.shields.io/badge/huggingface-%23FFD21E.svg?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/leeroy-jankins/bro)
+   👉  [![HuggingFace|LLM](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
 
 2. Download the GGUF file:
 
