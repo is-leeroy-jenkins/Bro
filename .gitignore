@@ -33,7 +33,7 @@ MANIFEST
 *.manifest
 *.spec
 
-*models/
+*.GGUF
 
 # Installer logs
 pip-log.txt

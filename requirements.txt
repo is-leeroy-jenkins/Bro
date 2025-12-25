@@ -1,0 +1,5 @@
+streamlit~=1.52.2
+numpy~=2.4.0
+llama_cpp_python~=0.3.16
+sentence-transformers~=5.2.0
+reportlab~=4.4.7
