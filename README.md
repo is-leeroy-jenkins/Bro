@@ -23,9 +23,9 @@ Bro is intentionally lightweight making it ideal for **everyday analysis, drafti
 
 
 
-## 🧠 What's Bro
+## 🧠 Sup with Bro
 
-Bro is powered by a fine-tuned variant of **Gemma-3-1B-IT**, optimized for:
+A fine-tuned variant of Google's **Gemma-3-1B-IT**, optimized for:
 
 * Instruction following
 * Contextual understanding
