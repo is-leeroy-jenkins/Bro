@@ -1,5 +1,5 @@
 ###### Bro
-![]()
+![](https://github.com/is-leeroy-jenkins/bro/blob/main/resources/images/bro_project.png)
 
 ### 🤝 Bro
 
