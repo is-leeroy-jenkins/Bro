@@ -1,9 +1,7 @@
 ###### Bro
 ![](https://github.com/is-leeroy-jenkins/bro/blob/main/resources/images/bro_project.png)
 
-### 🤝 Bro
 
-**A Local-First Instruction-Following LLM Application**
 
 Bro is a **local-only Streamlit application** designed for fast, reliable instruction following, contextual comprehension, and structured reasoning. It runs entirely on your machine using a **fine-tuned Gemma-3-1B-IT model**, with no cloud APIs, no telemetry, and full control over your data.
 

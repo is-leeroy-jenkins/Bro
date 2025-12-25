@@ -41,16 +41,6 @@
   </summary>
   ******************************************************************************************
   '''
-"""
-******************************************************************************************
-Assembly:                Bro
-Filename:                app.py
-Author:                  Terry D. Eppler
-Created:                 2025-01-01
-Description:             Local-first Streamlit application for the Bro LLM (Gemma-based)
-******************************************************************************************
-"""
-
 import os
 import sqlite3
 import multiprocessing
@@ -79,7 +69,8 @@ CPU_CORES = multiprocessing.cpu_count()
 # ==============================================================================
 st.set_page_config(
     page_title="Bro",
-    layout="wide"
+    layout="wide",
+	page_icon=r'resources/images/favicon.ico'
 )
 
 # ==============================================================================
@@ -88,7 +79,7 @@ st.set_page_config(
 if not MODEL_PATH:
     st.error(
         "❌ **BRO_LLM_PATH is not set**\n\n"
-        "Download the Bro GGUF model and set the environment variable:\n\n"
+        "Download a GGUF model and set the environment variable:\n\n"
         "`BRO_LLM_PATH=/full/path/to/bro-3-1b-it-Q4_K_M.gguf`\n\n"
         f"{HF_MODEL_URL}"
     )
@@ -178,13 +169,13 @@ with st.sidebar:
     st.markdown(
         f"""
         <div style="display:flex; justify-content:center; margin-bottom:10px;">
-            <img src="data:image/png;base64,{logo_b64}" style="width:80px;">
+            <img src="data:image/png;base64,{logo_b64}" style="width:50px;">
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.header("⚙️ Model Parameters")
+    st.header("⚙️ Parameters")
 
     ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512)
     threads = st.slider("CPU Threads", 1, CPU_CORES, max(2, CPU_CORES // 2))
@@ -205,7 +196,7 @@ if "messages" not in st.session_state:
 
 if "system_prompt" not in st.session_state:
     st.session_state.system_prompt = (
-        "You are Bro, a concise and capable assistant optimized for instruction "
+        "You are a helpful assistant who provides concise assistant optimized for instruction "
         "following, contextual comprehension, and structured reasoning."
     )
 
@@ -416,7 +407,7 @@ html(
             width: 100%;
             padding: 6px 12px;
             font-size: 0.8rem;
-            background-color: rgba(15,15,15,1);
+            background-color: rgba(20,20,20,1);
             color: #ddd;
             display: flex;
             justify-content: space-between;
