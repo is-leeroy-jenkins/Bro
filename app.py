@@ -175,7 +175,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    st.header("⚙️ Parameters")
+    st.header("⚙️ Mind Controls")
 
     ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512)
     threads = st.slider("CPU Threads", 1, CPU_CORES, max(2, CPU_CORES // 2))
