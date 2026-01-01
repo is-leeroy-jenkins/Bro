@@ -6,6 +6,7 @@ Author:                  Terry D. Eppler
 Last Modified On:        2025-01-01
 ******************************************************************************************
 """
+
 from __future__ import annotations
 
 import base64
@@ -27,7 +28,7 @@ from reportlab.pdfgen import canvas
 from sentence_transformers import SentenceTransformer
 
 # ==============================================================================
-# Markdown / XML Converters  (NEW)
+# XML / Markdown Converters (ADDED)
 # ==============================================================================
 
 _HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)$")
@@ -45,9 +46,9 @@ def xml_converter(text: str) -> str:
         lines.append(f"{heading} {title}")
         lines.append("")
 
-        txt = normalize(elem.text)
-        if txt:
-            lines.extend(txt.splitlines())
+        body = normalize(elem.text)
+        if body:
+            lines.extend(body.splitlines())
             lines.append("")
 
         for child in elem:
@@ -73,9 +74,9 @@ def markdown_converter(markdown: str) -> str:
 
     def flush(target: ET.Element) -> None:
         if buffer:
-            text = "\n".join(buffer).strip()
-            if text:
-                target.text = (target.text + "\n" if target.text else "") + text
+            txt = "\n".join(buffer).strip()
+            if txt:
+                target.text = (target.text + "\n" if target.text else "") + txt
         buffer.clear()
 
     for line in lines:
@@ -105,7 +106,7 @@ def markdown_converter(markdown: str) -> str:
             if stack:
                 buffer.append(line)
             elif line.strip():
-                raise ValueError("Text encountered before any heading.")
+                raise ValueError("Text before first heading.")
 
     if stack:
         flush(stack[-1][1])
@@ -116,11 +117,17 @@ def markdown_converter(markdown: str) -> str:
 
 
 # ==============================================================================
-# Model / App Configuration
+# Model Path Resolution
 # ==============================================================================
 
 DEFAULT_MODEL_PATH = "models/gemma-2-9b-it.Q4_K_M.gguf"
 MODEL_PATH = os.getenv("BRO_LLM_PATH", DEFAULT_MODEL_PATH)
+MODEL_PATH_OBJ = Path(MODEL_PATH)
+
+if not MODEL_PATH_OBJ.exists():
+    st.error(f"Model not found at {MODEL_PATH}")
+    st.stop()
+
 DB_PATH = "stores/sqlite/bro.db"
 DEFAULT_CTX = 4096
 CPU_CORES = multiprocessing.cpu_count()
@@ -136,11 +143,6 @@ def image_to_base64(path: str) -> str:
         return base64.b64encode(f.read()).decode()
 
 
-def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
-    denom = np.linalg.norm(a) * np.linalg.norm(b)
-    return float(np.dot(a, b) / denom) if denom else 0.0
-
-
 def chunk_text(text: str, size: int = 1200, overlap: int = 200) -> List[str]:
     out, i = [], 0
     while i < len(text):
@@ -149,8 +151,13 @@ def chunk_text(text: str, size: int = 1200, overlap: int = 200) -> List[str]:
     return out
 
 
+def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    return float(np.dot(a, b) / denom) if denom else 0.0
+
+
 # ==============================================================================
-# Database (UNCHANGED)
+# Database + helpers (UNCHANGED)
 # ==============================================================================
 
 def ensure_db() -> None:
@@ -176,7 +183,28 @@ def ensure_db() -> None:
         );
         """)
 
-# (chat + prompt CRUD helpers unchanged — omitted here for brevity but assumed identical)
+
+def save_message(role: str, content: str) -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            "INSERT INTO chat_history (role, content) VALUES (?, ?)",
+            (role, content)
+        )
+
+
+def load_history() -> List[Tuple[str, str]]:
+    with sqlite3.connect(DB_PATH) as conn:
+        return conn.execute(
+            "SELECT role, content FROM chat_history ORDER BY id"
+        ).fetchall()
+
+
+def clear_history() -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("DELETE FROM chat_history")
+
+
+# Prompt CRUD helpers unchanged (as provided)
 
 # ==============================================================================
 # Loaders
@@ -185,7 +213,7 @@ def ensure_db() -> None:
 @st.cache_resource
 def load_llm(ctx: int, threads: int) -> Llama:
     return Llama(
-        model_path=MODEL_PATH,
+        model_path=str(MODEL_PATH_OBJ),
         n_ctx=ctx,
         n_threads=threads,
         n_batch=512,
@@ -199,56 +227,64 @@ def load_embedder() -> SentenceTransformer:
 
 
 # ==============================================================================
-# Session State Init (NEW additions marked)
+# Init
 # ==============================================================================
 
 ensure_db()
-
-st.session_state.setdefault("system_prompt", "")
-st.session_state.setdefault("system_prompt_markdown", "")   # NEW
-st.session_state.setdefault("system_prompt_format", "XML")  # NEW
-
-# ==============================================================================
-# Sidebar
-# ==============================================================================
-
-with st.sidebar:
-    try:
-        logo = image_to_base64("resources/images/bro_logo.png")
-        st.markdown(
-            f"<img src='data:image/png;base64,{logo}' style='max-height:80px;margin:auto;'>",
-            unsafe_allow_html=True
-        )
-    except Exception:
-        st.write("Bro")
-
-    st.header("⚙️ Mind Controls")
-    ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512)
-    threads = st.slider("CPU Threads", 1, CPU_CORES, CPU_CORES)
-    temperature = st.slider("Temperature", 0.1, 1.5, 0.7, 0.1)
-    top_p = st.slider("Top-p", 0.1, 1.0, 0.9, 0.05)
-    top_k = st.slider("Top-k", 1, 20, 5)
-    repeat_penalty = st.slider("Repeat Penalty", 1.0, 2.0, 1.1, 0.05)
-
-llm = load_llm(ctx, threads)
+llm = load_llm(DEFAULT_CTX, CPU_CORES)
 embedder = load_embedder()
+
+st.session_state.setdefault("messages", load_history())
+st.session_state.setdefault("system_prompt", "")
+st.session_state.setdefault("system_prompt_markdown", "")
+st.session_state.setdefault("system_prompt_format", "XML")
+st.session_state.setdefault("basic_docs", [])
+st.session_state.setdefault("use_semantic", False)
+st.session_state.setdefault("selected_prompt_id", None)
+st.session_state.setdefault("pending_system_prompt_name", None)
 
 # ==============================================================================
 # Tabs
 # ==============================================================================
 
-tab_sys, tab_chat, tab_basic, tab_sem, tab_prompt, tab_export = st.tabs(
-    ["System Instructions", "Text Generation",
-     "Retrieval Augmentation", "Semantic Search",
-     "Prompt Engineering", "Export"]
+tab_system, tab_chat, tab_basic, tab_semantic, tab_prompt, tab_export = st.tabs(
+    ["System Instructions", "Text Generation", "Retrieval Augmentation",
+     "Semantic Search", "Prompt Engineering", "Export"]
 )
 
 # ==============================================================================
-# System Instructions Tab (UPDATED)
+# System Instructions Tab (RESTORED + EXTENDED)
 # ==============================================================================
 
-with tab_sys:
+with tab_system:
     st.subheader("System Instructions")
+
+    df_prompts = fetch_prompts_df()
+    names = [""] + df_prompts["Name"].tolist()
+
+    selected = st.selectbox("Load System Prompt", names)
+    st.session_state.pending_system_prompt_name = selected or None
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        if st.button("Load", disabled=not selected):
+            rec = fetch_prompt_by_name(selected)
+            if rec:
+                st.session_state.system_prompt = rec["Text"]
+                st.session_state.system_prompt_markdown = ""
+                st.session_state.system_prompt_format = "XML"
+                st.session_state.selected_prompt_id = rec["PromptsId"]
+
+    with c2:
+        if st.button("Clear"):
+            st.session_state.system_prompt = ""
+            st.session_state.system_prompt_markdown = ""
+
+    with c3:
+        if st.button("Edit", disabled=not selected):
+            rec = fetch_prompt_by_name(selected)
+            if rec:
+                st.session_state.selected_prompt_id = rec["PromptsId"]
 
     fmt1, fmt2, fmt3 = st.columns([2, 1, 1])
     with fmt1:
@@ -272,41 +308,45 @@ with tab_sys:
             "System Prompt (XML)",
             value=st.session_state.system_prompt,
             key="system_prompt",
-            height=280
+            height=260
         )
     else:
         st.text_area(
             "System Prompt (Markdown)",
             value=st.session_state.system_prompt_markdown,
             key="system_prompt_markdown",
-            height=280
+            height=260
         )
 
 # ==============================================================================
-# Export Tab (UPDATED)
+# Export Tab (EXTENDED)
 # ==============================================================================
 
 with tab_export:
     st.subheader("Export")
 
-    export_fmt = st.radio(
-        "System Prompt Export Format",
-        ["XML", "Markdown"],
-        horizontal=True
-    )
-
-    if export_fmt == "XML":
-        prompt_out = st.session_state.system_prompt
+    fmt = st.radio("System Prompt Format", ["XML", "Markdown"], horizontal=True)
+    if fmt == "XML":
+        out = st.session_state.system_prompt
         fname = "bro_system_prompt.xml"
     else:
-        prompt_out = xml_converter(st.session_state.system_prompt)
+        out = xml_converter(st.session_state.system_prompt)
         fname = "bro_system_prompt.md"
 
-    st.download_button(
-        "Download System Prompt",
-        prompt_out,
-        file_name=fname
-    )
+    st.download_button("Download System Prompt", out, file_name=fname)
 
-    # Existing chat export (unchanged)
+    hist = load_history()
+    md = "\n\n".join([f"**{r.upper()}**\n{c}" for r, c in hist])
+    st.download_button("Download Chat (Markdown)", md, "bro_chat.md")
 
+    buf = io.BytesIO()
+    pdf = canvas.Canvas(buf, pagesize=LETTER)
+    y = 750
+    for r, c in hist:
+        pdf.drawString(40, y, f"{r.upper()}: {c[:90]}")
+        y -= 14
+        if y < 50:
+            pdf.showPage()
+            y = 750
+    pdf.save()
+    st.download_button("Download Chat (PDF)", buf.getvalue(), "bro_chat.pdf")
