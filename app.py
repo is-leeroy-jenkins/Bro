@@ -33,6 +33,14 @@ from sentence_transformers import SentenceTransformer
 
 _HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)$")
 
+def fetch_prompts_df() -> pd.DataFrame:
+    with sqlite3.connect(DB_PATH) as conn:
+        df = pd.read_sql_query(
+            "SELECT PromptsId, Name, Version, ID FROM Prompts ORDER BY PromptsId DESC",
+            conn
+        )
+    df.insert(0, "Selected", False)
+    return df
 
 def xml_converter(text: str) -> str:
     def normalize(value: str | None) -> str:
