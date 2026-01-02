@@ -195,7 +195,7 @@ with st.sidebar:
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.85rem;
             ">
                 <img src="data:image/png;base64,{logo_b64}"
                      style="max-height: 50px;" />
@@ -207,6 +207,9 @@ with st.sidebar:
         st.write("Bro")
 
     st.header("⚙️ Mind Controls")
+    max_tokens = st.slider( "Max Tokens", min_value=128, max_value=14096, value=10024, step=128,
+	    help="Maximum number of tokens generated per response")
+
     ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512)
     threads = st.slider("CPU Threads", 1, CPU_CORES, CPU_CORES)
     temperature = st.slider("Temperature", 0.1, 1.5, 0.7, 0.1)
@@ -216,7 +219,6 @@ with st.sidebar:
     typical_p = st.slider("Typical P", 0.1, 1.0, 1.0, 0.05)
     presence_penalty = st.slider("Presence Penalty", 0.0, 2.0, 0.0, 0.1)
     frequency_penalty = st.slider("Frequency Penalty", 0.0, 2.0, 0.0, 0.1)
-
 # ==============================================================================
 # Init
 # ==============================================================================
@@ -264,12 +266,12 @@ def build_prompt(user_input: str) -> str:
     return prompt
 
 # ==============================================================================
-# System Instructions Tab (SELF-CONTAINED, FIXED STATE OWNERSHIP)
+# System Instructions Tab (WITH XML ⇄ MARKDOWN CONVERSION)
 # ==============================================================================
 with tab_system:
     st.subheader("System Instructions")
 
-    # ---- Load prompt names directly (no helper dependency) ----
+    # ---- Load prompt names ----
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
@@ -290,6 +292,7 @@ with tab_system:
         selected_name if selected_name else None
     )
 
+    # ---- Controls ----
     col_load, col_clear, col_edit = st.columns(3)
 
     with col_load:
@@ -315,7 +318,6 @@ with tab_system:
                 (st.session_state.pending_system_prompt_name,)
             )
             row = cur.fetchone()
-
         if row:
             st.session_state.selected_prompt_id = row[0]
             st.session_state.system_prompt = row[1] or ""
@@ -334,13 +336,43 @@ with tab_system:
         if row:
             st.session_state.selected_prompt_id = row[0]
 
-    # ---- IMPORTANT FIX ----
-    # The text area owns NO default/value.
-    # It is bound purely via session state.
+    # --------------------------------------------------------------------------
+    # XML ⇄ Markdown Conversion Controls (DROP-IN)
+    # --------------------------------------------------------------------------
+    st.markdown("### Format Tools")
+
+    fmt_col, btn_col = st.columns([3, 1])
+
+    with fmt_col:
+        view_format = st.radio(
+            "View / Edit Format",
+            ["XML (Canonical)", "Markdown (Readable)"],
+            horizontal=True,
+            key="system_prompt_format"
+        )
+
+    with btn_col:
+        convert_clicked = st.button("Convert")
+
+    if convert_clicked:
+        try:
+            current_text = st.session_state.system_prompt or ""
+
+            if view_format.startswith("Markdown"):
+                # XML → Markdown
+                st.session_state.system_prompt = xml_converter(current_text)
+            else:
+                # Markdown → XML
+                st.session_state.system_prompt = markdown_converter(current_text)
+
+        except Exception as ex:
+            st.error(f"Conversion failed: {ex}")
+
+    # ---- System Prompt Text Area (single ownership) ----
     st.text_area(
         "System Prompt",
         key="system_prompt",
-        height=260
+        height=300
     )
 
 # ==============================================================================
@@ -364,7 +396,7 @@ with tab_chat:
         prompt = build_prompt(user_input)
         with st.chat_message("assistant"):
             out, buf = st.empty(), ""
-            for chunk in llm(prompt, stream=True, max_tokens=1024,
+            for chunk in llm(prompt, stream=True, max_tokens=max_tokens,
                               temperature=temperature, top_p=top_p,
                               repeat_penalty=repeat_penalty, stop=["</s>"]):
                 buf += chunk["choices"][0]["text"]
@@ -527,3 +559,41 @@ with tab_export:
             y = 750
     pdf.save()
     st.download_button("Download PDF", buf.getvalue(), "bro_chat.pdf")
+
+def render_footer() -> None:
+    footer_text = (
+        f"⚙️ ctx={ctx} · "
+        f"threads={threads} · "
+        f"temp={temperature:.2f} · "
+        f"top_p={top_p:.2f} · "
+        f"top_k={top_k} · "
+        f"repeat={repeat_penalty:.2f}"
+        f" · max_tokens={max_tokens}"
+    )
+
+    st.markdown(
+        f"""
+        <style>
+        .bro-footer {{
+            text-align: right;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(20, 20, 20, 0.95);
+            color: #d0d0d0;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.75rem;
+            border-top: 1px solid #333;
+            z-index: 100;
+        }}
+        </style>
+
+        <div class="bro-footer">
+            {footer_text}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+render_footer( )
