@@ -55,6 +55,8 @@ st.set_page_config(
 # ==============================================================================
 # Utilities
 # ==============================================================================
+_HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)$")
+
 def image_to_base64(path: str) -> str:
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
@@ -70,7 +72,7 @@ def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
     denom = np.linalg.norm(a) * np.linalg.norm(b)
     return float(np.dot(a, b) / denom) if denom else 0.0
 
-def xml_to_markdown(xml_text: str) -> str:
+def xml_converter(xml_text: str) -> str:
     """
     
 	    Purpose:
@@ -129,6 +131,86 @@ def xml_to_markdown(xml_text: str) -> str:
         output.pop()
 
     return "\n".join(output)
+
+def markdown_converter(markdown: str) -> str:
+    """
+	    
+	    Purpose:
+	        Convert Markdown-formatted system instructions back into
+	        XML-delimited instructions.
+	
+	    Parameters:
+	        markdown (str):
+	            Markdown text containing hierarchical headings and body text.
+	
+	    Returns:
+	        str:
+	            XML-formatted system instruction text.
+	            
+    """
+
+    lines = markdown.splitlines()
+
+    # Stack of (heading_level, xml_element)
+    stack: List[Tuple[int, ET.Element]] = []
+    buffer: List[str] = []
+
+    root: ET.Element | None = None
+
+    def flush(target: ET.Element) -> None:
+        if buffer:
+            text = "\n".join(buffer).strip()
+            if text:
+                if target.text:
+                    target.text += "\n" + text
+                else:
+                    target.text = text
+        buffer.clear()
+
+    for line in lines:
+        line = line.rstrip()
+
+        match = _HEADING_RE.match(line)
+        if match:
+            hashes, title = match.groups()
+            level = len(hashes)
+            tag = title.lower().replace(" ", "_")
+
+            element = ET.Element(tag)
+
+            # Root element
+            if root is None:
+                root = element
+                stack.append((level, element))
+                continue
+
+            # Close elements until a valid parent is found
+            while stack and stack[-1][0] >= level:
+                flush(stack[-1][1])
+                stack.pop()
+
+            if not stack:
+                raise ValueError(f"Invalid heading structure near: {line}")
+
+            parent = stack[-1][1]
+            parent.append(element)
+            stack.append((level, element))
+        else:
+            if stack:
+                buffer.append(line)
+            elif line.strip():
+                raise ValueError(
+                    "Text encountered before any heading; invalid Markdown structure."
+                )
+
+    # Flush remaining text
+    if stack:
+        flush(stack[-1][1])
+
+    if root is None:
+        raise ValueError("No headings found; cannot construct XML.")
+
+    return ET.tostring(root, encoding="unicode")
 
 # ==============================================================================
 # Database (UNCHANGED SCHEMA)
