@@ -57,7 +57,13 @@ st.set_page_config(
 # ==============================================================================
 # Utilities
 # ==============================================================================
-_HEADING_RE = re.compile(r"^(#{2,6})\s+(.*)$")
+
+_HEADING_RE = re.compile(r"^##\s+(?P<title>.+?)\s*$")
+
+_TAG_BLOCK_RE = re.compile(
+    r"<(?P<tag>[a-zA-Z0-9_:-]+)>(?P<body>.*?)</\1>",
+    re.DOTALL,
+)
 
 def image_to_base64(path: str) -> str:
     with open(path, "rb") as f:
@@ -74,145 +80,103 @@ def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
     denom = np.linalg.norm(a) * np.linalg.norm(b)
     return float(np.dot(a, b) / denom) if denom else 0.0
 
-def xml_converter(xml_text: str) -> str:
+def xml_converter(text: str) -> str:
     """
-    
-	    Purpose:
-	        Convert XML-delimited system instructions into a Markdown document
-	        suitable for editing, review, or export.
-	
-	    Parameters:
-	        xml_text (str):
-	            XML-formatted system instruction text.
-	
-	    Returns:
-	        str:
-	            Markdown-formatted representation of the XML structure.
-	            
+    Purpose:
+        Convert XML-delimited prompt text into a readable Markdown format
+        by treating tags as section delimiters rather than strict XML.
+
+    Parameters:
+        text (str):
+            Prompt text containing XML-like opening and closing tags.
+
+    Returns:
+        str:
+            Markdown-formatted text with tags converted to headings.
     """
 
-    def normalize(value: str | None) -> str:
-        return value.strip() if value else ""
+    markdown_blocks: List[str] = []
 
-    def render(elem: ET.Element, depth: int = 2) -> List[str]:
-        lines: List[str] = []
+    for match in _TAG_BLOCK_RE.finditer(text):
+        raw_tag: str = match.group("tag")
+        body: str = match.group("body").strip()
 
-        heading = "#" * min(depth, 6)
-        title = elem.tag.replace("_", " ").strip()
+        # Humanize tag name
+        title: str = raw_tag.replace("_", " ").replace("-", " ").title()
 
-        # Section heading
-        lines.append(f"{heading} {title}")
-        lines.append("")
-
-        # Element body text
-        body = normalize(elem.text)
+        markdown_blocks.append(f"## {title}")
         if body:
-            for line in body.splitlines():
-                lines.append(line.rstrip())
-            lines.append("")
+            markdown_blocks.append(body)
 
-        # Child elements
-        for child in elem:
-            lines.extend(render(child, depth + 1))
+    return "\n\n".join(markdown_blocks)
 
-            tail = normalize(child.tail)
-            if tail:
-                for line in tail.splitlines():
-                    lines.append(line.rstrip())
-                lines.append("")
 
-        return lines
 
-    root = ET.fromstring(xml_text)
+def markdown_converter(markdown: str) -> str:
+    """
+    Purpose:
+        Convert Markdown-formatted system instructions into XML-delimited
+        prompt text by treating level-2 headings as section delimiters.
 
+    Parameters:
+        markdown (str):
+            Markdown text using '##' headings to indicate sections.
+
+    Returns:
+        str:
+            XML-delimited text suitable for storage in the prompt database.
+    """
+
+    lines: List[str] = markdown.splitlines()
     output: List[str] = []
-    output.extend(render(root))
 
-    # Trim trailing whitespace
+    current_tag: str | None = None
+    buffer: List[str] = []
+
+    def flush() -> None:
+        """
+        Emit the currently buffered section as an XML-delimited block.
+        """
+        nonlocal current_tag, buffer
+
+        if current_tag is None:
+            return
+
+        body: str = "\n".join(buffer).strip()
+
+        output.append(f"<{current_tag}>")
+        if body:
+            output.append(body)
+        output.append(f"</{current_tag}>")
+        output.append("")
+
+        buffer.clear()
+
+    for line in lines:
+        match = _HEADING_RE.match(line)
+
+        if match:
+            flush()
+
+            title: str = match.group("title")
+            current_tag = (
+                title.strip()
+                .lower()
+                .replace(" ", "_")
+                .replace("-", "_")
+            )
+        else:
+            if current_tag is not None:
+                buffer.append(line)
+
+    flush()
+
+    # Remove trailing blank lines
     while output and not output[-1].strip():
         output.pop()
 
     return "\n".join(output)
 
-def markdown_converter(markdown: str) -> str:
-    """
-	    
-	    Purpose:
-	        Convert Markdown-formatted system instructions back into
-	        XML-delimited instructions.
-	
-	    Parameters:
-	        markdown (str):
-	            Markdown text containing hierarchical headings and body text.
-	
-	    Returns:
-	        str:
-	            XML-formatted system instruction text.
-	            
-    """
-
-    lines = markdown.splitlines()
-
-    # Stack of (heading_level, xml_element)
-    stack: List[Tuple[int, ET.Element]] = []
-    buffer: List[str] = []
-
-    root: ET.Element | None = None
-
-    def flush(target: ET.Element) -> None:
-        if buffer:
-            text = "\n".join(buffer).strip()
-            if text:
-                if target.text:
-                    target.text += "\n" + text
-                else:
-                    target.text = text
-        buffer.clear()
-
-    for line in lines:
-        line = line.rstrip()
-
-        match = _HEADING_RE.match(line)
-        if match:
-            hashes, title = match.groups()
-            level = len(hashes)
-            tag = title.lower().replace(" ", "_")
-
-            element = ET.Element(tag)
-
-            # Root element
-            if root is None:
-                root = element
-                stack.append((level, element))
-                continue
-
-            # Close elements until a valid parent is found
-            while stack and stack[-1][0] >= level:
-                flush(stack[-1][1])
-                stack.pop()
-
-            if not stack:
-                raise ValueError(f"Invalid heading structure near: {line}")
-
-            parent = stack[-1][1]
-            parent.append(element)
-            stack.append((level, element))
-        else:
-            if stack:
-                buffer.append(line)
-            elif line.strip():
-                raise ValueError(
-                    "Text encountered before any heading; invalid Markdown structure."
-                )
-
-    # Flush remaining text
-    if stack:
-        flush(stack[-1][1])
-
-    if root is None:
-        raise ValueError("No headings found; cannot construct XML.")
-
-    return ET.tostring(root, encoding="unicode")
 
 # ==============================================================================
 # Database (UNCHANGED SCHEMA)
