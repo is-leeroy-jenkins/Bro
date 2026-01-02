@@ -25,6 +25,7 @@ from reportlab.lib.pagesizes import LETTER
 import re
 from reportlab.pdfgen import canvas
 from sentence_transformers import SentenceTransformer
+import xml.etree.ElementTree as ET
 
 # ==============================================================================
 # Model Path Resolution (CHANGED: Gemma)
