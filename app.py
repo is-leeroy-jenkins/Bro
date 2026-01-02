@@ -70,6 +70,66 @@ def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
     denom = np.linalg.norm(a) * np.linalg.norm(b)
     return float(np.dot(a, b) / denom) if denom else 0.0
 
+def xml_to_markdown(xml_text: str) -> str:
+    """
+    
+	    Purpose:
+	        Convert XML-delimited system instructions into a Markdown document
+	        suitable for editing, review, or export.
+	
+	    Parameters:
+	        xml_text (str):
+	            XML-formatted system instruction text.
+	
+	    Returns:
+	        str:
+	            Markdown-formatted representation of the XML structure.
+	            
+    """
+
+    def normalize(value: str | None) -> str:
+        return value.strip() if value else ""
+
+    def render(elem: ET.Element, depth: int = 2) -> List[str]:
+        lines: List[str] = []
+
+        heading = "#" * min(depth, 6)
+        title = elem.tag.replace("_", " ").strip()
+
+        # Section heading
+        lines.append(f"{heading} {title}")
+        lines.append("")
+
+        # Element body text
+        body = normalize(elem.text)
+        if body:
+            for line in body.splitlines():
+                lines.append(line.rstrip())
+            lines.append("")
+
+        # Child elements
+        for child in elem:
+            lines.extend(render(child, depth + 1))
+
+            tail = normalize(child.tail)
+            if tail:
+                for line in tail.splitlines():
+                    lines.append(line.rstrip())
+                lines.append("")
+
+        return lines
+
+    root = ET.fromstring(xml_text)
+
+    output: List[str] = []
+    output.extend(render(root))
+
+    # Trim trailing whitespace
+    while output and not output[-1].strip():
+        output.pop()
+
+    return "\n".join(output)
+
 # ==============================================================================
 # Database (UNCHANGED SCHEMA)
 # ==============================================================================
@@ -210,15 +270,21 @@ with st.sidebar:
     max_tokens = st.slider( "Max Tokens", min_value=128, max_value=14096, value=10024, step=128,
 	    help="Maximum number of tokens generated per response")
 
-    ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512)
-    threads = st.slider("CPU Threads", 1, CPU_CORES, CPU_CORES)
-    temperature = st.slider("Temperature", 0.1, 1.5, 0.7, 0.1)
-    top_p = st.slider("Top-p", 0.1, 1.0, 0.9, 0.05)
-    top_k = st.slider("Top-k", 1, 20, 5)
-    repeat_penalty = st.slider("Repeat Penalty", 1.0, 2.0, 1.1, 0.05)
-    typical_p = st.slider("Typical P", 0.1, 1.0, 1.0, 0.05)
-    presence_penalty = st.slider("Presence Penalty", 0.0, 2.0, 0.0, 0.1)
-    frequency_penalty = st.slider("Frequency Penalty", 0.0, 2.0, 0.0, 0.1)
+    ctx = st.slider("Context Window", 2048, 8192, DEFAULT_CTX, 512,
+	    help="Maximum number of tokens the model can consider at once, including system instructions, history, and context")
+    threads = st.slider("CPU Threads", 1, CPU_CORES, CPU_CORES,
+	    help="Number of CPU threads used for inference; higher values improve speed but increase CPU usage" )
+    temperature = st.slider("Temperature", 0.1, 1.5, 0.7, 0.1,
+	    help="Controls randomness in generation; lower values are more deterministic, higher values increase creativity")
+    top_p = st.slider("Top-p", 0.1, 1.0, 0.9, 0.05,
+	    help="Nucleus sampling threshold; limits token selection to the smallest set whose cumulative probability exceeds this value")
+    top_k = st.slider("Top-k", 1, 20, 5, help="Limits token selection to the top K most probable tokens at each step")
+    repeat_penalty = st.slider("Repeat Penalty", 1.0, 2.0, 1.1, 0.05,
+	    help="Penalizes repeated tokens to reduce looping and redundant responses")
+    typical_p = st.slider("Typical P", 0.1, 1.0, 1.0, 0.05,
+	    help="Typical sampling threshold; reduces unlikely token choices while preserving coherent variation")
+    presence_penalty = st.slider("Presence Penalty", 0.0, 2.0, 0.0, 0.1, help="Encourages introducing new topics by penalizing tokens already present in the context")
+    frequency_penalty = st.slider("Frequency Penalty", 0.0, 2.0, 0.0, 0.1, help="Reduces repetition by penalizing tokens based on how frequently they have appeared")
 # ==============================================================================
 # Init
 # ==============================================================================
