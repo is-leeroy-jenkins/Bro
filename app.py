@@ -22,6 +22,7 @@ import pandas as pd
 import streamlit as st
 from llama_cpp import Llama
 from reportlab.lib.pagesizes import LETTER
+import re
 from reportlab.pdfgen import canvas
 from sentence_transformers import SentenceTransformer
 
