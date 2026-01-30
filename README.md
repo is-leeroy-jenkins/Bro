@@ -22,7 +22,6 @@ Bro is intentionally lightweight making it ideal for **everyday analysis, drafti
 * 🖥️ **CPU-friendly and fast**
 
 
-
 ## 🧠 Sup with Bro
 
 A fine-tuned variant of Google's **Gemma-3-1B-IT**, optimized for:
