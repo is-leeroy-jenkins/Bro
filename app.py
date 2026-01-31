@@ -264,7 +264,7 @@ def clear_history( ) -> None:
 		conn.execute( "DELETE FROM chat_history" )
 
 # ==============================================================================
-# Prompt DB helpers (UNCHANGED)
+# Prompt DB helpers
 # ==============================================================================
 def fetch_prompts_df( ) -> pd.DataFrame:
 	with sqlite3.connect( DB_PATH ) as conn:
@@ -312,7 +312,7 @@ def delete_prompt( pid: int ) -> None:
 		conn.execute( "DELETE FROM Prompts WHERE PromptsId=?", (pid,) )
 
 # ==============================================================================
-# Loaders (UNCHANGED)
+# Loaders
 # ==============================================================================
 @st.cache_resource
 def load_llm( ctx: int, threads: int ) -> Llama:
@@ -383,7 +383,7 @@ st.session_state.setdefault( "selected_prompt_id", None )
 st.session_state.setdefault( "pending_system_prompt_name", None )
 
 # ==============================================================================
-# Tabs (UNCHANGED order & behavior)
+# Tabs
 # ==============================================================================
 tab_system, tab_chat, tab_basic, tab_semantic, tab_prompt, tab_export = st.tabs(
 	[ "System Instructions",
@@ -395,7 +395,7 @@ tab_system, tab_chat, tab_basic, tab_semantic, tab_prompt, tab_export = st.tabs(
 )
 
 # ==============================================================================
-# Prompt Builder (UNCHANGED)
+# Prompt Builder
 # ==============================================================================
 def build_prompt( user_input: str ) -> str:
 	prompt = f"<|system|>\n{st.session_state.system_prompt}\n</s>\n"
@@ -490,7 +490,7 @@ with tab_system:
 			st.session_state.selected_prompt_id = row[ 0 ]
 	
 	# --------------------------------------------------------------------------
-	# XML ⇄ Markdown Conversion Controls (DROP-IN)
+	# XML ⇄ Markdown Conversion Controls
 	# --------------------------------------------------------------------------
 	st.markdown( "### Format Tools" )
 	
@@ -531,7 +531,7 @@ with tab_system:
 	)
 
 # ==============================================================================
-# Text Generation Tab (UNCHANGED)
+# Text Generation Tab
 # ==============================================================================
 with tab_chat:
 	if st.button( "🧹 Clear Chat" ):
@@ -562,7 +562,7 @@ with tab_chat:
 		st.session_state.messages.append( ("assistant", buf) )
 
 # ==============================================================================
-# Retrieval Augmentation Tab (UNCHANGED)
+# Retrieval Augmentation Tab
 # ==============================================================================
 with tab_basic:
 	files = st.file_uploader( "Upload documents", accept_multiple_files=True )
@@ -573,7 +573,7 @@ with tab_basic:
 		st.success( f"{len( st.session_state.basic_docs )} chunks loaded" )
 
 # ==============================================================================
-# Semantic Search Tab (UNCHANGED)
+# Semantic Search Tab
 # ==============================================================================
 with tab_semantic:
 	st.session_state.use_semantic = st.checkbox(
@@ -595,7 +595,7 @@ with tab_semantic:
 		st.success( "Semantic index built" )
 
 # ==============================================================================
-# Prompt Engineering Tab (SELF-CONTAINED)
+# Prompt Engineering Tab (
 # ==============================================================================
 with tab_prompt:
 	st.subheader( "Prompt Engineering" )
@@ -711,7 +711,7 @@ with tab_prompt:
 		st.rerun( )
 
 # ==============================================================================
-# Export Tab (CHANGED filenames only)
+# Export Tab
 # ==============================================================================
 with tab_export:
 	hist = load_history( )
