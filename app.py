@@ -63,8 +63,10 @@ from sentence_transformers import SentenceTransformer
 import xml.etree.ElementTree as ET
 
 # ==============================================================================
-# Model Path Resolution (CHANGED: Gemma)
+# Model Path Resolution
 # ==============================================================================
+LOGO = r'resources/bro_logo.ico'
+FAVICON = r'resources/images/favicon.ico'
 DEFAULT_MODEL_PATH = "models/gemma-2-9b-it.Q4_K_M.gguf"
 MODEL_PATH = os.getenv( "BRO_LLM_PATH", DEFAULT_MODEL_PATH )
 MODEL_PATH_OBJ = Path( MODEL_PATH )
@@ -83,10 +85,11 @@ CPU_CORES = multiprocessing.cpu_count( )
 # ==============================================================================
 # Streamlit Config (CHANGED: title)
 # ==============================================================================
+st.logo( LOGO, size='large' )
 st.set_page_config(
 	page_title="Bro",
 	layout="wide",
-	page_icon="resources/images/favicon.ico"
+	page_icon=FAVICON
 )
 
 # ==============================================================================
@@ -326,29 +329,10 @@ def load_embedder( ) -> SentenceTransformer:
 	return SentenceTransformer( "all-MiniLM-L6-v2" )
 
 # ==============================================================================
-# Sidebar (CHANGED: logo optional)
+# Sidebar
 # ==============================================================================
 with st.sidebar:
-	try:
-		logo_b64 = image_to_base64( "resources/images/bro_logo.png" )
-		st.markdown(
-			f"""
-            <div style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin-bottom: 0.85rem;
-            ">
-                <img src="data:image/png;base64,{logo_b64}"
-                     style="max-height: 50px;" />
-            </div>
-            """,
-			unsafe_allow_html=True
-		)
-	except Exception:
-		st.write( "Bro" )
-	
-	st.header( "⚙️ Mind Controls" )
+	st.subheader( "⚙️ Mind Controls" )
 	max_tokens = st.slider( "Max Tokens", min_value=128, max_value=14096, value=10024, step=128,
 		help="Maximum number of tokens generated per response" )
 	
