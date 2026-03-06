@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Bro-Py" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Bro-Py" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="python ( bro )" project-jdk-type="Python SDK" />
 </project>

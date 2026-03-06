@@ -1,4 +1,10 @@
-numpy
-llama_cpp_python
+llama-cpp-python
 sentence-transformers
-reportlab
+numpy>=1.26.0
+pandas
+reportlab>=4.0.8
+plotly-express
+pydantic
+typing_extensions
+pymupdf
+sqlite-vec
