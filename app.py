@@ -1786,7 +1786,7 @@ def build_document_user_input( user_query: str, k: int = 6 ) -> str:
 
 @st.cache_resource
 def load_llm( ctx: int, threads: int ) -> Llama:
-	return Llama( model_path=str( MODEL_PATH_OBJ ), n_ctx=ctx, n_threads=threads, n_batch=512,
+	return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx, n_threads=threads, n_batch=512,
 		verbose=False )
 
 @st.cache_resource
