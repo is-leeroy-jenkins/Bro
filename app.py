@@ -51,7 +51,7 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-import pymupdf
+import fitz
 import numpy as np
 import pandas as pd
 import plotly.express as px
