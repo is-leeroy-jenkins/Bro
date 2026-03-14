@@ -51,7 +51,6 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-
 import fitz  # pymupdf
 import numpy as np
 import pandas as pd
@@ -59,7 +58,6 @@ import plotly.express as px
 import streamlit as st
 from llama_cpp import Llama
 from sentence_transformers import SentenceTransformer
-
 import config as cfg
 
 # ==============================================================================
