@@ -46,6 +46,7 @@ import re
 import multiprocessing
 
 # ---------- DEFINITIONS -------------------
+
 BRO_LLM_PATH = os.getenv( 'BRO_LLM_PATH' )
 BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:6px 0 10px 0;'></div>"
 APP_TITLE = 'Bro'
@@ -63,6 +64,7 @@ MODES = [ 'Text Generation', 'Document Q&A', 'Semantic Search',
           'Prompt Engineering', 'Data Management' ]
 
 # ---------- DEFINITIONS -------------------
+
 SYSTEM_INSTRUCTIONS = r'''Optional. Gives the model high-level instructions on how it should behave while
 		generating a response, including tone, goals, and examples of correct responses. Any
 		instructions provided this way will take priority over a prompt in the input parameter.'''
