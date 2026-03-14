@@ -49,7 +49,7 @@ import multiprocessing
 BRO_LLM_PATH = os.getenv( 'BRO_LLM_PATH' )
 BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:6px 0 10px 0;'></div>"
 APP_TITLE = 'Bro'
-APP_SUBTITLE = 'An AI based on Gemma 3'
+APP_SUBTITLE = 'Local AI based on Gemma 3'
 BASE_DIR = os.path.dirname( os.path.abspath( __file__ ) )
 DB_PATH = 'stores/sqlite/bro.db'
 MODEL_PATH = 'models/bro-3-1b-it-Q4_K_M.gguf'

@@ -1456,7 +1456,7 @@ def summarize_active_document( ) -> str:
 	
 	return route_document_query( summary_prompt.strip( ) )
 
-def _docqna_compute_fingerprint( active_docs: List[ str ], doc_bytes: Dict[ str, bytes ] ) -> str:
+def compute_fingerprint( active_docs: List[ str ], doc_bytes: Dict[ str, bytes ] ) -> str:
 	'''
 		
 		Purpose:
@@ -1483,7 +1483,7 @@ def _docqna_compute_fingerprint( active_docs: List[ str ], doc_bytes: Dict[ str,
 		h.update( hashlib.sha256( b ).digest( ) )
 	return h.hexdigest( )
 
-def _docqna_extract_text_from_pdf_bytes( file_bytes: bytes ) -> str:
+def extract_text( file_bytes: bytes ) -> str:
 	'''
 	
 		Purpose:
@@ -1512,7 +1512,7 @@ def _docqna_extract_text_from_pdf_bytes( file_bytes: bytes ) -> str:
 	except Exception:
 		return ''
 
-def _docqna_safe_load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
+def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	'''
 		
 		Purpose:
@@ -1537,7 +1537,7 @@ def _docqna_safe_load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	except Exception:
 		return False
 
-def _docqna_ensure_vec_schema( dim: int ) -> bool:
+def ensure_schema( dim: int ) -> bool:
 	'''
 	
 		Purpose:
@@ -1556,7 +1556,7 @@ def _docqna_ensure_vec_schema( dim: int ) -> bool:
 	'''
 	conn = create_connection( )
 	try:
-		ok = _docqna_safe_load_sqlite_vec( conn )
+		ok = load_sqlite_vec( conn )
 		if not ok:
 			return False
 		
@@ -1578,7 +1578,7 @@ def _docqna_ensure_vec_schema( dim: int ) -> bool:
 	finally:
 		conn.close( )
 
-def _docqna_rebuild_index_if_needed( embedder: SentenceTransformer ) -> None:
+def rebuild_index( embedder: SentenceTransformer ) -> None:
 	'''
 		
 		Purpose:
@@ -1598,7 +1598,7 @@ def _docqna_rebuild_index_if_needed( embedder: SentenceTransformer ) -> None:
 	active_docs: List[ str ] = st.session_state.get( 'active_docs', [ ] )
 	doc_bytes: Dict[ str, bytes ] = st.session_state.get( 'doc_bytes', { } )
 	
-	fp = _docqna_compute_fingerprint( active_docs, doc_bytes )
+	fp = compute_fingerprint( active_docs, doc_bytes )
 	if fp and fp == st.session_state.get( 'docqna_fingerprint', '' ):
 		return
 	
@@ -1609,7 +1609,7 @@ def _docqna_rebuild_index_if_needed( embedder: SentenceTransformer ) -> None:
 	dim_value = getattr( embedder, 'get_sentence_embedding_dimension', lambda: 384 )( )
 	dim = int( dim_value ) if dim_value else 384
 	
-	vec_ready = _docqna_ensure_vec_schema( dim )
+	vec_ready = ensure_schema( dim )
 	st.session_state[ 'docqna_vec_ready' ] = bool( vec_ready )
 	
 	conn = create_connection( )
@@ -1632,7 +1632,7 @@ def _docqna_rebuild_index_if_needed( embedder: SentenceTransformer ) -> None:
 			if not b:
 				continue
 			
-			text = _docqna_extract_text_from_pdf_bytes( b )
+			text = extract_text( b )
 			if not text:
 				continue
 			
@@ -1668,7 +1668,7 @@ def _docqna_rebuild_index_if_needed( embedder: SentenceTransformer ) -> None:
 	finally:
 		conn.close( )
 
-def retrieve_top_doc_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] ]:
+def retrieve_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] ]:
 	'''
 	
 		Purpose:
@@ -1692,7 +1692,7 @@ def retrieve_top_doc_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, 
 		return [ ]
 	
 	embedder: SentenceTransformer = load_embedder( )
-	_docqna_rebuild_index_if_needed( embedder )
+	rebuild_index( embedder )
 	
 	qv = embedder.encode( [ query ], show_progress_bar=False )
 	qv = np.asarray( qv, dtype=np.float32 )[ 0 ]
@@ -1700,7 +1700,7 @@ def retrieve_top_doc_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, 
 	if st.session_state.get( 'docqna_vec_ready', False ):
 		conn = create_connection( )
 		try:
-			_docqna_safe_load_sqlite_vec( conn )
+			load_sqlite_vec( conn )
 			cur = conn.cursor( )
 			cur.execute(
 				'''
@@ -1756,7 +1756,7 @@ def build_document_user_input( user_query: str, k: int = 6 ) -> str:
 	
 	'''
 	system = str( st.session_state.get( 'system_instructions', '' ) or '' ).strip( )
-	hits = retrieve_top_doc_chunks( user_query, k=int( k ) )
+	hits = retrieve_chunks( user_query, k=int( k ) )
 	
 	context_blocks: List[ str ] = [ ]
 	for doc_name, chunk, score in hits:
