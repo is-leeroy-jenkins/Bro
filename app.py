@@ -51,7 +51,7 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-import fitz  # pymupdf
+import pymupdf
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -1818,7 +1818,7 @@ with st.sidebar:
 	
 	c1, c2 = st.columns( [ 0.05, 0.95] )
 	with c2:
-		st.subheader( '⚙️ Application Mode' )
+		st.text( '⚙️ Application Mode' )
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		mode = st.radio( label='', options=cfg.MODES, index=0 )
 	
@@ -1852,7 +1852,8 @@ if mode == 'Text Generation':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
-			with st.expander( label='⚙️ Response Controls', expanded=False ):
+			
+			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
 				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
@@ -1892,10 +1893,7 @@ if mode == 'Text Generation':
 					
 					st.rerun( )
 			
-			# ------------------------------------------------------------------
-			# Expander — Probability Controls
-			# ------------------------------------------------------------------
-			with st.expander( label='🎚️ Probability Controls', expanded=False ):
+			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
 				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
@@ -1936,10 +1934,7 @@ if mode == 'Text Generation':
 					
 					st.rerun( )
 			
-			# ------------------------------------------------------------------
-			# Expander — Context Controls
-			# ------------------------------------------------------------------
-			with st.expander( label='🎛️ Context Controls', expanded=False ):
+			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
 				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
@@ -1978,7 +1973,7 @@ if mode == 'Text Generation':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+		with st.expander( label='System Prompt', icon='🖥️', expanded=False, width='stretch' ):
 			ins_left, ins_right = st.columns( [ 0.8, 0.2 ] )
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
@@ -2069,7 +2064,8 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
-			with st.expander( label='⚙️ Response Controls', expanded=False ):
+			
+			with st.expander( label='Response Settings', icon='↔️', expanded=False ):
 				mind_c1, mind_c2, mind_c3 = st.columns( [ .33, .33, .33 ], border=True, gap='medium' )
 				
 				# ------------- Temperature ----------
@@ -2094,7 +2090,7 @@ elif mode == 'Document Q&A':
 					
 					top_k = st.session_state[ 'top_k' ]
 				
-				# ------------- Reset Settings ----------
+				# ------------- Reset ----------
 				if st.button( label='Reset', key='response_controls_reset', width='stretch' ):
 					for key in [ 'top_k', 'top_percent', 'temperature' ]:
 						if key in st.session_state:
@@ -2102,10 +2098,7 @@ elif mode == 'Document Q&A':
 					
 					st.rerun( )
 			
-			# ------------------------------------------------------------------
-			# Expander — Probability Controls
-			# ------------------------------------------------------------------
-			with st.expander( label='🎚️ Probability Controls', expanded=False ):
+			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
 				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
@@ -2146,10 +2139,7 @@ elif mode == 'Document Q&A':
 					
 					st.rerun( )
 			
-			# ------------------------------------------------------------------
-			# Expander — Context Controls
-			# ------------------------------------------------------------------
-			with st.expander( label='🎛️ Context Controls', expanded=False ):
+			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
 				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
@@ -2188,7 +2178,7 @@ elif mode == 'Document Q&A':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+		with st.expander( label='System Prompt', icon='🖥️', expanded=False, width='stretch' ):
 			ins_left, ins_right = st.columns( [ 0.8, 0.2 ] )
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
@@ -2221,27 +2211,17 @@ elif mode == 'Document Q&A':
 		with st.expander( label='Document Loader', icon='📥', expanded=False, width='stretch' ):
 			doc_left, doc_right = st.columns( [ 0.5, 0.5 ], gap='medium', border=True )
 			with doc_left:
-				doc_source = st.radio(
-					label='Document Source',
-					options=[ 'uploadlocal' ],
-					index=0,
-					horizontal=True,
-					key='doc_source'
-				)
+				doc_source = st.radio( label='Document Source', options=[ 'uploadlocal' ],
+					index=0, horizontal=True, key='doc_source' )
 				
-				uploaded = st.file_uploader(
-					label='Upload a document (PDF, TXT, DOCX)',
-					type=[ 'pdf', 'txt', 'docx' ],
-					accept_multiple_files=True,
-					label_visibility='visible'
-				)
+				uploaded = st.file_uploader( label='Upload a document (PDF, TXT, DOCX)',
+					type=[ 'pdf', 'txt', 'docx' ], accept_multiple_files=True,
+					label_visibility='visible' )
 				
 				if uploaded is not None and type( uploaded ) == list and len( uploaded ) > 0:
 					st.session_state.uploaded = uploaded
-					
 					names: List[ str ] = [ f.name for f in uploaded if getattr( f, 'name', None ) ]
 					st.session_state.active_docs = names
-					
 					if 'doc_bytes' not in st.session_state or not isinstance( st.session_state.doc_bytes, dict ):
 						st.session_state.doc_bytes = { }
 					
@@ -2252,7 +2232,7 @@ elif mode == 'Document Q&A':
 						except Exception:
 							continue
 				else:
-					st.info( 'Load a document.' )
+					st.info( 'Load a Document.' )
 				
 				unload = st.button( label='Unload Document', width='stretch' )
 				if unload:
