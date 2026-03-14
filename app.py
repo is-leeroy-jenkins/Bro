@@ -330,7 +330,7 @@ def convert_xml( text: str ) -> str:
 			markdown_blocks.append( body )
 	return "\n\n".join( markdown_blocks )
 
-def markdown_converter( text: Any ) -> str:
+def convert_markdown( text: Any ) -> str:
 	"""
 		Purpose:
 		--------
@@ -1973,32 +1973,56 @@ if mode == 'Text Generation':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander( label='System Prompt', icon='🖥️', expanded=False, width='stretch' ):
-			ins_left, ins_right = st.columns( [ 0.8, 0.2 ] )
+		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
+			
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
 				prompt_names = [ '' ]
 			
-			with ins_left:
+			with in_left:
 				st.text_area( label='Enter Text', height=50, width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
+					help=cfg.SYSTEM_INSTRUCTIONS, key='text_system_instructions' )
 			
 			def _on_template_change( ) -> None:
 				name = st.session_state.get( 'instructions' )
 				if name and name != 'No Templates Found':
 					text = fetch_prompt_text( cfg.DB_PATH, name )
 					if text is not None:
-						st.session_state[ 'system_instructions' ] = text
+						st.session_state[ 'text_system_instructions' ] = text
 			
-			with ins_right:
+			with in_right:
 				st.selectbox( label='Use Template', options=prompt_names, index=None,
 					key='instructions', on_change=_on_template_change )
 			
 			def _on_clear( ) -> None:
-				st.session_state[ 'system_instructions' ] = ''
+				st.session_state[ 'text_system_instructions' ] = ''
 				st.session_state[ 'instructions' ] = ''
 			
-			st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
+			def _on_convert_system_instructions( ) -> None:
+				text = st.session_state.get( 'text_system_instructions', '' )
+				if not isinstance( text, str ) or not text.strip( ):
+					return
+				
+				src = text.strip( )
+				
+				# XML-delimited prompt blocks -> Markdown headings
+				if cfg.XML_BLOCK_PATTERN.search( src ):
+					converted = convert_xml( src )
+				
+				# Markdown headings <-> simple <hN> tags handled by existing helper
+				else:
+					converted = convert_markdown( src )
+				
+				st.session_state[ 'text_system_instructions' ] = converted
+			
+			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
+			with btn_c1:
+				st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
+			
+			with btn_c2:
+				st.button( label='XML <-> Markdown', width='stretch',
+					on_click=_on_convert_system_instructions )
 		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
@@ -2178,32 +2202,73 @@ elif mode == 'Document Q&A':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander( label='System Prompt', icon='🖥️', expanded=False, width='stretch' ):
-			ins_left, ins_right = st.columns( [ 0.8, 0.2 ] )
+		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
+			
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
 				prompt_names = [ '' ]
 			
-			with ins_left:
-				st.text_area( label='Enter Text', height=50, width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
+			with in_left:
+				st.text_area(
+					label='Enter Text',
+					height=50,
+					width='stretch',
+					help=cfg.SYSTEM_INSTRUCTIONS,
+					key='text_system_instructions'
+				)
 			
 			def _on_template_change( ) -> None:
 				name = st.session_state.get( 'instructions' )
 				if name and name != 'No Templates Found':
 					text = fetch_prompt_text( cfg.DB_PATH, name )
 					if text is not None:
-						st.session_state[ 'system_instructions' ] = text
+						st.session_state[ 'text_system_instructions' ] = text
 			
-			with ins_right:
-				st.selectbox( label='Use Template', options=prompt_names, index=None,
-					key='instructions', on_change=_on_template_change )
+			with in_right:
+				st.selectbox(
+					label='Use Template',
+					options=prompt_names,
+					index=None,
+					key='instructions',
+					on_change=_on_template_change
+				)
 			
 			def _on_clear( ) -> None:
-				st.session_state[ 'system_instructions' ] = ''
+				st.session_state[ 'text_system_instructions' ] = ''
 				st.session_state[ 'instructions' ] = ''
 			
-			st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
+			def _on_convert_system_instructions( ) -> None:
+				text = st.session_state.get( 'text_system_instructions', '' )
+				if not isinstance( text, str ) or not text.strip( ):
+					return
+				
+				src = text.strip( )
+				
+				# XML-delimited prompt blocks -> Markdown headings
+				if cfg.XML_BLOCK_PATTERN.search( src ):
+					converted = convert_xml( src )
+				
+				# Markdown headings <-> simple <hN> tags handled by existing helper
+				else:
+					converted = convert_markdown( src )
+				
+				st.session_state[ 'text_system_instructions' ] = converted
+			
+			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
+			with btn_c1:
+				st.button(
+					label='Clear Instructions',
+					width='stretch',
+					on_click=_on_clear
+				)
+			
+			with btn_c2:
+				st.button(
+					label='XML <-> Markdown',
+					width='stretch',
+					on_click=_on_convert_system_instructions
+				)
 		
 		# ------------------------------------------------------------------
 		# Document Selection UI
