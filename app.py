@@ -1808,6 +1808,7 @@ if 'system_instructions' not in st.session_state:
 	st.session_state[ 'system_instructions' ] = ''
 
 st.set_page_config( page_title='Bro', layout='wide', page_icon=cfg.FAVICON )
+st.caption( cfg.APP_SUBTITLE )
 
 # ==============================================================================
 # SIDEBAR
