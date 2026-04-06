@@ -125,10 +125,10 @@ PROMPT_ENGINEERING = r'''Prompt engineering is the process of writing effective 
 TEXT_GENERATION = r'''Use a large language model to produce coherent, context-aware natural language
 		output in response to user prompts, system instructions, or retrieved document context.
 		When a user submits a request—whether it is a general inquiry, a structured analytical task,
-		or a document-grounded question—Buddy constructs a prompt that may include system directives,
+		or a document-grounded question—Bro constructs a prompt that may include system directives,
 		conversation history, and optionally retrieved content from its vector store. The underlying
 		model then generates text according to configurable parameters such as temperature,
-		maximum tokens, and response format. This capability enables Buddy to function as
+		maximum tokens, and response format. This capability enables Bro to function as
 		a conversational assistant, analytical explainer, summarizer, drafting tool, and reasoning engine,
 		producing structured or narrative outputs tailored to the user’s workflow. '''
 
@@ -139,7 +139,7 @@ DATA_MANAGEMENT = r'''Structured handling, organization, processing of
 		and Data Analysis. Beyond ingestion, it includes version awareness, indexing, schema inspection
 		(where applicable), and the ability to manage or remove stored assets safely. Document
 		Management provides the foundational infrastructure that transforms raw files into structured,
-		searchable, and model-ready assets, ensuring that Buddy’s intelligence features operate
+		searchable, and model-ready assets, ensuring that Bro’s intelligence features operate
 		on reliable, well-governed data rather than unmanaged documents.  '''
 
 RETRIEVAL_AUGMENTATION = '''Retrieval-Augmented Generation (RAG) improves LLM accuracy and relevance
