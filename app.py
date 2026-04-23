@@ -53,12 +53,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
-import fitz
 import plotly.express as px
 import streamlit as st
 from llama_cpp import Llama
 import config as cfg
 
+try:
+	import fitz
+except ImportError:
+	fitz = None
+	
 # ==============================================================================
 # Model Path Resolution
 # ==============================================================================
@@ -2642,6 +2646,10 @@ def extract_text_bytes( file_bytes: bytes, file_name: str='' ) -> str:
 	"""
 	if not file_bytes:
 		return ''
+	
+	if fitz is None:
+		st.warning( 'PyMuPDF is not installed. PDF text extraction is unavailable.' )
+	return ''
 	
 	file_name_value = str( file_name or '' ).lower( )
 	include_page_markers = bool( st.session_state.get( 'include_page_markers', False ) )
