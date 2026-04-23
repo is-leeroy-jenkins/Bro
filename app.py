@@ -1537,7 +1537,6 @@ def rename_table( old_name: str, new_name: str ) -> None:
 			raise ValueError( "Table definition not found." )
 		
 		create_sql = row[ 0 ]
-		
 		indexes = conn.execute(
 			"""
             SELECT sql
@@ -1552,10 +1551,8 @@ def rename_table( old_name: str, new_name: str ) -> None:
 			raise ValueError( "Malformed CREATE TABLE statement." )
 		
 		temp_name = f"{new_name}__rebuild_temp"
-		
 		conn.execute( "BEGIN" )
 		conn.execute( f'CREATE TABLE "{temp_name}" {create_sql[ open_paren: ]}' )
-		
 		cols = [ r[ 1 ] for r in conn.execute( f'PRAGMA table_info("{old_name}");' ).fetchall( ) ]
 		col_list = ", ".join( [ f'"{c}"' for c in cols ] )
 		
@@ -1610,28 +1607,21 @@ def rename_column( table_name: str, old_name: str, new_name: str ) -> None:
 		except Exception:
 			pass
 		
-		row = conn.execute(
-			"""
+		row = conn.execute( """
             SELECT sql
             FROM sqlite_master
             WHERE type ='table' AND name =?
-			""",
-			(table_name,)
-		).fetchone( )
+			""", (table_name,) ).fetchone( )
 		
 		if not row or not row[ 0 ]:
 			raise ValueError( "Table definition not found." )
 		
 		create_sql = row[ 0 ]
-		
-		indexes = conn.execute(
-			"""
+		indexes = conn.execute( """
             SELECT sql
             FROM sqlite_master
             WHERE type ='index' AND tbl_name=? AND sql IS NOT NULL
-			""",
-			(table_name,)
-		).fetchall( )
+			""", (table_name,) ).fetchall( )
 		
 		schema = conn.execute( f'PRAGMA table_info("{table_name}");' ).fetchall( )
 		cols = [ r[ 1 ] for r in schema ]
@@ -1639,9 +1629,7 @@ def rename_column( table_name: str, old_name: str, new_name: str ) -> None:
 			raise ValueError( "Column not found." )
 		
 		mapped_cols = [ (new_name if c == old_name else c) for c in cols ]
-		
 		temp_table = f"{table_name}__rebuild_temp"
-		
 		col_defs: List[ str ] = [ ]
 		pk_cols = [ r for r in schema if int( r[ 5 ] or 0 ) > 0 ]
 		single_pk = len( pk_cols ) == 1
@@ -3401,7 +3389,6 @@ if mode == 'Text Generation':
 	repeat_window = st.session_state.get( 'repeat_window', 0.0 )
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
 	context_window = st.session_state.get( 'context_window', cfg.DEFAULT_CTX )
-	
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
 		st.subheader( '💬 Text Generation', help=cfg.TEXT_GENERATION )
@@ -3426,26 +3413,18 @@ if mode == 'Text Generation':
 						key='response_format' )
 				
 				with task_c3:
-					st.toggle(
-						label='Use Conversation History',
+					st.toggle( label='Use Conversation History',
 						value=bool( st.session_state.get( 'use_chat_history', True ) ),
-						key='use_chat_history'
-					)
+						key='use_chat_history' )
 				
 				with task_c4:
-					st.toggle(
-						label='Use Document Context',
+					st.toggle( label='Use Document Context',
 						value=bool( st.session_state.get( 'use_document_context', False ) ),
-						key='use_document_context'
-					)
+						key='use_document_context' )
 				
 				if st.button( label='Reset', key='task_preset_reset', width='stretch' ):
-					for key in [
-							'task_preset',
-							'response_format',
-							'use_chat_history',
-							'use_document_context'
-					]:
+					for key in [ 'task_preset', 'response_format',
+					             'use_chat_history', 'use_document_context' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -3484,36 +3463,27 @@ if mode == 'Text Generation':
 			
 			with st.expander( label='Coding Controls', icon='🧾', expanded=False ):
 				code_c1, code_c2, code_c3, code_c4, code_c5 = st.columns(
-					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium'
-				)
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
 				
 				with code_c1:
-					st.selectbox(
-						label='Code Language',
+					st.selectbox( label='Code Language',
 						options=[ 'Python', 'C#', 'SQL', 'VBA', 'JavaScript', 'Markdown' ],
-						key='coding_language'
-					)
+						key='coding_language' )
 				
 				with code_c2:
-					st.selectbox(
-						label='Coding Task',
+					st.selectbox( label='Coding Task',
 						options=[ 'Generate', 'Refactor', 'Explain', 'Debug', 'Review' ],
-						key='coding_task'
-					)
+						key='coding_task' )
 				
 				with code_c3:
-					st.toggle(
-						label='Include Comments',
+					st.toggle( label='Include Comments',
 						value=bool( st.session_state.get( 'coding_include_comments', True ) ),
-						key='coding_include_comments'
-					)
+						key='coding_include_comments' )
 				
 				with code_c4:
-					st.toggle(
-						label='Use Editor Format',
+					st.toggle( label='Use Editor Format',
 						value=bool( st.session_state.get( 'coding_editor_format', True ) ),
-						key='coding_editor_format'
-					)
+						key='coding_editor_format' )
 				
 				with code_c5:
 					st.toggle( label='Emit Fenced Code',
@@ -3528,12 +3498,9 @@ if mode == 'Text Generation':
 				with translation_col_right:
 					st.markdown( '<br>', unsafe_allow_html=True )
 					if st.button( label='Reset', key='coding_controls_reset', width='stretch' ):
-						for key in [ 'coding_language', 'coding_task',
-								'coding_include_comments',
-								'coding_editor_format',
-								'coding_fenced_output',
-								'translation_target_language'
-						]:
+						for key in [ 'coding_language', 'coding_task', 'coding_include_comments',
+								'coding_editor_format', 'coding_fenced_output',
+								'translation_target_language' ]:
 							if key in st.session_state:
 								del st.session_state[ key ]
 						
@@ -3541,47 +3508,28 @@ if mode == 'Text Generation':
 			
 			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
 				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
-				)
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with mind_c1:
-					st.slider(
-						label='Temperature',
-						min_value=0.0,
-						max_value=1.0,
-						help=cfg.TEMPERATURE,
-						key='temperature'
-					)
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0,
+						help=cfg.TEMPERATURE, key='temperature' )
 					temperature = st.session_state[ 'temperature' ]
 				
 				with mind_c2:
-					st.slider(
-						label='Top-P',
-						min_value=0.0,
-						max_value=1.0,
-						step=0.01,
-						key='top_percent',
-						help=cfg.TOP_P
-					)
+					st.slider( label='Top-P', min_value=0.0, max_value=1.0,
+						step=0.01, key='top_percent', help=cfg.TOP_P )
 					top_percent = st.session_state[ 'top_percent' ]
 				
 				with mind_c3:
-					st.slider(
-						label='Top-K',
-						min_value=0,
-						max_value=50,
-						step=1,
-						key='top_k',
-						help=cfg.TOP_K
-					)
+					st.slider( label='Top-K', min_value=0, max_value=50,
+						step=1, key='top_k', help=cfg.TOP_K )
 					top_k = st.session_state[ 'top_k' ]
 				
 				with mind_c4:
-					st.toggle(
-						label='Use Grounding',
+					st.toggle( label='Use Grounding',
 						value=bool( st.session_state.get( 'is_grounded', False ) ),
-						key='is_grounded'
-					)
+						key='is_grounded' )
+					
 					is_grounded = st.session_state[ 'is_grounded' ]
 				
 				if st.button( label='Reset', key='response_controls_reset', width='stretch' ):
@@ -3593,51 +3541,28 @@ if mode == 'Text Generation':
 			
 			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
 				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
-				)
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with prob_c1:
-					st.slider(
-						label='Repeat Window',
-						min_value=0,
-						max_value=1024,
-						step=16,
-						key='repeat_window',
-						help=cfg.REPEAT_WINDOW
-					)
+					st.slider( label='Repeat Window', min_value=0, max_value=1024,
+						step=16, key='repeat_window', help=cfg.REPEAT_WINDOW )
 					repeat_window = st.session_state[ 'repeat_window' ]
 				
 				with prob_c2:
-					st.slider(
-						label='Repeat Penalty',
-						min_value=0.0,
-						max_value=2.0,
-						key='repeat_penalty',
-						step=0.05,
-						help=cfg.REPEAT_PENALTY
-					)
+					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
+						key='repeat_penalty', step=0.05, help=cfg.REPEAT_PENALTY )
 					repeat_penalty = st.session_state[ 'repeat_penalty' ]
 				
 				with prob_c3:
-					st.slider(
-						label='Presence Penalty',
-						min_value=0.0,
-						max_value=2.0,
-						key='presense_penalty',
-						step=0.05,
-						help=cfg.PRESENCE_PENALTY
-					)
+					st.slider( label='Presence Penalty', min_value=0.0,
+						max_value=2.0, key='presense_penalty', step=0.05,
+						help=cfg.PRESENCE_PENALTY )
 					presense_penalty = st.session_state[ 'presense_penalty' ]
 				
 				with prob_c4:
-					st.slider(
-						label='Frequency Penalty',
-						min_value=0.0,
-						max_value=2.0,
-						key='frequency_penalty',
-						step=0.05,
-						help=cfg.FREQUENCY_PENALTY
-					)
+					st.slider( label='Frequency Penalty', min_value=0.0,
+						max_value=2.0, key='frequency_penalty',
+						step=0.05, help=cfg.FREQUENCY_PENALTY )
 					frequency_penalty = st.session_state[ 'frequency_penalty' ]
 				
 				if st.button( label='Reset', key='probability_controls_reset', width='stretch' ):
@@ -3670,36 +3595,18 @@ if mode == 'Text Generation':
 					context_window = st.session_state[ 'context_window' ]
 				
 				with ctx_c2:
-					st.slider(
-						label='CPU Threads',
-						min_value=0,
-						max_value=cfg.CORES,
-						key='cpu_threads',
-						step=1,
-						help=cfg.CPU_CORES
-					)
+					st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
+						key='cpu_threads', step=1, help=cfg.CPU_CORES )
 					cpu_threads = st.session_state[ 'cpu_threads' ]
 				
 				with ctx_c3:
-					st.slider(
-						label='Max Tokens',
-						min_value=0,
-						max_value=4096,
-						step=128,
-						key='max_tokens',
-						help=cfg.MAX_TOKENS
-					)
+					st.slider( label='Max Tokens', min_value=0, max_value=4096,
+						step=128, key='max_tokens', help=cfg.MAX_TOKENS )
 					max_tokens = st.session_state[ 'max_tokens' ]
 				
 				with ctx_c4:
-					st.slider(
-						label='Random Seed',
-						min_value=0,
-						max_value=4096,
-						step=1,
-						key='random_seed',
-						help=cfg.SEED
-					)
+					st.slider( label='Random Seed', min_value=0, max_value=4096,
+						step=1, key='random_seed', help=cfg.SEED )
 				
 				if st.button( label='Reset', key='context_controls_reset', width='stretch' ):
 					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
@@ -3711,14 +3618,9 @@ if mode == 'Text Generation':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander(
-				label='System Instructions',
-				icon='🖥️',
-				expanded=False,
-				width='stretch'
-		):
+		with st.expander( label='System Instructions', icon='🖥️', expanded=False,
+				width='stretch' ):
 			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
-			
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
 				prompt_names = [ '' ]
@@ -3781,13 +3683,10 @@ if mode == 'Text Generation':
 						'Extraction': 'Extract only supported facts and do not invent missing values.'
 				}
 				
-				st.session_state[ 'system_instructions' ] = preset_map.get(
-					task_preset,
-					preset_map[ 'Chat' ]
-				)
+				st.session_state[ 'system_instructions' ] = preset_map.get( task_preset,
+					preset_map[ 'Chat' ] )
 			
 			user_preview_input = st.session_state.get( 'last_preview_input', '' )
-			
 			btn_c1, btn_c2, btn_c3, btn_c4 = st.columns( [ 0.35, 0.2, 0.2, 0.25 ] )
 			with btn_c1:
 				st.button(
