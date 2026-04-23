@@ -234,8 +234,8 @@ if 'prefer_sqlite_vec' not in st.session_state:
 if 'allow_similarity_fallback' not in st.session_state:
 	st.session_state[ 'allow_similarity_fallback' ] = True
 
-if 'doc_action' not in st.session_state:
-	st.session_state[ 'doc_action' ] = 'Answer Question'
+if 'docqna_action' not in st.session_state:
+	st.session_state[ 'docqna_action' ] = 'Answer Question'
 
 if 'ocr_enabled' not in st.session_state:
 	st.session_state[ 'ocr_enabled' ] = False
@@ -246,14 +246,14 @@ if 'prefer_native_pdf_text' not in st.session_state:
 if 'include_page_markers' not in st.session_state:
 	st.session_state[ 'include_page_markers' ] = False
 
-if 'show_doc_parse_diagnostics' not in st.session_state:
-	st.session_state[ 'show_doc_parse_diagnostics' ] = False
+if 'show_docqna_diagnostics' not in st.session_state:
+	st.session_state[ 'show_docqna_diagnostics' ] = False
 
-if 'doc_last_retrieval_hits' not in st.session_state:
-	st.session_state[ 'doc_last_retrieval_hits' ] = [ ]
+if 'docqna_last_retrieval' not in st.session_state:
+	st.session_state[ 'docqna_last_retrieval' ] = [ ]
 
-if 'doc_inventory_rows' not in st.session_state:
-	st.session_state[ 'doc_inventory_rows' ] = [ ]
+if 'docqna_inventory_rows' not in st.session_state:
+	st.session_state[ 'docqna_inventory_rows' ] = [ ]
 
 # -------- SEMANTIC SEARCH ---------------------
 
@@ -304,16 +304,17 @@ if 'semantic_index_doc_count' not in st.session_state:
 
 if 'semantic_last_query' not in st.session_state:
 	st.session_state[ 'semantic_last_query' ] = ''
+	
 # -------- PROMPT ENGINEERING EXTENSIONS ---------------------
 
-if 'pe_category' not in st.session_state:
-	st.session_state[ 'pe_category' ] = 'General Chat'
+if 'prompt_category' not in st.session_state:
+	st.session_state[ 'prompt_category' ] = 'General Chat'
 
-if 'pe_task_type' not in st.session_state:
-	st.session_state[ 'pe_task_type' ] = 'Chat'
+if 'prompt_task' not in st.session_state:
+	st.session_state[ 'prompt_task' ] = 'Chat'
 
-if 'pe_response_format' not in st.session_state:
-	st.session_state[ 'pe_response_format' ] = 'Markdown'
+if 'prompt_response_format' not in st.session_state:
+	st.session_state[ 'prompt_response_format' ] = 'Markdown'
 
 if 'pe_language' not in st.session_state:
 	st.session_state[ 'pe_language' ] = 'English'
@@ -1829,7 +1830,7 @@ def create_visualization( df: pd.DataFrame ):
 		fig = px.imshow( corr, text_auto=True )
 		st.plotly_chart( fig, use_container_width=True )
 
-def dm_create_table_from_df( table_name: str, df: pd.DataFrame ):
+def convert_dataframe( table_name: str, df: pd.DataFrame ):
 	columns = [ ]
 	for col in df.columns:
 		sql_type = get_sqlite_type( df[ col ].dtype )
@@ -2543,7 +2544,7 @@ def build_instruction_block( ) -> str:
 	require_grounding = bool( st.session_state.get( 'require_grounding', True ) )
 	answer_from_excerpts_only = bool( st.session_state.get( 'answer_from_excerpts_only', True ) )
 	response_format = str( st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
-	doc_action = str( st.session_state.get( 'doc_action', 'Answer Question' ) or 'Answer Question' )
+	doc_action = str( st.session_state.get( 'docqna_action', 'Answer Question' ) or 'Answer Question' )
 	lines: List[ str ] = [ ]
 	if system_instructions:
 		lines.append( system_instructions )
@@ -2844,13 +2845,13 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 	fp = hashlib.sha256( fp_seed.encode( 'utf-8', errors='ignore' ) ).hexdigest( )
 	
 	if fp and fp == st.session_state.get( 'docqna_fingerprint', '' ):
-		st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
+		st.session_state[ 'docqna_inventory_rows' ] = build_docqna_inventory( )
 		return
 	
 	st.session_state[ 'docqna_fingerprint' ] = fp
 	st.session_state[ 'docqna_chunk_count' ] = 0
 	st.session_state[ 'docqna_fallback_rows' ] = [ ]
-	st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
+	st.session_state[ 'docqna_inventory_rows' ] = build_docqna_inventory( )
 	
 	dim_value = getattr( embedder, 'get_sentence_embedding_dimension', lambda: 384 )( )
 	dim = int( dim_value ) if dim_value else 384
@@ -3006,7 +3007,7 @@ def build_docqna_input( user_query: str, k: int=None ) -> str:
 	"""
 	doc_instruction_block = build_instruction_block( )
 	hits = retrieve_chunks( user_query, k=k )
-	st.session_state[ 'doc_last_retrieval_hits' ] = hits
+	st.session_state[ 'docqna_last_retrieval' ] = hits
 	context_blocks: List[ str ] = [ ]
 	for doc_name, chunk, score in hits:
 		context_blocks.append( f'[Document: {doc_name}]\n{chunk}'.strip( ) )
@@ -3947,13 +3948,13 @@ elif mode == 'Document Q&A':
 						options=[ 'Answer Question', 'Summarize Active Document',
 						          'Extract Key Points', 'Generate Outline',
 						          'Extract Entities', 'Extract Tables',
-						          'Compare Active Documents' ], key='doc_action' )
+						          'Compare Active Documents' ], key='docqna_action' )
 				
 				with action_c2:
 					st.markdown( '<br>', unsafe_allow_html=True )
 					if st.button( 'Run Action', key='doc_run_action', width='stretch' ):
 						action_name = str(
-							st.session_state.get( 'doc_action', 'Answer Question' ) or
+							st.session_state.get( 'docqna_action', 'Answer Question' ) or
 							'Answer Question' ).strip( )
 						
 						action_prompts = {
@@ -4010,12 +4011,12 @@ elif mode == 'Document Q&A':
 				
 				with parse_c4:
 					st.toggle( label='Show Diagnostics',
-						value=bool( st.session_state.get( 'show_doc_parse_diagnostics', False ) ),
-						key='show_doc_parse_diagnostics' )
+						value=bool( st.session_state.get( 'show_docqna_diagnostics', False ) ),
+						key='show_docqna_diagnostics' )
 				
 				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch' ):
 					for key in [ 'ocr_enabled', 'prefer_native_pdf_text',
-							'include_page_markers', 'show_doc_parse_diagnostics' ]:
+							'include_page_markers', 'show_docqna_diagnostics' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -4192,7 +4193,7 @@ elif mode == 'Document Q&A':
 						except Exception:
 							continue
 					
-					st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
+					st.session_state[ 'docqna_inventory_rows' ] = build_docqna_inventory( )
 				else:
 					st.info( 'Load a document.' )
 				
@@ -4207,19 +4208,19 @@ elif mode == 'Document Q&A':
 					st.session_state.uploaded = [ ]
 					st.session_state.active_docs = [ ]
 					st.session_state.doc_bytes = { }
-					st.session_state[ 'doc_inventory_rows' ] = [ ]
+					st.session_state[ 'docqna_inventory_rows' ] = [ ]
 					st.session_state[ 'docqna_fingerprint' ] = ''
 					st.session_state[ 'docqna_chunk_count' ] = 0
 					st.session_state[ 'docqna_fallback_rows' ] = [ ]
-					st.session_state[ 'doc_last_retrieval_hits' ] = [ ]
+					st.session_state[ 'docqna_last_retrieval' ] = [ ]
 					st.rerun( )
 				
-				if bool( st.session_state.get( 'show_doc_parse_diagnostics', False ) ):
+				if bool( st.session_state.get( 'show_docqna_diagnostics', False ) ):
 					st.caption(
-						f'Chunk Size: {int( st.session_state.get( "retrieval_chunk_size", 1200 ) )} '
-						f'| Chunk Overlap: {int( st.session_state.get( "retrieval_chunk_overlap", 200 ) )} '
-						f'| Index Ready: {bool( st.session_state.get( "docqna_vec_ready", False ) )} '
-						f'| Chunk Count: {int( st.session_state.get( "docqna_chunk_count", 0 ) )}' )
+						f'Chunk Size: {int( st.session_state.get( 'retrieval_chunk_size', 1200 ) )} '
+						f'| Chunk Overlap: {int( st.session_state.get( 'retrieval_chunk_overlap', 200 ) )} '
+						f'| Index Ready: {bool( st.session_state.get( 'docqna_vec_ready', False ) )} '
+						f'| Chunk Count: {int( st.session_state.get( 'docqna_chunk_count', 0 ) )}' )
 			
 			with doc_right:
 				if st.session_state.get( 'active_docs' ):
@@ -4236,9 +4237,9 @@ elif mode == 'Document Q&A':
 				else:
 					st.info( 'No document loaded.' )
 			
-			if st.session_state.get( 'doc_inventory_rows' ):
+			if st.session_state.get( 'docqna_inventory_rows' ):
 				st.markdown( '### Active Document Inventory' )
-				st.dataframe( pd.DataFrame( st.session_state.get( 'doc_inventory_rows', [ ] ) ),
+				st.dataframe( pd.DataFrame( st.session_state.get( 'docqna_inventory_rows', [ ] ) ),
 					use_container_width=True )
 		
 		# ------------------------------------------------------------------
@@ -4321,7 +4322,7 @@ elif mode == 'Document Q&A':
 			save_message( 'assistant', response )
 			st.session_state.messages.append( ('assistant', response) )
 			if bool( st.session_state.get( 'show_retrieved_chunks', True ) ):
-				hits = st.session_state.get( 'doc_last_retrieval_hits', [ ] )
+				hits = st.session_state.get( 'docqna_last_retrieval', [ ] )
 				if hits:
 					with st.expander( 'Retrieved Chunks', expanded=False ):
 						for idx, hit in enumerate( hits, start=1 ):
@@ -4577,7 +4578,7 @@ elif mode == 'Prompt Engineering':
 						'ID': row[ 5 ]
 				}
 				
-				st.session_state[ 'pe_category' ] = infer_prompt_category( prompt_row )
+				st.session_state[ 'prompt_category' ] = infer_prompt_category( prompt_row )
 		
 		# ------------------------------------------------------------------
 		# Filters
@@ -4694,8 +4695,8 @@ elif mode == 'Prompt Engineering':
 					apply_prompt_to_text_generation( st.session_state.pe_text )
 					apply_prompt_metadata_to_shared_state(
 						category=selected[ 0 ].get( 'Category', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
 		
 		elif len( selected ) == 0:
@@ -4732,8 +4733,8 @@ elif mode == 'Prompt Engineering':
 					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
 						category=st.session_state.get( 'pe_category_apply', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
 					st.success( 'Applied to shared Text Generation settings.' )
 			
@@ -4742,8 +4743,8 @@ elif mode == 'Prompt Engineering':
 					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
 						category=st.session_state.get( 'pe_category_meta', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
 					st.success( 'Applied to shared Document Q&A settings.' )
 			
@@ -4764,8 +4765,8 @@ elif mode == 'Prompt Engineering':
 				if st.button( 'Generate Starter Prompt', width='stretch' ):
 					st.session_state.pe_text = build_starter_prompt_template(
 						category=st.session_state.get( 'pe_category_generate', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
 					st.success( 'Starter prompt generated into the edit surface.' )
 		
@@ -4800,8 +4801,8 @@ elif mode == 'Prompt Engineering':
 					constraints=st.session_state.get( 'pe_generator_constraints', '' ),
 					style=st.session_state.get( 'pe_generator_style', 'Practical' ),
 					category=st.session_state.get( 'pe_category_draft', 'General Chat' ),
-					task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-					response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+					task_type=st.session_state.get( 'prompt_task', 'Chat' ),
+					response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 					language=st.session_state.get( 'pe_language', 'English' ) )
 				st.session_state[ 'pe_generated_template' ] = draft
 				st.session_state.pe_text = draft
@@ -4831,7 +4832,7 @@ elif mode == 'Prompt Engineering':
 			
 			with meta_c4:
 				st.selectbox( 'Response Format', [ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='pe_response_format' )
+					key='prompt_response_format' )
 			
 			st.text_input( 'Caption', key='pe_caption' )
 			st.text_input( 'Name', key='pe_name' )
