@@ -48,7 +48,7 @@ import multiprocessing
 # ---------- DEFINITIONS -------------------
 
 BRO_LLM_PATH = os.getenv( 'BRO_LLM_PATH' )
-BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:6px 0 10px 0;'></div>"
+BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:20px 0 20px 0;'></div>"
 APP_TITLE = 'Bro'
 APP_SUBTITLE = 'Local AI based on Gemma 3'
 BASE_DIR = os.path.dirname( os.path.abspath( __file__ ) )
@@ -57,7 +57,7 @@ MODEL_PATH = r'C:\Users\terry\source\llm\bro\bro-3-4b-it-qat-Q4_K_M.gguf'
 DEFAULT_CTX = 4096
 CORES = multiprocessing.cpu_count( )
 FAVICON = r'resources/images/favicon.ico'
-LOGO = r'resources/images/bro_logo.png'
+LOGO = r'resources/bro_logo.png'
 XML_BLOCK_PATTERN = re.compile( r"<(?P<tag>[a-zA-Z0-9_:-]+)>(?P<body>.*?)</\1>", re.DOTALL )
 MARKDOWN_HEADING_PATTERN = re.compile( r"^##\s+(?P<title>.+?)\s*$" )
 MODES = [ 'Text Generation', 'Document Q&A', 'Semantic Search',
