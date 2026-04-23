@@ -3388,9 +3388,6 @@ with st.sidebar:
 # TEXT GENERATION MODE
 # ==============================================================================
 if mode == 'Text Generation':
-	st.subheader( '💬 Text Generation', help=cfg.TEXT_GENERATION )
-	st.divider( )
-	
 	messages = st.session_state.get( 'messages', [ ] )
 	max_tokens = st.session_state.get( 'max_tokens', 0 )
 	top_percent = st.session_state.get( 'top_percent', 0.0 )
@@ -3406,14 +3403,16 @@ if mode == 'Text Generation':
 	
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
+		st.subheader( '💬 Text Generation', help=cfg.TEXT_GENERATION )
+		st.divider( )
+	
 		# ------------------------------------------------------------------
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
 			with st.expander( label='Task Preset', icon='🧭', expanded=False ):
 				task_c1, task_c2, task_c3, task_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
-				)
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with task_c1:
 					st.selectbox( label='Task Type',
@@ -3453,44 +3452,30 @@ if mode == 'Text Generation':
 			
 			with st.expander( label='Reasoning Controls', icon='🧩', expanded=False ):
 				reason_c1, reason_c2, reason_c3, reason_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
-				)
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with reason_c1:
-					st.selectbox(
-						label='Reasoning Depth',
-						options=[ 'Low', 'Medium', 'High' ],
-						key='reasoning_depth'
-					)
+					st.selectbox( label='Reasoning Depth', options=[ 'Low', 'Medium', 'High' ],
+						key='reasoning_depth' )
 				
 				with reason_c2:
-					st.toggle(
-						label='Answer Only',
+					st.toggle( label='Answer Only',
 						value=bool( st.session_state.get( 'answer_only', False ) ),
-						key='answer_only'
-					)
+						key='answer_only' )
 				
 				with reason_c3:
-					st.toggle(
-						label='Use Self-Check',
+					st.toggle( label='Use Self-Check',
 						value=bool( st.session_state.get( 'use_self_check', False ) ),
-						key='use_self_check'
-					)
+						key='use_self_check' )
 				
 				with reason_c4:
-					st.toggle(
-						label='Prefer Deterministic Reasoning',
+					st.toggle( label='Prefer Deterministic Reasoning',
 						value=bool( st.session_state.get( 'deterministic_reasoning', False ) ),
-						key='deterministic_reasoning'
-					)
+						key='deterministic_reasoning' )
 				
 				if st.button( label='Reset', key='reasoning_controls_reset', width='stretch' ):
-					for key in [
-							'reasoning_depth',
-							'answer_only',
-							'use_self_check',
-							'deterministic_reasoning'
-					]:
+					for key in [ 'reasoning_depth', 'answer_only', 'use_self_check',
+							'deterministic_reasoning' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -3530,25 +3515,19 @@ if mode == 'Text Generation':
 					)
 				
 				with code_c5:
-					st.toggle(
-						label='Emit Fenced Code',
+					st.toggle( label='Emit Fenced Code',
 						value=bool( st.session_state.get( 'coding_fenced_output', True ) ),
-						key='coding_fenced_output'
-					)
+						key='coding_fenced_output' )
 				
 				translation_col_left, translation_col_right = st.columns( [ 0.5, 0.5 ] )
 				with translation_col_left:
-					st.text_input(
-						label='Translation Target Language',
-						key='translation_target_language'
-					)
+					st.text_input( label='Translation Target Language',
+						key='translation_target_language' )
 				
 				with translation_col_right:
 					st.markdown( '<br>', unsafe_allow_html=True )
 					if st.button( label='Reset', key='coding_controls_reset', width='stretch' ):
-						for key in [
-								'coding_language',
-								'coding_task',
+						for key in [ 'coding_language', 'coding_task',
 								'coding_include_comments',
 								'coding_editor_format',
 								'coding_fenced_output',
@@ -3881,9 +3860,6 @@ if mode == 'Text Generation':
 # RETRIEVAL AUGMENTATION
 # ==============================================================================
 elif mode == 'Document Q&A':
-	st.subheader( '📚 Retrieval Augementation', help=cfg.RETRIEVAL_AUGMENTATION )
-	st.divider( )
-	
 	messages = st.session_state.get( 'messages', [ ] )
 	uploaded = st.session_state.get( 'uploaded', [ ] )
 	active_docs = st.session_state.get( 'active_docs', [ ] )
@@ -3901,6 +3877,9 @@ elif mode == 'Document Q&A':
 	
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
+		st.subheader( '📚 Retrieval Augementation', help=cfg.RETRIEVAL_AUGMENTATION )
+		st.divider( )
+		
 		# ------------------------------------------------------------------
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
@@ -4369,11 +4348,10 @@ elif mode == 'Document Q&A':
 # SEMANTIC SEARCH
 # ==============================================================================
 elif mode == 'Semantic Search':
-	st.subheader( '🔍 Semantic Search', help=cfg.SEMANTIC_SEARCH )
-	st.divider( )
-	
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
+		st.subheader( '🔍 Semantic Search', help=cfg.SEMANTIC_SEARCH )
+		st.divider( )
 		
 		with st.expander( label='Index Builder', icon='🧱', expanded=False ):
 			idx_c1, idx_c2, idx_c3, idx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
@@ -4529,19 +4507,17 @@ elif mode == 'Semantic Search':
 # PROMPT ENGINEERING MODE
 # ==============================================================================
 elif mode == 'Prompt Engineering':
-	st.subheader( '📝 Prompt Engineering', help=cfg.PROMPT_ENGINEERING )
-	st.divider( )
-	
 	import sqlite3
 	import math
 	
 	TABLE = 'Prompts'
 	PAGE_SIZE = 10
-	
 	st.session_state.setdefault( 'pe_cascade_enabled', False )
 	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
-	
 	with center:
+		st.subheader( '📝 Prompt Engineering', help=cfg.PROMPT_ENGINEERING )
+		st.divider( )
+		
 		st.checkbox( 'Cascade selection into shared System Instructions and task settings',
 			key='pe_cascade_enabled' )
 		
@@ -4909,13 +4885,13 @@ elif mode == 'Prompt Engineering':
 # DATA MANAGEMENT MODE
 # ==============================================================================
 elif mode == 'Data Management':
-	st.subheader( '🏛️ Data Management', help=cfg.DATA_MANAGEMENT )
-	st.divider( )
-	
 	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
 	with center:
+		st.subheader( '🏛️ Data Management', help=cfg.DATA_MANAGEMENT )
+		st.divider( )
+		
 		tabs = st.tabs( [ '📥 Import', '🗂 Browse', '💉 CRUD', '📊 Explore', '🔎 Filter',
-		                  '🧮 Aggregate', '📈 Visualize', '⚙ Admin', '🧠 SQL' ] )
+			                  '🧮 Aggregate', '📈 Visualize', '⚙ Admin', '🧠 SQL' ] )
 		
 		tables = list_tables( )
 		if not tables:
