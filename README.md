@@ -21,8 +21,11 @@ Bro is lightweight making it ideal for **everyday analysis, drafting, summarizat
 * 📝 **Export chat history to Markdown or PDF**
 * 🖥️ **CPU-friendly and fast**
 
+## 🧠 LLM Repository
 
-## 🧠 Sup with Lil Bro?
+[![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
+
+### Sup with Lil Bro?
 
 A fine-tuned variant of Google's **Gemma-3-4B-IT**, optimized for:
 
@@ -30,11 +33,6 @@ A fine-tuned variant of Google's **Gemma-3-4B-IT**, optimized for:
 * Contextual understanding
 * Concise, structured responses
 * Low-latency, local inference
-
-### LLM Repository
-
-
-[![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
 
 **Model characteristics:**
 
