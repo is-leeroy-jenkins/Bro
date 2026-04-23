@@ -129,6 +129,59 @@ if 'selected_prompt_id' not in st.session_state:
 if 'pending_system_prompt_name' not in st.session_state:
 	st.session_state[ 'pending_system_prompt_name' ] = ''
 	
+# -------- TEXT GENERATION  ---------------------
+
+if 'task_preset' not in st.session_state:
+	st.session_state[ 'task_preset' ] = 'Chat'
+
+if 'response_format' not in st.session_state:
+	st.session_state[ 'response_format' ] = 'Markdown'
+
+if 'use_chat_history' not in st.session_state:
+	st.session_state[ 'use_chat_history' ] = True
+
+if 'use_document_context' not in st.session_state:
+	st.session_state[ 'use_document_context' ] = False
+
+if 'reasoning_depth' not in st.session_state:
+	st.session_state[ 'reasoning_depth' ] = 'Medium'
+
+if 'answer_only' not in st.session_state:
+	st.session_state[ 'answer_only' ] = False
+
+if 'use_self_check' not in st.session_state:
+	st.session_state[ 'use_self_check' ] = False
+
+if 'deterministic_reasoning' not in st.session_state:
+	st.session_state[ 'deterministic_reasoning' ] = False
+
+if 'coding_language' not in st.session_state:
+	st.session_state[ 'coding_language' ] = 'Python'
+
+if 'coding_task' not in st.session_state:
+	st.session_state[ 'coding_task' ] = 'Generate'
+
+if 'coding_include_comments' not in st.session_state:
+	st.session_state[ 'coding_include_comments' ] = True
+
+if 'coding_editor_format' not in st.session_state:
+	st.session_state[ 'coding_editor_format' ] = True
+
+if 'coding_fenced_output' not in st.session_state:
+	st.session_state[ 'coding_fenced_output' ] = True
+
+if 'translation_target_language' not in st.session_state:
+	st.session_state[ 'translation_target_language' ] = 'English'
+
+if 'active_prompt_caption' not in st.session_state:
+	st.session_state[ 'active_prompt_caption' ] = ''
+
+if 'preview_effective_prompt' not in st.session_state:
+	st.session_state[ 'preview_effective_prompt' ] = False
+
+if 'last_preview_input' not in st.session_state:
+	st.session_state[ 'last_preview_input' ] = ''
+	
 #-------- DOCQNA ---------------------
 
 if 'uploaded' not in st.session_state:
@@ -155,9 +208,107 @@ if 'docqna_chunk_count' not in st.session_state:
 if 'docqna_fallback_rows' not in st.session_state:
 	st.session_state[ 'docqna_fallback_rows' ] = [ ]
 	
+# -------- DOCUMENT Q&A EXTENSIONS ---------------------
+
+if 'retrieval_k' not in st.session_state:
+	st.session_state[ 'retrieval_k' ] = 6
+
+if 'retrieval_chunk_size' not in st.session_state:
+	st.session_state[ 'retrieval_chunk_size' ] = 1200
+
+if 'retrieval_chunk_overlap' not in st.session_state:
+	st.session_state[ 'retrieval_chunk_overlap' ] = 200
+
+if 'show_retrieved_chunks' not in st.session_state:
+	st.session_state[ 'show_retrieved_chunks' ] = True
+
+if 'require_grounding' not in st.session_state:
+	st.session_state[ 'require_grounding' ] = True
+
+if 'answer_from_excerpts_only' not in st.session_state:
+	st.session_state[ 'answer_from_excerpts_only' ] = True
+
+if 'prefer_sqlite_vec' not in st.session_state:
+	st.session_state[ 'prefer_sqlite_vec' ] = True
+
+if 'allow_similarity_fallback' not in st.session_state:
+	st.session_state[ 'allow_similarity_fallback' ] = True
+
+if 'doc_action' not in st.session_state:
+	st.session_state[ 'doc_action' ] = 'Answer Question'
+
+if 'ocr_enabled' not in st.session_state:
+	st.session_state[ 'ocr_enabled' ] = False
+
+if 'prefer_native_pdf_text' not in st.session_state:
+	st.session_state[ 'prefer_native_pdf_text' ] = True
+
+if 'include_page_markers' not in st.session_state:
+	st.session_state[ 'include_page_markers' ] = False
+
+if 'show_doc_parse_diagnostics' not in st.session_state:
+	st.session_state[ 'show_doc_parse_diagnostics' ] = False
+
+if 'doc_last_retrieval_hits' not in st.session_state:
+	st.session_state[ 'doc_last_retrieval_hits' ] = [ ]
+
+if 'doc_inventory_rows' not in st.session_state:
+	st.session_state[ 'doc_inventory_rows' ] = [ ]
+
+# -------- SEMANTIC SEARCH EXTENSIONS ---------------------
+
+if 'semantic_context_buffer' not in st.session_state:
+	st.session_state[ 'semantic_context_buffer' ] = [ ]
+
+if 'semantic_chunk_size' not in st.session_state:
+	st.session_state[ 'semantic_chunk_size' ] = 1200
+
+if 'semantic_chunk_overlap' not in st.session_state:
+	st.session_state[ 'semantic_chunk_overlap' ] = 200
+
+if 'semantic_top_k' not in st.session_state:
+	st.session_state[ 'semantic_top_k' ] = 8
+
+if 'semantic_min_similarity' not in st.session_state:
+	st.session_state[ 'semantic_min_similarity' ] = 0.0
+
+if 'semantic_group_by_document' not in st.session_state:
+	st.session_state[ 'semantic_group_by_document' ] = False
+
+if 'semantic_clear_existing' not in st.session_state:
+	st.session_state[ 'semantic_clear_existing' ] = True
+
+if 'semantic_append_existing' not in st.session_state:
+	st.session_state[ 'semantic_append_existing' ] = False
+
+if 'semantic_show_diagnostics' not in st.session_state:
+	st.session_state[ 'semantic_show_diagnostics' ] = True
+
+if 'semantic_uploaded_names' not in st.session_state:
+	st.session_state[ 'semantic_uploaded_names' ] = [ ]
+
+if 'semantic_result_rows' not in st.session_state:
+	st.session_state[ 'semantic_result_rows' ] = [ ]
+
+if 'semantic_selected_rows' not in st.session_state:
+	st.session_state[ 'semantic_selected_rows' ] = [ ]
+
+if 'semantic_index_chunk_count' not in st.session_state:
+	st.session_state[ 'semantic_index_chunk_count' ] = 0
+
+if 'semantic_index_dim' not in st.session_state:
+	st.session_state[ 'semantic_index_dim' ] = 0
+
+if 'semantic_index_doc_count' not in st.session_state:
+	st.session_state[ 'semantic_index_doc_count' ] = 0
+
+if 'semantic_last_query' not in st.session_state:
+	st.session_state[ 'semantic_last_query' ] = ''
+	
 # ==============================================================================
 # UTILITIES
 # ==============================================================================
+
 def image_to_base64( path: str ) -> str:
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
@@ -295,11 +446,50 @@ def normalize_text( text: str ) -> str:
 	
 	return text
 
-def chunk_text( text: str, size: int = 1200, overlap: int = 200 ) -> List[ str ]:
-	chunks, i = [ ], 0
+def chunk_text( text: str, size: int=None, overlap: int=None ) -> List[ str ]:
+	"""
+		Purpose:
+		--------
+		Split text into overlapping chunks using session-state defaults when explicit values
+		are not provided.
+
+		Parameters:
+		-----------
+		text : str
+		size : int | None
+		overlap : int | None
+
+		Returns:
+		--------
+		List[str]
+	"""
+	if not text:
+		return [ ]
+	
+	chunk_size = int(
+		size if size is not None else st.session_state.get( 'retrieval_chunk_size', 1200 ) )
+	chunk_overlap = int(
+		overlap if overlap is not None else st.session_state.get( 'retrieval_chunk_overlap', 200 ) )
+	
+	if chunk_size <= 0:
+		chunk_size = 1200
+	
+	if chunk_overlap < 0:
+		chunk_overlap = 0
+	
+	if chunk_overlap >= chunk_size:
+		chunk_overlap = max( 0, chunk_size // 4 )
+	
+	chunks: List[ str ] = [ ]
+	i = 0
+	step = max( 1, chunk_size - chunk_overlap )
+
 	while i < len( text ):
-		chunks.append( text[ i:i + size ] )
-		i += size - overlap
+		chunk = text[ i:i + chunk_size ]
+		if chunk and chunk.strip( ):
+			chunks.append( chunk )
+		i += step
+	
 	return chunks
 
 def convert_xml( text: str ) -> str:
@@ -575,25 +765,185 @@ def delete_prompt( pid: int ) -> None:
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
 		conn.execute( "DELETE FROM Prompts WHERE PromptsId=?", (pid,) )
 
-def build_prompt( user_input: str ) -> str:
+def get_effective_system_instructions( ) -> str:
 	"""
 		Purpose:
 		--------
-		Build a llama.cpp-compatible prompt using the application's system instructions, optional
-		retrieval context (semantic + basic RAG), and the current in-memory chat history.
+		Return the authoritative system instructions text from session state.
 
 		Parameters:
 		-----------
-		user_input : str
-			The current user turn to append to the prompt.
+		None
 
 		Returns:
 		--------
 		str
-			A fully constructed prompt in chat template format.
 	"""
-	system_instructions = st.session_state.get( 'system_instructions', '' )
+	text = st.session_state.get( 'system_instructions', '' )
+	return str( text ).strip( ) if text is not None else ''
+
+def build_task_instruction_block( ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a task-specific instruction block for Text Generation mode.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
+	"""
+	task_preset = str( st.session_state.get( 'task_preset', 'Chat' ) or 'Chat' ).strip( )
+	response_format = str(
+		st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
+	reasoning_depth = str(
+		st.session_state.get( 'reasoning_depth', 'Medium' ) or 'Medium' ).strip( )
+	answer_only = bool( st.session_state.get( 'answer_only', False ) )
+	use_self_check = bool( st.session_state.get( 'use_self_check', False ) )
+	deterministic_reasoning = bool( st.session_state.get( 'deterministic_reasoning', False ) )
+	coding_language = str( st.session_state.get( 'coding_language', 'Python' ) or 'Python' ).strip( )
+	coding_task = str( st.session_state.get( 'coding_task', 'Generate' ) or 'Generate' ).strip( )
+	coding_include_comments = bool( st.session_state.get( 'coding_include_comments', True ) )
+	coding_editor_format = bool( st.session_state.get( 'coding_editor_format', True ) )
+	coding_fenced_output = bool( st.session_state.get( 'coding_fenced_output', True ) )
+	translation_target_language = (
+			str( st.session_state.get(
+				'translation_target_language', 'English' ) or 'English' ).strip( ))
+	
+	lines: List[ str ] = [ ]
+	lines.append( 'Task Preset:' )
+	lines.append( f'- Active Task: {task_preset}' )
+	lines.append( f'- Response Format: {response_format}' )
+	if task_preset == 'Reasoning':
+		lines.append( f'- Reasoning Depth: {reasoning_depth}' )
+		lines.append(
+			'- Use a careful analytical process internally and return a clear final answer.' )
+		
+		if answer_only:
+			lines.append( '- Return the final answer without extra prefatory narration.' )
+		if use_self_check:
+			lines.append( '- Verify the conclusion against the prompt before answering.' )
+		if deterministic_reasoning:
+			lines.append( '- Prefer stable, conservative reasoning over creative variation.' )
+	
+	elif task_preset == 'Coding':
+		lines.append( f'- Code Language: {coding_language}' )
+		lines.append( f'- Coding Task: {coding_task}' )
+		if coding_include_comments:
+			lines.append(
+				'- Include documentation comments and useful inline comments when appropriate.' )
+		else:
+			lines.append( '- Minimize comments unless required for clarity.' )
+		if coding_editor_format:
+			lines.append(
+				'- Format the output as editor-ready source code, not as explanatory pseudo-code.'
+			)
+		if coding_fenced_output:
+			lines.append(
+				'- Return code inside fenced markdown code blocks when code is produced.' )
+		else:
+			lines.append(
+				'- Return raw code without fenced markdown blocks when code is produced.' )
+	
+	elif task_preset == 'Translation':
+		lines.append( f'- Translate the user content into {translation_target_language}.' )
+		lines.append( '- Preserve original meaning, tone, and structure where practical.' )
+	
+	elif task_preset == 'Summarization':
+		lines.append( '- Summarize the user content clearly and faithfully.' )
+		lines.append( '- Preserve key facts, names, dates, and conclusions.' )
+	
+	elif task_preset == 'Extraction':
+		lines.append( '- Extract the requested facts faithfully and do not invent missing values.' )
+		if response_format == 'JSON':
+			lines.append( '- Return valid JSON only.' )
+	
+	else:
+		lines.append( '- Respond as a general-purpose assistant.' )
+	
+	return '\n'.join( lines ).strip( )
+
+def build_effective_prompt_preview( user_input: str ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a readable preview of the effective prompt content used for generation.
+
+		Parameters:
+		-----------
+		user_input : str
+
+		Returns:
+		--------
+		str
+	"""
+	system_instructions = get_effective_system_instructions( )
+	task_block = build_task_instruction_block( )
+	preview_parts: List[ str ] = [ ]
+	
+	if system_instructions:
+		preview_parts.append( '[System Instructions]' )
+		preview_parts.append( system_instructions )
+	
+	if task_block:
+		preview_parts.append( '[Task Instructions]' )
+		preview_parts.append( task_block )
+	
+	preview_parts.append( '[User Input]' )
+	preview_parts.append( user_input or '' )
+	
+	return '\n\n'.join( preview_parts ).strip( )
+
+def get_runtime_llm( ) -> Llama:
+	"""
+		Purpose:
+		--------
+		Load the llama.cpp model using the currently selected runtime settings.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Llama
+	"""
+	ctx_value = int( st.session_state.get( 'context_window', cfg.DEFAULT_CTX ) or cfg.DEFAULT_CTX )
+	thread_value = int( st.session_state.get( 'cpu_threads', cfg.CORES ) or cfg.CORES )
+	
+	if ctx_value <= 0:
+		ctx_value = int( cfg.DEFAULT_CTX )
+	
+	if thread_value <= 0:
+		thread_value = int( cfg.CORES )
+	
+	return load_llm( ctx_value, thread_value )
+
+def build_prompt( user_input: str ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a llama.cpp-compatible prompt using unified system instructions, task-specific
+		Text Generation settings, optional semantic/basic context, and chat history.
+
+		Parameters:
+		-----------
+		user_input : str
+
+		Returns:
+		--------
+		str
+	"""
+	global embedder
+	
+	system_instructions = get_effective_system_instructions( )
+	task_block = build_task_instruction_block( )
 	use_semantic = bool( st.session_state.get( 'use_semantic', False ) )
+	use_chat_history = bool( st.session_state.get( 'use_chat_history', True ) )
+	use_document_context = bool( st.session_state.get( 'use_document_context', False ) )
 	basic_docs = st.session_state.get( 'basic_docs', [ ] )
 	messages = st.session_state.get( 'messages', [ ] )
 	
@@ -601,22 +951,34 @@ def build_prompt( user_input: str ) -> str:
 	if top_k_value <= 0:
 		top_k_value = 4
 	
-	prompt = f"<|system|>\n{system_instructions}\n</s>\n"
+	system_parts: List[ str ] = [ ]
+	if system_instructions:
+		system_parts.append( system_instructions )
+	if task_block:
+		system_parts.append( task_block )
+	
+	system_text = '\n\n'.join( [ p for p in system_parts if p ] ).strip( )
+	
+	prompt = ''
+	if system_text:
+		prompt += f'<|system|>\n{system_text}\n</s>\n'
 	
 	if use_semantic:
 		with sqlite3.connect( cfg.DB_PATH ) as conn:
-			rows = conn.execute( "SELECT chunk, vector FROM embeddings" ).fetchall( )
+			rows = conn.execute( 'SELECT chunk, vector FROM embeddings' ).fetchall( )
 		
 		if rows:
 			q = embedder.encode( [ user_input ] )[ 0 ]
-			scored = [ (c, cosine_similarity( q, np.frombuffer( v ) )) for c, v in rows ]
+			scored = [ (c, cosine_similarity( q, np.frombuffer( v, dtype=np.float32 ) )) for c, v in
+			           rows ]
 			for c, _ in sorted( scored, key=lambda x: x[ 1 ], reverse=True )[ :top_k_value ]:
-				prompt += f"<|system|>\n{c}\n</s>\n"
+				prompt += f'<|system|>\nSemantic Context:\n{c}\n</s>\n'
 	
-	for d in basic_docs[ :6 ]:
-		prompt += f"<|system|>\n{d}\n</s>\n"
+	if use_document_context and isinstance( basic_docs, list ):
+		for d in basic_docs[ :6 ]:
+			prompt += f'<|system|>\nDocument Context:\n{d}\n</s>\n'
 	
-	if isinstance( messages, list ):
+	if use_chat_history and isinstance( messages, list ):
 		for msg in messages:
 			role = ''
 			content = ''
@@ -629,56 +991,46 @@ def build_prompt( user_input: str ) -> str:
 				role = str( msg.get( 'role', '' ) or '' ).strip( )
 				content = str( msg.get( 'content', '' ) or '' )
 			
-			if role:
-				prompt += f"<|{role}|>\n{content}\n</s>\n"
+			if role in ('user', 'assistant', 'system'):
+				prompt += f'<|{role}|>\n{content}\n</s>\n'
 	
-	prompt += f"<|user|>\n{user_input}\n</s>\n<|assistant|>\n"
+	prompt += f'<|user|>\n{user_input}\n</s>\n<|assistant|>\n'
 	return prompt
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
-		max_tokens: int, stream: bool, output: Any | None = None ) -> str:
+		max_tokens: int, stream: bool, output: Any=None ) -> str:
 	"""
 		Purpose:
 		--------
-		Run a single LLM turn using the application's shared prompt builder and either stream or
-		return the full response text.
+		Run a single LLM turn using the current session-state runtime settings.
 
 		Parameters:
 		-----------
 		user_input : str
-			The user turn (already constructed, including any document/RAG context if applicable).
 		temperature : float
-			Sampling temperature.
 		top_p : float
-			Nucleus sampling probability.
 		repeat_penalty : float
-			Repeat penalty.
 		max_tokens : int
-			Maximum tokens to generate.
 		stream : bool
-			When True, stream tokens to the provided Streamlit placeholder.
 		output : Any | None
-			A Streamlit placeholder (e.g., st.empty()) used for streaming output.
 
 		Returns:
 		--------
 		str
-			The assistant response text.
 	"""
 	if user_input is None:
 		return ''
 	
+	runtime_llm = get_runtime_llm( )
 	prompt = build_prompt( user_input )
+	max_token_value = int( max_tokens ) if int( max_tokens ) > 0 else 1024
+	temperature_value = float( temperature ) if temperature is not None else 0.0
+	top_p_value = float( top_p ) if top_p is not None else 0.95
+	repeat_penalty_value = float( repeat_penalty ) if repeat_penalty is not None else 1.1
 	if not stream:
-		resp = llm(
-			prompt,
-			stream=False,
-			max_tokens=max_tokens,
-			temperature=temperature,
-			top_p=top_p,
-			repeat_penalty=repeat_penalty,
-			stop=[ '</s>' ]
-		)
+		resp = runtime_llm( prompt, stream=False, max_tokens=max_token_value,
+			temperature=temperature_value, top_p=top_p_value,
+			repeat_penalty=repeat_penalty_value, stop=[ '</s>' ] )
 		text = (resp.get( 'choices', [ { 'text': '' } ] )[ 0 ].get( 'text', '' ) or '')
 		return text.strip( )
 	
@@ -686,15 +1038,10 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 	if output is None:
 		output = st.empty( )
 	
-	for chunk in llm(
-			prompt,
-			stream=True,
-			max_tokens=max_tokens,
-			temperature=temperature,
-			top_p=top_p,
-			repeat_penalty=repeat_penalty,
-			stop=[ '</s>' ]
-	):
+	for chunk in runtime_llm( prompt, stream=True,
+			max_tokens=max_token_value, temperature=temperature_value,
+			top_p=top_p_value, repeat_penalty=repeat_penalty_value,
+			stop=[ '</s>' ] ):
 		buf += chunk[ 'choices' ][ 0 ][ 'text' ]
 		output.markdown( buf + '▌' )
 	
@@ -1386,73 +1733,172 @@ def drop_column( table: str, column: str ):
 
 # ------------- DOCQNA UTILITIES ----------------------
 
-def extract_text_from_bytes( file_bytes: bytes ) -> str:
+def get_doc_action_instruction( action_name: str ) -> str:
 	"""
-		Extracts text from PDF or text-based documents.
+		Purpose:
+		--------
+		Return an instruction block for a selected document action.
+
+		Parameters:
+		-----------
+		action_name : str
+
+		Returns:
+		--------
+		str
 	"""
-	try:
-		import fitz  # PyMuPDF
-		
-		doc = fitz.open( stream=file_bytes, filetype="pdf" )
-		text = ""
-		for page in doc:
-			text += page.get_text( )
-		return text.strip( )
+	action = str( action_name or 'Answer Question' ).strip( )
+	action_map = {
+			'Answer Question':
+				'Answer the user question directly using the retrieved excerpts.',
+			'Summarize Active Document':
+				'Provide a clear, structured summary of the active document.',
+			'Extract Key Points':
+				'Extract the most important points as a concise bullet list.',
+			'Generate Outline':
+				'Generate a structured outline of the document.',
+			'Extract Entities':
+				'Extract named entities, important organizations, dates, and references.',
+			'Extract Tables':
+				'Describe tabular information or structured fields present in the excerpts.',
+			'Compare Active Documents':
+				'Compare the active documents, noting agreements, differences, and gaps.'
+	}
 	
+	return action_map.get( action, action_map[ 'Answer Question' ] )
+
+def build_document_instruction_block( ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a unified instruction block for document-grounded answering.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
+	"""
+	system_instructions = get_effective_system_instructions( )
+	require_grounding = bool( st.session_state.get( 'require_grounding', True ) )
+	answer_from_excerpts_only = bool( st.session_state.get( 'answer_from_excerpts_only', True ) )
+	response_format = str( st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
+	doc_action = str( st.session_state.get( 'doc_action', 'Answer Question' ) or 'Answer Question' )
+	lines: List[ str ] = [ ]
+	if system_instructions:
+		lines.append( system_instructions )
+	
+	lines.append( 'Document Q&A Instructions:' )
+	lines.append( f'- Action: {doc_action}' )
+	lines.append( f'- Response Format: {response_format}' )
+	lines.append( f'- Action Guidance: {get_doc_action_instruction( doc_action )}' )
+	if require_grounding:
+		lines.append( '- Ground every answer in the retrieved document excerpts.' )
+	
+	if answer_from_excerpts_only:
+		lines.append(
+			'- If the retrieved excerpts do not contain the answer, '
+			'state clearly that there is not enough information.' )
+	
+	if response_format == 'JSON':
+		lines.append( '- Return valid JSON only.' )
+	
+	return '\n'.join( lines ).strip( )
+
+def extract_text_from_bytes( file_bytes: bytes, file_name: str='' ) -> str:
+	"""
+		Purpose:
+		--------
+		Extract text from PDF or text-based documents using the current document parsing settings.
+
+		Parameters:
+		-----------
+		file_bytes : bytes
+		file_name : str
+
+		Returns:
+		--------
+		str
+	"""
+	if not file_bytes:
+		return ''
+	
+	file_name_value = str( file_name or '' ).lower( )
+	include_page_markers = bool( st.session_state.get( 'include_page_markers', False ) )
+	prefer_native_pdf_text = bool( st.session_state.get( 'prefer_native_pdf_text', True ) )
+	try:
+		if file_name_value.endswith( '.pdf' ) or file_name_value == '':
+			if prefer_native_pdf_text:
+				doc = fitz.open( stream=file_bytes, filetype='pdf' )
+				parts: List[ str ] = [ ]
+				page_index = 0
+				for page in doc:
+					page_index += 1
+					page_text = page.get_text( 'text' ) or ''
+					if include_page_markers:
+						parts.append( f'[Page {page_index}]' )
+					parts.append( page_text )
+				return '\n'.join( parts ).strip( )
 	except Exception:
-		try:
-			return file_bytes.decode( errors="ignore" )
-		except Exception:
-			return ""
+		pass
+	
+	try:
+		return file_bytes.decode( errors='ignore' ).strip( )
+	except Exception:
+		return ''
 
 def route_document_query( prompt: str ) -> str:
 	"""
 		Purpose:
 		--------
-		Route a document question through the unified chat pipeline and return a model-generated answer.
+		Route a document question or action through the unified chat pipeline.
 
 		Parameters:
 		-----------
 		prompt : str
-			The user question to answer about active documents.
 
 		Returns:
 		--------
 		str
-			The assistant answer text.
 	"""
-	user_input = build_document_user_input( prompt )
+	user_input = build_document_user_input( user_query=prompt,
+		k=int( st.session_state.get( 'retrieval_k', 6 ) ) )
+	
 	if not user_input:
 		user_input = (prompt or '').strip( )
 	
-	return run_llm_turn(
-		user_input=user_input,
+	return run_llm_turn( user_input=user_input,
 		temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
 		top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
 		repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.1 ) ),
 		max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
-		stream=False,
-		output=None
-	)
+		stream=False, output=None )
 
 def summarize_active_document( ) -> str:
 	"""
-		Uses the routing layer to summarize the currently active document.
+		Purpose:
+		--------
+		Summarize the currently active document set using the document routing layer.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
 	"""
-	system_instructions = st.session_state.get( "system_instructions", "" )
 	summary_prompt = """
-		Provide a clear, structured summary of this document.
+		Provide a clear, structured summary of the active document set.
 		Include:
 		- Purpose
 		- Key themes
 		- Major conclusions
-		- Important data points (if any)
-		- Policy implications (if applicable)
-		
-		Be precise and concise.
-		"""
-	if system_instructions:
-		summary_prompt = f"{system_instructions}\n\n{summary_prompt}"
+		- Important data points
+		- Open questions or uncertainties
+	"""
 	
 	return route_document_query( summary_prompt.strip( ) )
 
@@ -1483,34 +1929,22 @@ def compute_fingerprint( active_docs: List[ str ], doc_bytes: Dict[ str, bytes ]
 		h.update( hashlib.sha256( b ).digest( ) )
 	return h.hexdigest( )
 
-def extract_text( file_bytes: bytes ) -> str:
-	'''
-	
+def extract_text( file_bytes: bytes, file_name: str='' ) -> str:
+	"""
 		Purpose:
 		--------
-		Extracts text from a PDF byte stream using PyMuPDF.
-	
+		Extract document text using the configured parsing behavior.
+
 		Parameters:
 		-----------
-		file_bytes:
-			The PDF bytes.
-	
+		file_bytes : bytes
+		file_name : str
+
 		Returns:
 		--------
-		A str containing extracted text.
-	
-	'''
-	if not file_bytes:
-		return ''
-	
-	try:
-		doc = fitz.open( stream=file_bytes, filetype='pdf' )
-		parts: List[ str ] = [ ]
-		for page in doc:
-			parts.append( page.get_text( 'text' ) or '' )
-		return '\n'.join( parts ).strip( )
-	except Exception:
-		return ''
+		str
+	"""
+	return extract_text_from_bytes( file_bytes=file_bytes, file_name=file_name )
 
 def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	'''
@@ -1578,38 +2012,96 @@ def ensure_schema( dim: int ) -> bool:
 	finally:
 		conn.close( )
 
-def rebuild_index( embedder: SentenceTransformer ) -> None:
-	'''
-		
+def build_document_inventory_rows( ) -> List[ Dict[ str, Any ] ]:
+	"""
 		Purpose:
 		--------
-		Builds or refreshes the Document Q&A vector index when active documents change.
-	
+		Build inventory rows for the currently active uploaded documents.
+
 		Parameters:
 		-----------
-		embedder:
-			The SentenceTransformer used to generate embeddings.
+		None
+
+		Returns:
+		--------
+		List[Dict[str, Any]]
+	"""
+	rows: List[ Dict[ str, Any ] ] = [ ]
+	active_docs = st.session_state.get( 'active_docs', [ ] )
+	doc_bytes = st.session_state.get( 'doc_bytes', { } )
+	for name in active_docs:
+		b = doc_bytes.get( name, b'' )
+		text = extract_text( b, name ) if b else ''
+		chunks = chunk_text( text ) if text else [ ]
+		rows.append( {
+					'Name': name,
+					'SizeBytes': len( b ) if b else 0,
+					'TextLength': len( text ) if text else 0,
+					'ChunkCount': len( chunks ),
+					'Loaded': bool( b )
+			} )
 	
+	return rows
+
+def get_active_document_names_text( ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a human-readable string of active document names.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
+	"""
+	active_docs = st.session_state.get( 'active_docs', [ ] )
+	if not isinstance( active_docs, list ) or len( active_docs ) == 0:
+		return 'No active documents'
+	return ', '.join( [ str( name ) for name in active_docs ] )
+
+def rebuild_index( embedder: SentenceTransformer ) -> None:
+	"""
+		Purpose:
+		--------
+		Build or refresh the Document Q&A vector index when active documents or chunk settings change.
+
+		Parameters:
+		-----------
+		embedder : SentenceTransformer
+
 		Returns:
 		--------
 		None
-		
-	'''
+	"""
 	active_docs: List[ str ] = st.session_state.get( 'active_docs', [ ] )
 	doc_bytes: Dict[ str, bytes ] = st.session_state.get( 'doc_bytes', { } )
+	retrieval_chunk_size = int( st.session_state.get( 'retrieval_chunk_size', 1200 ) )
+	retrieval_chunk_overlap = int( st.session_state.get( 'retrieval_chunk_overlap', 200 ) )
 	
-	fp = compute_fingerprint( active_docs, doc_bytes )
+	fp_seed = f'{retrieval_chunk_size}|{retrieval_chunk_overlap}|'
+	fp_seed += compute_fingerprint( active_docs, doc_bytes )
+	fp = hashlib.sha256( fp_seed.encode( 'utf-8', errors='ignore' ) ).hexdigest( )
+	
 	if fp and fp == st.session_state.get( 'docqna_fingerprint', '' ):
+		st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
 		return
 	
 	st.session_state[ 'docqna_fingerprint' ] = fp
 	st.session_state[ 'docqna_chunk_count' ] = 0
 	st.session_state[ 'docqna_fallback_rows' ] = [ ]
+	st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
 	
 	dim_value = getattr( embedder, 'get_sentence_embedding_dimension', lambda: 384 )( )
 	dim = int( dim_value ) if dim_value else 384
 	
-	vec_ready = ensure_schema( dim )
+	prefer_sqlite_vec = bool( st.session_state.get( 'prefer_sqlite_vec', True ) )
+	vec_ready = False
+	if prefer_sqlite_vec:
+		vec_ready = ensure_schema( dim )
+	
 	st.session_state[ 'docqna_vec_ready' ] = bool( vec_ready )
 	
 	conn = create_connection( )
@@ -1632,11 +2124,15 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 			if not b:
 				continue
 			
-			text = extract_text( b )
+			text = extract_text( b, name )
 			if not text:
 				continue
 			
-			chunks = chunk_text( text )
+			chunks = chunk_text(
+				text,
+				size=retrieval_chunk_size,
+				overlap=retrieval_chunk_overlap
+			)
 			if not chunks:
 				continue
 			
@@ -1660,6 +2156,8 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 		
 		if not vec_ready:
 			st.session_state[ 'docqna_fallback_rows' ] = fallback_rows
+		else:
+			st.session_state[ 'docqna_fallback_rows' ] = [ ]
 	
 	except Exception:
 		st.session_state[ 'docqna_vec_ready' ] = False
@@ -1668,36 +2166,33 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 	finally:
 		conn.close( )
 
-def retrieve_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] ]:
-	'''
-	
+def retrieve_chunks( query: str, k: int=None ) -> List[ Tuple[ str, str, float ] ]:
+	"""
 		Purpose:
 		--------
-		Retrieves top-k document chunks relevant to the query, using sqlite-vec when available, and falling
-		back to in-memory cosine similarity when not.
-	
+		Retrieve top-k document chunks relevant to the query using sqlite-vec when available,
+		with optional cosine-similarity fallback.
+
 		Parameters:
 		-----------
-		query:
-			The user query string.
-		k:
-			The number of chunks to return.
-	
+		query : str
+		k : int | None
+
 		Returns:
 		--------
-		A List[ Tuple[ str, str, float ] ] of (doc_name, chunk, score_or_distance).
-	
-	'''
+		List[Tuple[str, str, float]]
+	"""
 	if not query or not query.strip( ):
 		return [ ]
 	
-	embedder: SentenceTransformer = load_embedder( )
 	rebuild_index( embedder )
+	k_value = int( k ) if k is not None else int( st.session_state.get( 'retrieval_k', 6 ) )
+	if k_value <= 0:
+		k_value = 6
 	
 	qv = embedder.encode( [ query ], show_progress_bar=False )
 	qv = np.asarray( qv, dtype=np.float32 )[ 0 ]
-	
-	if st.session_state.get( 'docqna_vec_ready', False ):
+	if bool( st.session_state.get( 'docqna_vec_ready', False ) ):
 		conn = create_connection( )
 		try:
 			load_sqlite_vec( conn )
@@ -1709,8 +2204,7 @@ def retrieve_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] 
                 WHERE embedding MATCH ?
                 ORDER BY distance ASC LIMIT ?;
 				''',
-				(qv.tobytes( ), int( k ))
-			)
+				(qv.tobytes( ), int( k_value )) )
 			rows = cur.fetchall( )
 			return [ (r[ 0 ], r[ 1 ], float( r[ 2 ] )) for r in rows ]
 		except Exception:
@@ -1718,10 +2212,11 @@ def retrieve_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] 
 		finally:
 			conn.close( )
 	
-	fallback_rows: List[
-		Tuple[ str, str, bytes ] ] = st.session_state.get( 'docqna_fallback_rows', [ ] )
-	results: List[ Tuple[ str, str, float ] ] = [ ]
+	if not bool( st.session_state.get( 'allow_similarity_fallback', True ) ):
+		return [ ]
 	
+	fallback_rows: List[ Tuple[ str, str, bytes ] ] = st.session_state.get( 'docqna_fallback_rows', [ ] )
+	results: List[ Tuple[ str, str, float ] ] = [ ]
 	for doc_name, chunk_text_value, vec_blob in fallback_rows:
 		if not vec_blob:
 			continue
@@ -1734,50 +2229,53 @@ def retrieve_chunks( query: str, k: int = 6 ) -> List[ Tuple[ str, str, float ] 
 		results.append( (doc_name, chunk_text_value, float( score )) )
 	
 	results.sort( key=lambda r: r[ 2 ], reverse=True )
-	return results[ : int( k ) ]
+	return results[ : int( k_value ) ]
 
-def build_document_user_input( user_query: str, k: int = 6 ) -> str:
-	'''
-	
+def build_document_user_input( user_query: str, k: int=None ) -> str:
+	"""
 		Purpose:
 		--------
-		Builds a Document Q&A prompt that injects retrieved chunks (RAG) instead of stuffing full documents.
-	
+		Build a document-grounded prompt using retrieved excerpts and the current document action.
+
 		Parameters:
 		-----------
-		user_query:
-			The user question.
-		k:
-			The number of retrieved chunks to include.
-	
+		user_query : str
+		k : int | None
+
 		Returns:
 		--------
-		A str prompt suitable for llama.cpp completion.
-	
-	'''
-	system = str( st.session_state.get( 'system_instructions', '' ) or '' ).strip( )
-	hits = retrieve_chunks( user_query, k=int( k ) )
-	
+		str
+	"""
+	doc_instruction_block = build_document_instruction_block( )
+	hits = retrieve_chunks( user_query, k=k )
+	st.session_state[ 'doc_last_retrieval_hits' ] = hits
 	context_blocks: List[ str ] = [ ]
 	for doc_name, chunk, score in hits:
 		context_blocks.append( f'[Document: {doc_name}]\n{chunk}'.strip( ) )
 	
+	semantic_context_buffer = st.session_state.get( 'semantic_context_buffer', [ ] )
+	if isinstance( semantic_context_buffer, list ):
+		for value in semantic_context_buffer:
+			if isinstance( value, str ) and value.strip( ):
+				context_blocks.append( f'[Semantic Context]\n{value.strip( )}' )
+	
 	context = '\n\n'.join( context_blocks ).strip( )
-	
+	active_doc_names = get_active_document_names_text( )
 	prompt_parts: List[ str ] = [ ]
+	if doc_instruction_block:
+		prompt_parts.append( doc_instruction_block )
 	
-	if system:
-		prompt_parts.append( system )
+	prompt_parts.append( f'Active Documents:\n{active_doc_names}' )
 	
 	if context:
 		prompt_parts.append(
-			'Use the following document excerpts to answer the question. If the excerpts do not contain '
-			'the answer, say you do not have enough information.\n\n'
-			f'{context}'
-		)
+			'Use the following retrieved document excerpts as the evidence base for your answer.\n\n'
+			f'{context}' )
+	else:
+		prompt_parts.append(
+			'No retrieved document excerpts were available for this question.' )
 	
-	prompt_parts.append( f'Question:\n{user_query}\n\nAnswer:' )
-	
+	prompt_parts.append( f'User Request:\n{user_query}\n\nAnswer:' )
 	return '\n\n'.join( prompt_parts ).strip( )
 
 # -------------- LLM  UTILITIES -------------------
@@ -1795,7 +2293,6 @@ def load_embedder( ) -> SentenceTransformer:
 # Init
 # ==============================================================================
 initialize_database( )
-llm = load_llm( cfg.DEFAULT_CTX, cfg.CORES )
 embedder = load_embedder( )
 
 if not isinstance( st.session_state.get( 'messages' ), list ):
@@ -1824,13 +2321,14 @@ with st.sidebar:
 		mode = st.radio( label='', options=cfg.MODES, index=0 )
 	
 	st.divider( )
-	
+
 # ==============================================================================
 # TEXT GENERATION MODE
 # ==============================================================================
 if mode == 'Text Generation':
-	st.subheader( "💬 Text Generation", help=cfg.TEXT_GENERATION )
+	st.subheader( '💬 Text Generation', help=cfg.TEXT_GENERATION )
 	st.divider( )
+	
 	messages = st.session_state.get( 'messages', [ ] )
 	max_tokens = st.session_state.get( 'max_tokens', 0 )
 	top_percent = st.session_state.get( 'top_percent', 0.0 )
@@ -1844,49 +2342,217 @@ if mode == 'Text Generation':
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
 	context_window = st.session_state.get( 'context_window', cfg.DEFAULT_CTX )
 	
-	# ------------------------------------------------------------------
-	# Main Chat UI
-	# ------------------------------------------------------------------
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
 		# ------------------------------------------------------------------
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			with st.expander( label='Task Preset', icon='🧭', expanded=False ):
+				task_c1, task_c2, task_c3, task_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
+				)
+				
+				with task_c1:
+					st.selectbox(
+						label='Task Type',
+						options=[
+								'Chat',
+								'Reasoning',
+								'Coding',
+								'Translation',
+								'Summarization',
+								'Extraction'
+						],
+						key='task_preset'
+					)
+				
+				with task_c2:
+					st.selectbox(
+						label='Response Format',
+						options=[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
+						key='response_format'
+					)
+				
+				with task_c3:
+					st.toggle(
+						label='Use Conversation History',
+						value=bool( st.session_state.get( 'use_chat_history', True ) ),
+						key='use_chat_history'
+					)
+				
+				with task_c4:
+					st.toggle(
+						label='Use Document Context',
+						value=bool( st.session_state.get( 'use_document_context', False ) ),
+						key='use_document_context'
+					)
+				
+				if st.button( label='Reset', key='task_preset_reset', width='stretch' ):
+					for key in [
+							'task_preset',
+							'response_format',
+							'use_chat_history',
+							'use_document_context'
+					]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					
+					st.rerun( )
+			
+			with st.expander( label='Reasoning Controls', icon='🧩', expanded=False ):
+				reason_c1, reason_c2, reason_c3, reason_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
+				)
+				
+				with reason_c1:
+					st.selectbox(
+						label='Reasoning Depth',
+						options=[ 'Low', 'Medium', 'High' ],
+						key='reasoning_depth'
+					)
+				
+				with reason_c2:
+					st.toggle(
+						label='Answer Only',
+						value=bool( st.session_state.get( 'answer_only', False ) ),
+						key='answer_only'
+					)
+				
+				with reason_c3:
+					st.toggle(
+						label='Use Self-Check',
+						value=bool( st.session_state.get( 'use_self_check', False ) ),
+						key='use_self_check'
+					)
+				
+				with reason_c4:
+					st.toggle(
+						label='Prefer Deterministic Reasoning',
+						value=bool( st.session_state.get( 'deterministic_reasoning', False ) ),
+						key='deterministic_reasoning'
+					)
+				
+				if st.button( label='Reset', key='reasoning_controls_reset', width='stretch' ):
+					for key in [
+							'reasoning_depth',
+							'answer_only',
+							'use_self_check',
+							'deterministic_reasoning'
+					]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					
+					st.rerun( )
+			
+			with st.expander( label='Coding Controls', icon='🧾', expanded=False ):
+				code_c1, code_c2, code_c3, code_c4, code_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium'
+				)
+				
+				with code_c1:
+					st.selectbox(
+						label='Code Language',
+						options=[ 'Python', 'C#', 'SQL', 'VBA', 'JavaScript', 'Markdown' ],
+						key='coding_language'
+					)
+				
+				with code_c2:
+					st.selectbox(
+						label='Coding Task',
+						options=[ 'Generate', 'Refactor', 'Explain', 'Debug', 'Review' ],
+						key='coding_task'
+					)
+				
+				with code_c3:
+					st.toggle(
+						label='Include Comments',
+						value=bool( st.session_state.get( 'coding_include_comments', True ) ),
+						key='coding_include_comments'
+					)
+				
+				with code_c4:
+					st.toggle(
+						label='Use Editor Format',
+						value=bool( st.session_state.get( 'coding_editor_format', True ) ),
+						key='coding_editor_format'
+					)
+				
+				with code_c5:
+					st.toggle(
+						label='Emit Fenced Code',
+						value=bool( st.session_state.get( 'coding_fenced_output', True ) ),
+						key='coding_fenced_output'
+					)
+				
+				translation_col_left, translation_col_right = st.columns( [ 0.5, 0.5 ] )
+				with translation_col_left:
+					st.text_input(
+						label='Translation Target Language',
+						key='translation_target_language'
+					)
+				
+				with translation_col_right:
+					st.markdown( '<br>', unsafe_allow_html=True )
+					if st.button( label='Reset', key='coding_controls_reset', width='stretch' ):
+						for key in [
+								'coding_language',
+								'coding_task',
+								'coding_include_comments',
+								'coding_editor_format',
+								'coding_fenced_output',
+								'translation_target_language'
+						]:
+							if key in st.session_state:
+								del st.session_state[ key ]
+						
+						st.rerun( )
 			
 			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
-				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
+				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
+				)
 				
-				# ------------- Temperature ----------
 				with mind_c1:
-					set_temperature = st.slider( label='Temperature', min_value=0.0, max_value=1.0,
-						help=cfg.TEMPERATURE, key='temperature' )
-				
+					st.slider(
+						label='Temperature',
+						min_value=0.0,
+						max_value=1.0,
+						help=cfg.TEMPERATURE,
+						key='temperature'
+					)
 					temperature = st.session_state[ 'temperature' ]
-					
-				# ------------- Top-P ----------
+				
 				with mind_c2:
-					set_top_p = st.slider( label='Top-P', min_value=0.0, max_value=1.0,
-						step=0.01, key='top_percent', help=cfg.TOP_P )
-					
+					st.slider(
+						label='Top-P',
+						min_value=0.0,
+						max_value=1.0,
+						step=0.01,
+						key='top_percent',
+						help=cfg.TOP_P
+					)
 					top_percent = st.session_state[ 'top_percent' ]
 				
-				# ------------- Top-K ----------
 				with mind_c3:
-					set_top_k = st.slider( label='Top-K', min_value=0, max_value=50, step=1,
-						key='top_k', help=cfg.TOP_K )
-					
+					st.slider(
+						label='Top-K',
+						min_value=0,
+						max_value=50,
+						step=1,
+						key='top_k',
+						help=cfg.TOP_K
+					)
 					top_k = st.session_state[ 'top_k' ]
 				
-				# ------------ Grounding --------
 				with mind_c4:
-					set_grounding = st.toggle( label='Use Grounding', value=False,
-						key='is_grounded' )
-					
+					st.toggle(
+						label='Use Grounding',
+						value=bool( st.session_state.get( 'is_grounded', False ) ),
+						key='is_grounded'
+					)
 					is_grounded = st.session_state[ 'is_grounded' ]
-					
-				# ------------- Reset Settings ----------
+				
 				if st.button( label='Reset', key='response_controls_reset', width='stretch' ):
 					for key in [ 'top_k', 'top_percent', 'temperature', 'is_grounded' ]:
 						if key in st.session_state:
@@ -1895,75 +2561,115 @@ if mode == 'Text Generation':
 					st.rerun( )
 			
 			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
-				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
+				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
+				)
 				
-				# ------------- Repeat Window ----------
 				with prob_c1:
-					set_repeat_last_n = st.slider( label='Repeat Window', min_value=0, max_value=1024,
-						step=16, key='repeat_window', help=cfg.REPEAT_WINDOW )
-					
+					st.slider(
+						label='Repeat Window',
+						min_value=0,
+						max_value=1024,
+						step=16,
+						key='repeat_window',
+						help=cfg.REPEAT_WINDOW
+					)
 					repeat_window = st.session_state[ 'repeat_window' ]
 				
-				# ------------- Repeat Penalty ----------
 				with prob_c2:
-					set_repeat_penalty = st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
-						key='repeat_penalty', step=0.05, help=cfg.REPEAT_PENALTY )
-					
+					st.slider(
+						label='Repeat Penalty',
+						min_value=0.0,
+						max_value=2.0,
+						key='repeat_penalty',
+						step=0.05,
+						help=cfg.REPEAT_PENALTY
+					)
 					repeat_penalty = st.session_state[ 'repeat_penalty' ]
 				
-				# ------------- Presense Penalty ----------
 				with prob_c3:
-					set_presence_penalty = st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0,
-						key='presense_penalty', step=0.05, help=cfg.PRESENCE_PENALTY )
-					
+					st.slider(
+						label='Presence Penalty',
+						min_value=0.0,
+						max_value=2.0,
+						key='presense_penalty',
+						step=0.05,
+						help=cfg.PRESENCE_PENALTY
+					)
 					presense_penalty = st.session_state[ 'presense_penalty' ]
 				
-				# ------------- Frequency Penalty ----------
 				with prob_c4:
-					set_frequency_penalty = st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0,
-						key='frequency_penalty', step=0.05, help=cfg.FREQUENCY_PENALTY )
-					
+					st.slider(
+						label='Frequency Penalty',
+						min_value=0.0,
+						max_value=2.0,
+						key='frequency_penalty',
+						step=0.05,
+						help=cfg.FREQUENCY_PENALTY
+					)
 					frequency_penalty = st.session_state[ 'frequency_penalty' ]
 				
-				# ------------- Reset Settings ----------
 				if st.button( label='Reset', key='probability_controls_reset', width='stretch' ):
-					for key in [ 'frequency_penalty', 'presense_penalty',
-					             'temperature', 'repeat_penalty', 'repeat_window' ]:
+					for key in [
+							'frequency_penalty',
+							'presense_penalty',
+							'temperature',
+							'repeat_penalty',
+							'repeat_window'
+					]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
 					st.rerun( )
 			
 			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
-				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
+				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
+				)
 				
-				# ------------- Context Window ----------
 				with ctx_c1:
-					set_ctx = st.slider( label='Context Window', min_value=0, max_value=8192,
-						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
-					
+					st.slider(
+						label='Context Window',
+						min_value=0,
+						max_value=8192,
+						key='context_window',
+						step=512,
+						help=cfg.CONTEXT_WINDOW
+					)
 					context_window = st.session_state[ 'context_window' ]
 				
-				# ------------- CPU Threads ----------
 				with ctx_c2:
-					set_threads = st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
-						key='cpu_threads', step=1, help=cfg.CPU_CORES, )
-					
-					threads = st.session_state[ 'cpu_threads' ]
+					st.slider(
+						label='CPU Threads',
+						min_value=0,
+						max_value=cfg.CORES,
+						key='cpu_threads',
+						step=1,
+						help=cfg.CPU_CORES
+					)
+					cpu_threads = st.session_state[ 'cpu_threads' ]
 				
-				# ------------- Max Tokens ----------
 				with ctx_c3:
-					set_max_tokens = st.slider( label='Max Tokens', min_value=0, max_value=4096, step=128,
-						key='max_tokens', help=cfg.MAX_TOKENS, )
+					st.slider(
+						label='Max Tokens',
+						min_value=0,
+						max_value=4096,
+						step=128,
+						key='max_tokens',
+						help=cfg.MAX_TOKENS
+					)
+					max_tokens = st.session_state[ 'max_tokens' ]
 				
-				# ------------- Random Seed ----------
 				with ctx_c4:
-					set_seed = st.slider( label="Random Seed", min_value=0, max_value=4096, step=1,
-						key='random_seed', help=cfg.SEED )
+					st.slider(
+						label='Random Seed',
+						min_value=0,
+						max_value=4096,
+						step=1,
+						key='random_seed',
+						help=cfg.SEED
+					)
 				
-				# ------------- Reset Settings ----------
 				if st.button( label='Reset', key='context_controls_reset', width='stretch' ):
 					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
 						if key in st.session_state:
@@ -1974,7 +2680,12 @@ if mode == 'Text Generation':
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
-		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+		with st.expander(
+				label='System Instructions',
+				icon='🖥️',
+				expanded=False,
+				width='stretch'
+		):
 			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
 			
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
@@ -1982,57 +2693,116 @@ if mode == 'Text Generation':
 				prompt_names = [ '' ]
 			
 			with in_left:
-				st.text_area( label='Enter Text', height=50, width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS, key='text_system_instructions' )
+				st.text_area(
+					label='Enter Text',
+					height=120,
+					width='stretch',
+					help=cfg.SYSTEM_INSTRUCTIONS,
+					key='system_instructions'
+				)
 			
 			def _on_template_change( ) -> None:
 				name = st.session_state.get( 'instructions' )
 				if name and name != 'No Templates Found':
 					text = fetch_prompt_text( cfg.DB_PATH, name )
 					if text is not None:
-						st.session_state[ 'text_system_instructions' ] = text
+						st.session_state[ 'system_instructions' ] = text
+						st.session_state[ 'active_prompt_caption' ] = name
 			
 			with in_right:
-				st.selectbox( label='Use Template', options=prompt_names, index=None,
-					key='instructions', on_change=_on_template_change )
+				st.selectbox(
+					label='Use Template',
+					options=prompt_names,
+					index=None,
+					key='instructions',
+					on_change=_on_template_change
+				)
 			
 			def _on_clear( ) -> None:
-				st.session_state[ 'text_system_instructions' ] = ''
+				st.session_state[ 'system_instructions' ] = ''
 				st.session_state[ 'instructions' ] = ''
+				st.session_state[ 'active_prompt_caption' ] = ''
 			
 			def _on_convert_system_instructions( ) -> None:
-				text = st.session_state.get( 'text_system_instructions', '' )
+				text = st.session_state.get( 'system_instructions', '' )
 				if not isinstance( text, str ) or not text.strip( ):
 					return
 				
 				src = text.strip( )
 				
-				# XML-delimited prompt blocks -> Markdown headings
 				if cfg.XML_BLOCK_PATTERN.search( src ):
 					converted = convert_xml( src )
-				
-				# Markdown headings <-> simple <hN> tags handled by existing helper
 				else:
 					converted = convert_markdown( src )
 				
-				st.session_state[ 'text_system_instructions' ] = converted
+				st.session_state[ 'system_instructions' ] = converted
 			
-			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
+			def _on_apply_preset_template( ) -> None:
+				task_preset = str(
+					st.session_state.get( 'task_preset', 'Chat' ) or 'Chat' ).strip( )
+				
+				preset_map = {
+						'Chat': 'You are Bro, a helpful local assistant. Be accurate, practical, and concise.',
+						'Reasoning': 'Solve the task carefully, step by step internally, then provide a clear answer.',
+						'Coding': 'Produce correct, editor-ready code and explain only as needed.',
+						'Translation': 'Translate faithfully while preserving meaning and tone.',
+						'Summarization': 'Summarize faithfully and preserve key facts.',
+						'Extraction': 'Extract only supported facts and do not invent missing values.'
+				}
+				
+				st.session_state[ 'system_instructions' ] = preset_map.get(
+					task_preset,
+					preset_map[ 'Chat' ]
+				)
+			
+			user_preview_input = st.session_state.get( 'last_preview_input', '' )
+			
+			btn_c1, btn_c2, btn_c3, btn_c4 = st.columns( [ 0.35, 0.2, 0.2, 0.25 ] )
 			with btn_c1:
-				st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
+				st.button(
+					label='Clear Instructions',
+					width='stretch',
+					on_click=_on_clear
+				)
 			
 			with btn_c2:
-				st.button( label='XML <-> Markdown', width='stretch',
-					on_click=_on_convert_system_instructions )
+				st.button(
+					label='XML <-> Markdown',
+					width='stretch',
+					on_click=_on_convert_system_instructions
+				)
+			
+			with btn_c3:
+				st.button(
+					label='Apply Preset',
+					width='stretch',
+					on_click=_on_apply_preset_template
+				)
+			
+			with btn_c4:
+				if st.button( label='Preview Prompt', width='stretch' ):
+					st.session_state[ 'preview_effective_prompt' ] = not bool(
+						st.session_state.get( 'preview_effective_prompt', False )
+					)
+			
+			if bool( st.session_state.get( 'preview_effective_prompt', False ) ):
+				st.text_area(
+					label='Effective Prompt Preview',
+					value=build_effective_prompt_preview( user_preview_input ),
+					height=220,
+					disabled=True
+				)
 		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
 		for r, c in st.session_state.messages:
 			with st.chat_message( r ):
 				st.markdown( c )
-			
+		
 		user_input = st.chat_input( 'Ask Bro…' )
 		if user_input:
+			st.session_state[ 'last_preview_input' ] = str( user_input )
+			
 			save_message( 'user', user_input )
 			st.session_state.messages.append( ('user', user_input) )
 			
@@ -2041,15 +2811,12 @@ if mode == 'Text Generation':
 			
 			with st.chat_message( 'assistant' ):
 				out = st.empty( )
-				buf = run_llm_turn(
-					user_input=user_input,
-					temperature=float( temperature ),
-					top_p=float( top_percent ),
-					repeat_penalty=float( repeat_penalty ),
-					max_tokens=1024,
-					stream=True,
-					output=out
-				)
+				buf = run_llm_turn( user_input=user_input,
+					temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
+					top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
+					repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.1 ) ),
+					max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
+					stream=True, output=out )
 			
 			save_message( 'assistant', buf )
 			st.session_state.messages.append( ('assistant', buf) )
@@ -2058,13 +2825,14 @@ if mode == 'Text Generation':
 			clear_history( )
 			st.session_state.messages = [ ]
 			st.rerun( )
-		
+
 # ==============================================================================
 # RETRIEVAL AUGMENTATION
 # ==============================================================================
 elif mode == 'Document Q&A':
-	st.subheader( "📚 Retrieval Augementation", help=cfg.RETRIEVAL_AUGMENTATION )
+	st.subheader( '📚 Retrieval Augementation', help=cfg.RETRIEVAL_AUGMENTATION )
 	st.divider( )
+	
 	messages = st.session_state.get( 'messages', [ ] )
 	uploaded = st.session_state.get( 'uploaded', [ ] )
 	active_docs = st.session_state.get( 'active_docs', [ ] )
@@ -2080,43 +2848,169 @@ elif mode == 'Document Q&A':
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
 	context_window = st.session_state.get( 'context_window', cfg.DEFAULT_CTX )
 	
-	# ------------------------------------------------------------------
-	# Main Chat UI
-	# ------------------------------------------------------------------
 	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
 		# ------------------------------------------------------------------
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
+				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
+					border=True, gap='medium' )
+				
+				with ret_c1:
+					st.slider( label='Chunks to Retrieve', min_value=1,
+						max_value=20, step=1, key='retrieval_k' )
+				
+				with ret_c2:
+					st.slider( label='Chunk Size', min_value=256, max_value=4000,
+						step=64, key='retrieval_chunk_size' )
+				
+				with ret_c3:
+					st.slider( label='Chunk Overlap', min_value=0, max_value=1000,
+						step=25, key='retrieval_chunk_overlap' )
+				
+				with ret_c4:
+					st.toggle( label='Show Retrieved Chunks',
+						value=bool( st.session_state.get( 'show_retrieved_chunks', True ) ),
+						key='show_retrieved_chunks' )
+				
+				ret_c5, ret_c6, ret_c7, ret_c8 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
+					border=True, gap='medium' )
+				
+				with ret_c5:
+					st.toggle( label='Require Grounding',
+						value=bool( st.session_state.get( 'require_grounding', True ) ),
+						key='require_grounding' )
+				
+				with ret_c6:
+					st.toggle( label='Answer From Excerpts Only',
+						value=bool( st.session_state.get( 'answer_from_excerpts_only', True ) ),
+						key='answer_from_excerpts_only' )
+				
+				with ret_c7:
+					st.toggle( label='Use sqlite-vec',
+						value=bool( st.session_state.get( 'prefer_sqlite_vec', True ) ),
+						key='prefer_sqlite_vec' )
+				
+				with ret_c8:
+					st.toggle( label='Fallback Cosine Search',
+						value=bool( st.session_state.get( 'allow_similarity_fallback', True ) ),
+						key='allow_similarity_fallback' )
+				
+				if st.button( label='Reset', key='doc_retrieval_controls_reset', width='stretch' ):
+					for key in [ 'retrieval_k', 'retrieval_chunk_size', 'retrieval_chunk_overlap',
+					             'show_retrieved_chunks', 'require_grounding', 'answer_from_excerpts_only',
+					             'prefer_sqlite_vec', 'allow_similarity_fallback' ]:
+						
+						if key in st.session_state:
+							del st.session_state[ key ]
+					
+					st.rerun( )
+			
+			with st.expander( label='Document Actions', icon='🗂️', expanded=False ):
+				action_c1, action_c2 = st.columns( [ 0.6, 0.4 ], border=True )
+				
+				with action_c1:
+					st.selectbox( label='Action',
+						options=[ 'Answer Question', 'Summarize Active Document',
+						          'Extract Key Points', 'Generate Outline',
+						          'Extract Entities', 'Extract Tables',
+						          'Compare Active Documents' ], key='doc_action' )
+				
+				with action_c2:
+					st.markdown( '<br>', unsafe_allow_html=True )
+					if st.button( 'Run Action', key='doc_run_action', width='stretch' ):
+						action_name = str(
+							st.session_state.get( 'doc_action', 'Answer Question' ) or
+							'Answer Question' ).strip( )
+						
+						action_prompts = {
+								'Summarize Active Document':
+									'Summarize the active document set clearly and faithfully.',
+								'Extract Key Points':
+									'Extract the key points from the active document set.',
+								'Generate Outline':
+									'Generate an outline of the active document set.',
+								'Extract Entities':
+									'Extract named entities, dates, organizations, and references from the active document set.',
+								'Extract Tables':
+									'Describe the tabular or structured information visible in the active document set.',
+								'Compare Active Documents':
+									'Compare the active documents and explain major agreements, differences, and gaps.'
+						}
+						
+						if action_name != 'Answer Question':
+							action_prompt = action_prompts.get( action_name,
+								'Summarize the active document set.' )
+							
+							with st.chat_message( 'assistant' ):
+								out = st.empty( )
+								response = run_llm_turn( user_input=build_document_user_input(
+									user_query=action_prompt,
+									k=int( st.session_state.get( 'retrieval_k', 6 ) ) ),
+									temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
+									top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
+									repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.1 ) ),
+									max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
+									stream=True, output=out )
+							
+							save_message( 'assistant', response )
+							st.session_state.messages.append( ('assistant', response) )
+			
+			with st.expander( label='Document Parsing', icon='📄', expanded=False ):
+				parse_c1, parse_c2, parse_c3, parse_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
+					border=True, gap='medium' )
+				
+				with parse_c1:
+					st.toggle( label='Enable OCR',
+						value=bool( st.session_state.get( 'ocr_enabled', False ) ),
+						key='ocr_enabled' )
+				
+				with parse_c2:
+					st.toggle( label='Prefer Native PDF Text',
+						value=bool( st.session_state.get( 'prefer_native_pdf_text', True ) ),
+						key='prefer_native_pdf_text' )
+				
+				with parse_c3:
+					st.toggle( label='Include Page Markers',
+						value=bool( st.session_state.get( 'include_page_markers', False ) ),
+						key='include_page_markers' )
+				
+				with parse_c4:
+					st.toggle( label='Show Diagnostics',
+						value=bool( st.session_state.get( 'show_doc_parse_diagnostics', False ) ),
+						key='show_doc_parse_diagnostics' )
+				
+				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch' ):
+					for key in [ 'ocr_enabled', 'prefer_native_pdf_text',
+							'include_page_markers', 'show_doc_parse_diagnostics' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					
+					st.rerun( )
 			
 			with st.expander( label='Response Settings', icon='↔️', expanded=False ):
-				mind_c1, mind_c2, mind_c3 = st.columns( [ .33, .33, .33 ], border=True, gap='medium' )
+				mind_c1, mind_c2, mind_c3 = st.columns( [ 0.33, 0.33, 0.33 ],
+					border=True, gap='medium' )
 				
-				# ------------- Temperature ----------
 				with mind_c1:
-					set_temperature = st.slider( label='Temperature', min_value=0.0, max_value=1.0,
-						value=float( st.session_state.get( 'temperature' ) ),
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0,
+						value=float( st.session_state.get( 'temperature', 0.0 ) ),
 						help=cfg.TEMPERATURE, key='temperature' )
-					
 					temperature = st.session_state[ 'temperature' ]
 				
-				# ------------- Top-P ----------
 				with mind_c2:
-					set_top_p = st.slider( label='Top-P', min_value=0.0, max_value=1.0,
-						step=0.01, key='top_percent', help=cfg.TOP_P )
-					
+					st.slider( label='Top-P', min_value=0.0, max_value=1.0, step=0.01,
+						key='top_percent', help=cfg.TOP_P )
 					top_percent = st.session_state[ 'top_percent' ]
 				
-				# ------------- Top-K ----------
 				with mind_c3:
-					set_top_k = st.slider( label='Top-K', min_value=0, max_value=50, step=1,
+					st.slider( label='Top-K', min_value=0, max_value=50, step=1,
 						key='top_k', help=cfg.TOP_K )
-					
 					top_k = st.session_state[ 'top_k' ]
 				
-				# ------------- Reset ----------
-				if st.button( label='Reset', key='response_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch' ):
 					for key in [ 'top_k', 'top_percent', 'temperature' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -2127,38 +3021,30 @@ elif mode == 'Document Q&A':
 				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
-				# ------------- Repeat Window ----------
 				with prob_c1:
-					set_repeat_last_n = st.slider( label='Repeat Window', min_value=0, max_value=1024,
+					st.slider( label='Repeat Window', min_value=0, max_value=1024,
 						step=16, key='repeat_window', help=cfg.REPEAT_WINDOW )
-					
 					repeat_window = st.session_state[ 'repeat_window' ]
 				
-				# ------------- Repeat Penalty ----------
 				with prob_c2:
-					set_repeat_penalty = st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
+					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
 						key='repeat_penalty', step=0.05, help=cfg.REPEAT_PENALTY )
-					
 					repeat_penalty = st.session_state[ 'repeat_penalty' ]
 				
-				# ------------- Presense Penalty ----------
 				with prob_c3:
-					set_presence_penalty = st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0,
+					st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0,
 						key='presense_penalty', step=0.05, help=cfg.PRESENCE_PENALTY )
-					
 					presense_penalty = st.session_state[ 'presense_penalty' ]
 				
-				# ------------- Frequency Penalty ----------
 				with prob_c4:
-					set_frequency_penalty = st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0,
+					st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0,
 						key='frequency_penalty', step=0.05, help=cfg.FREQUENCY_PENALTY )
-					
 					frequency_penalty = st.session_state[ 'frequency_penalty' ]
 				
-				# ------------- Reset Settings ----------
-				if st.button( label='Reset', key='probability_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_probability_controls_reset',
+						width='stretch' ):
 					for key in [ 'frequency_penalty', 'presense_penalty',
-					             'temperature', 'repeat_penalty', 'repeat_window' ]:
+							'temperature', 'repeat_penalty', 'repeat_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -2168,32 +3054,26 @@ elif mode == 'Document Q&A':
 				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
 				
-				# ------------- Context Window ----------
 				with ctx_c1:
-					set_ctx = st.slider( label='Context Window', min_value=0, max_value=8192,
+					st.slider( label='Context Window', min_value=0, max_value=8192,
 						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
-					
 					context_window = st.session_state[ 'context_window' ]
 				
-				# ------------- CPU Threads ----------
 				with ctx_c2:
-					set_threads = st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
-						key='cpu_threads', step=1, help=cfg.CPU_CORES, )
-					
-					threads = st.session_state[ 'cpu_threads' ]
+					st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
+						key='cpu_threads', step=1, help=cfg.CPU_CORES )
+					cpu_threads = st.session_state[ 'cpu_threads' ]
 				
-				# ------------- Max Tokens ----------
 				with ctx_c3:
-					set_max_tokens = st.slider( label='Max Tokens', min_value=0, max_value=4096, step=128,
-						key='max_tokens', help=cfg.MAX_TOKENS, )
+					st.slider( label='Max Tokens', min_value=0, max_value=4096, step=128,
+						key='max_tokens', help=cfg.MAX_TOKENS )
+					max_tokens = st.session_state[ 'max_tokens' ]
 				
-				# ------------- Random Seed ----------
 				with ctx_c4:
-					set_seed = st.slider( label="Random Seed", min_value=0, max_value=4096, step=1,
+					st.slider( label='Random Seed', min_value=0, max_value=4096, step=1,
 						key='random_seed', help=cfg.SEED )
 				
-				# ------------- Reset Settings ----------
-				if st.button( label='Reset', key='context_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_context_controls_reset', width='stretch' ):
 					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -2205,90 +3085,73 @@ elif mode == 'Document Q&A':
 		# ------------------------------------------------------------------
 		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
 			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
-			
 			prompt_names = fetch_prompt_names( cfg.DB_PATH )
 			if not prompt_names:
 				prompt_names = [ '' ]
 			
 			with in_left:
-				st.text_area(
-					label='Enter Text',
-					height=50,
-					width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS,
-					key='text_system_instructions'
-				)
+				st.text_area( label='Enter Text', height=120, width='stretch',
+					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
 			
-			def _on_template_change( ) -> None:
+			def _on_doc_template_change( ) -> None:
 				name = st.session_state.get( 'instructions' )
 				if name and name != 'No Templates Found':
 					text = fetch_prompt_text( cfg.DB_PATH, name )
 					if text is not None:
-						st.session_state[ 'text_system_instructions' ] = text
+						st.session_state[ 'system_instructions' ] = text
+						st.session_state[ 'active_prompt_caption' ] = name
 			
 			with in_right:
-				st.selectbox(
-					label='Use Template',
-					options=prompt_names,
-					index=None,
-					key='instructions',
-					on_change=_on_template_change
-				)
+				st.selectbox( label='Use Template', options=prompt_names, index=None,
+					key='instructions', on_change=_on_doc_template_change )
 			
-			def _on_clear( ) -> None:
-				st.session_state[ 'text_system_instructions' ] = ''
+			def _on_doc_clear( ) -> None:
+				st.session_state[ 'system_instructions' ] = ''
 				st.session_state[ 'instructions' ] = ''
+				st.session_state[ 'active_prompt_caption' ] = ''
 			
-			def _on_convert_system_instructions( ) -> None:
-				text = st.session_state.get( 'text_system_instructions', '' )
+			def _on_doc_convert_system_instructions( ) -> None:
+				text = st.session_state.get( 'system_instructions', '' )
 				if not isinstance( text, str ) or not text.strip( ):
 					return
 				
 				src = text.strip( )
-				
-				# XML-delimited prompt blocks -> Markdown headings
 				if cfg.XML_BLOCK_PATTERN.search( src ):
 					converted = convert_xml( src )
-				
-				# Markdown headings <-> simple <hN> tags handled by existing helper
 				else:
 					converted = convert_markdown( src )
 				
-				st.session_state[ 'text_system_instructions' ] = converted
+				st.session_state[ 'system_instructions' ] = converted
 			
 			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
 			with btn_c1:
-				st.button(
-					label='Clear Instructions',
-					width='stretch',
-					on_click=_on_clear
-				)
+				st.button( label='Clear Instructions', width='stretch',
+					on_click=_on_doc_clear )
 			
 			with btn_c2:
-				st.button(
-					label='XML <-> Markdown',
-					width='stretch',
-					on_click=_on_convert_system_instructions
-				)
+				st.button( label='XML <-> Markdown', width='stretch',
+					on_click=_on_doc_convert_system_instructions )
 		
 		# ------------------------------------------------------------------
 		# Document Selection UI
 		# ------------------------------------------------------------------
-		with st.expander( label='Document Loader', icon='📥', expanded=False, width='stretch' ):
+		with st.expander( label='Document Loader', icon='📥', expanded=False,
+				width='stretch' ):
 			doc_left, doc_right = st.columns( [ 0.5, 0.5 ], gap='medium', border=True )
 			with doc_left:
-				doc_source = st.radio( label='Document Source', options=[ 'uploadlocal' ],
+				st.radio( label='Document Source', options=[ 'uploadlocal' ],
 					index=0, horizontal=True, key='doc_source' )
 				
-				uploaded = st.file_uploader( label='Upload a document (PDF, TXT, DOCX)',
+				uploaded = st.file_uploader( label='Upload document(s) (PDF, TXT, DOCX)',
 					type=[ 'pdf', 'txt', 'docx' ], accept_multiple_files=True,
 					label_visibility='visible' )
 				
-				if uploaded is not None and type( uploaded ) == list and len( uploaded ) > 0:
+				if uploaded is not None and isinstance( uploaded, list ) and len( uploaded ) > 0:
 					st.session_state.uploaded = uploaded
 					names: List[ str ] = [ f.name for f in uploaded if getattr( f, 'name', None ) ]
 					st.session_state.active_docs = names
-					if 'doc_bytes' not in st.session_state or not isinstance( st.session_state.doc_bytes, dict ):
+					if 'doc_bytes' not in st.session_state or not isinstance(
+							st.session_state.doc_bytes, dict ):
 						st.session_state.doc_bytes = { }
 					
 					for f in uploaded:
@@ -2297,27 +3160,56 @@ elif mode == 'Document Q&A':
 								st.session_state.doc_bytes[ f.name ] = f.getvalue( )
 						except Exception:
 							continue
+					
+					st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
 				else:
-					st.info( 'Load a Document.' )
+					st.info( 'Load a document.' )
 				
-				unload = st.button( label='Unload Document', width='stretch' )
+				if st.session_state.get( 'active_docs' ):
+					st.multiselect( label='Active Documents',
+						options=[ f.name for f in st.session_state.get( 'uploaded', [ ] ) ],
+						default=st.session_state.get( 'active_docs', [ ] ),
+						key='active_docs' )
+				
+				unload = st.button( label='Unload Document(s)', width='stretch' )
 				if unload:
 					st.session_state.uploaded = [ ]
 					st.session_state.active_docs = [ ]
 					st.session_state.doc_bytes = { }
+					st.session_state[ 'doc_inventory_rows' ] = [ ]
+					st.session_state[ 'docqna_fingerprint' ] = ''
+					st.session_state[ 'docqna_chunk_count' ] = 0
+					st.session_state[ 'docqna_fallback_rows' ] = [ ]
+					st.session_state[ 'doc_last_retrieval_hits' ] = [ ]
+					st.rerun( )
+				
+				if bool( st.session_state.get( 'show_doc_parse_diagnostics', False ) ):
+					st.caption(
+						f'Chunk Size: {int( st.session_state.get( "retrieval_chunk_size", 1200 ) )} '
+						f'| Chunk Overlap: {int( st.session_state.get( "retrieval_chunk_overlap", 200 ) )} '
+						f'| Index Ready: {bool( st.session_state.get( "docqna_vec_ready", False ) )} '
+						f'| Chunk Count: {int( st.session_state.get( "docqna_chunk_count", 0 ) )}' )
 			
 			with doc_right:
 				if st.session_state.get( 'active_docs' ):
-					name = st.session_state.active_docs[ 0 ]
-					file_bytes = st.session_state.doc_bytes.get( name )
-					
-					if file_bytes:
+					preview_name = st.session_state.active_docs[ 0 ]
+					file_bytes = st.session_state.doc_bytes.get( preview_name )
+					if file_bytes and str( preview_name ).lower( ).endswith( '.pdf' ):
 						st.pdf( file_bytes, height=420 )
+					elif file_bytes:
+						preview_text = extract_text( file_bytes, preview_name )
+						st.text_area( label=f'Preview: {preview_name}', value=preview_text[ :4000 ],
+							height=420, disabled=True )
 					else:
-						st.info( "Document loaded but preview unavailable." )
+						st.info( 'Document loaded but preview unavailable.' )
 				else:
-					st.info( "No document loaded." )
+					st.info( 'No document loaded.' )
 			
+			if st.session_state.get( 'doc_inventory_rows' ):
+				st.markdown( '### Active Document Inventory' )
+				st.dataframe( pd.DataFrame( st.session_state.get( 'doc_inventory_rows', [ ] ) ),
+					use_container_width=True )
+		
 		# ------------------------------------------------------------------
 		# Chat History Render
 		# ------------------------------------------------------------------
@@ -2342,7 +3234,7 @@ elif mode == 'Document Q&A':
 				else:
 					role = ''
 					content = ''
-					
+			
 			if role not in ('user', 'assistant', 'system'):
 				continue
 			
@@ -2353,7 +3245,7 @@ elif mode == 'Document Q&A':
 			
 			with st.chat_message( role ):
 				st.markdown( content )
-				
+		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
 		# ------------------------------------------------------------------
@@ -2363,7 +3255,8 @@ elif mode == 'Document Q&A':
 		if user_input and isinstance( user_input, str ) and user_input.strip( ):
 			user_input = user_input.strip( )
 			
-			if 'messages' not in st.session_state or not isinstance( st.session_state.messages, list ):
+			if 'messages' not in st.session_state or not isinstance(
+					st.session_state.messages, list ):
 				st.session_state.messages = [ ]
 			
 			save_message( 'user', user_input )
@@ -2372,20 +3265,21 @@ elif mode == 'Document Q&A':
 			with st.chat_message( 'user' ):
 				st.markdown( user_input )
 			
-			doc_user_input = build_document_user_input( user_input )
-			if not doc_user_input or not isinstance( doc_user_input, str ) or not doc_user_input.strip( ):
+			doc_user_input = build_document_user_input( user_query=user_input,
+				k=int( st.session_state.get( 'retrieval_k', 6 ) ) )
+			
+			if not doc_user_input or not isinstance( doc_user_input,
+					str ) or not doc_user_input.strip( ):
 				doc_user_input = user_input
 			
 			with st.chat_message( 'assistant' ):
 				out = st.empty( )
-				response = run_llm_turn(
-					user_input=doc_user_input,
+				response = run_llm_turn( user_input=doc_user_input,
 					temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
 					top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
 					repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.1 ) ),
 					max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
-					stream=True,
-					output=out )
+					stream=True, output=out )
 			
 			if response is None:
 				response = ''
@@ -2395,6 +3289,29 @@ elif mode == 'Document Q&A':
 			response = response.strip( )
 			save_message( 'assistant', response )
 			st.session_state.messages.append( ('assistant', response) )
+			if bool( st.session_state.get( 'show_retrieved_chunks', True ) ):
+				hits = st.session_state.get( 'doc_last_retrieval_hits', [ ] )
+				if hits:
+					with st.expander( 'Retrieved Chunks', expanded=False ):
+						for idx, hit in enumerate( hits, start=1 ):
+							doc_name = str( hit[ 0 ] )
+							chunk_text_value = str( hit[ 1 ] )
+							score_value = hit[ 2 ]
+							
+							st.markdown( f'**{idx}. {doc_name}**' )
+							st.caption( f'Score / Distance: {score_value}' )
+							st.text_area(
+								label=f'Chunk {idx}',
+								value=chunk_text_value,
+								height=140,
+								disabled=True,
+								key=f'doc_hit_{idx}'
+							)
+		
+		if st.button( '🧹 Clear Chat', key='doc_clear_chat' ):
+			clear_history( )
+			st.session_state.messages = [ ]
+			st.rerun( )
 			
 # ==============================================================================
 # SEMANTIC SEARCH
