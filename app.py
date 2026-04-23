@@ -255,7 +255,7 @@ if 'doc_last_retrieval_hits' not in st.session_state:
 if 'doc_inventory_rows' not in st.session_state:
 	st.session_state[ 'doc_inventory_rows' ] = [ ]
 
-# -------- SEMANTIC SEARCH EXTENSIONS ---------------------
+# -------- SEMANTIC SEARCH ---------------------
 
 if 'semantic_context_buffer' not in st.session_state:
 	st.session_state[ 'semantic_context_buffer' ] = [ ]
@@ -1730,6 +1730,27 @@ def drop_column( table: str, column: str ):
 				conn.execute( idx_sql )
 		
 		conn.commit( )
+	
+def reset_selection( ):
+	st.session_state.pe_selected_id = None
+	st.session_state.pe_caption = ''
+	st.session_state.pe_name = ''
+	st.session_state.pe_text = ''
+	st.session_state.pe_version = ''
+	st.session_state.pe_id = 0
+
+def load_prompt( pid: int ) -> None:
+	with create_connection( ) as conn:
+		_select = f"SELECT Caption, Name, Text, Version, ID FROM {TABLE} WHERE PromptsId=?"
+		cur = conn.execute( _select, (pid,), )
+		row = cur.fetchone( )
+		if not row:
+			return
+		st.session_state.pe_caption = row[ 0 ]
+		st.session_state.pe_name = row[ 1 ]
+		st.session_state.pe_text = row[ 2 ]
+		st.session_state.pe_version = row[ 3 ]
+		st.session_state.pe_id = row[ 4 ]
 
 # ------------- DOCQNA UTILITIES ----------------------
 
@@ -2278,6 +2299,310 @@ def build_document_user_input( user_query: str, k: int=None ) -> str:
 	prompt_parts.append( f'User Request:\n{user_query}\n\nAnswer:' )
 	return '\n\n'.join( prompt_parts ).strip( )
 
+# ------------ SEMANTIC SEARCH UTLITIES -------------------
+
+def decode_embedding_rows( ) -> List[ Tuple[ str, np.ndarray ] ]:
+	"""
+		Purpose:
+		--------
+		Read and decode rows from the semantic embeddings table.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		List[Tuple[str, np.ndarray]]
+	"""
+	rows_out: List[ Tuple[ str, np.ndarray ] ] = [ ]
+	
+	with sqlite3.connect( cfg.DB_PATH ) as conn:
+		rows = conn.execute( 'SELECT chunk, vector FROM embeddings' ).fetchall( )
+	
+	for chunk_text_value, vector_blob in rows:
+		if not vector_blob:
+			continue
+		
+		vec = np.frombuffer( vector_blob, dtype=np.float32 )
+		if vec.size == 0:
+			continue
+		
+		rows_out.append( (str( chunk_text_value or '' ), vec) )
+	
+	return rows_out
+
+def clear_semantic_index( ) -> None:
+	"""
+		Purpose:
+		--------
+		Clear the semantic embeddings table and reset Semantic Search diagnostics.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		None
+	"""
+	with sqlite3.connect( cfg.DB_PATH ) as conn:
+		conn.execute( 'DELETE FROM embeddings' )
+		conn.commit( )
+	
+	st.session_state[ 'semantic_result_rows' ] = [ ]
+	st.session_state[ 'semantic_selected_rows' ] = [ ]
+	st.session_state[ 'semantic_index_chunk_count' ] = 0
+	st.session_state[ 'semantic_index_dim' ] = 0
+	st.session_state[ 'semantic_index_doc_count' ] = 0
+	st.session_state[ 'semantic_uploaded_names' ] = [ ]
+	st.session_state[ 'semantic_last_query' ] = ''
+
+def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
+	"""
+		Purpose:
+		--------
+		Build or append a semantic chunk index from uploaded files.
+
+		Parameters:
+		-----------
+		uploaded_files : List[Any]
+
+		Returns:
+		--------
+		Dict[str, Any]
+	"""
+	if embedder is None:
+		return {
+				'success': False,
+				'message': 'Embedding model unavailable.',
+				'doc_count': 0,
+				'chunk_count': 0,
+				'vector_dim': 0
+		}
+	
+	chunk_size = int( st.session_state.get( 'semantic_chunk_size', 1200 ) )
+	chunk_overlap = int( st.session_state.get( 'semantic_chunk_overlap', 200 ) )
+	clear_existing = bool( st.session_state.get( 'semantic_clear_existing', True ) )
+	append_existing = bool( st.session_state.get( 'semantic_append_existing', False ) )
+	
+	if clear_existing and not append_existing:
+		clear_semantic_index( )
+	
+	all_chunks: List[ str ] = [ ]
+	doc_names: List[ str ] = [ ]
+	for f in uploaded_files:
+		try:
+			file_name = str( getattr( f, 'name', '' ) or '' ).strip( )
+			file_bytes = f.getvalue( )
+		except Exception:
+			continue
+		
+		if not file_name or not file_bytes:
+			continue
+		
+		text = extract_text_from_bytes( file_bytes=file_bytes, file_name=file_name )
+		if not text:
+			try:
+				text = file_bytes.decode( errors='ignore' )
+			except Exception:
+				text = ''
+		
+		if not text:
+			continue
+		
+		chunks = chunk_text( text=text, size=chunk_size, overlap=chunk_overlap )
+		if not chunks:
+			continue
+		
+		all_chunks.extend( chunks )
+		doc_names.append( file_name )
+	
+	if len( all_chunks ) == 0:
+		return {
+				'success': False,
+				'message': 'No extractable text was found in the uploaded files.',
+				'doc_count': 0,
+				'chunk_count': 0,
+				'vector_dim': 0
+		}
+	
+	vecs = embedder.encode( all_chunks, show_progress_bar=False )
+	vecs = np.asarray( vecs, dtype=np.float32 )
+	with sqlite3.connect( cfg.DB_PATH ) as conn:
+		for chunk_text_value, vec in zip( all_chunks, vecs ):
+			conn.execute(
+				'INSERT INTO embeddings (chunk, vector) VALUES (?, ?)',
+				(chunk_text_value, vec.tobytes( ))
+			)
+		conn.commit( )
+	
+	vector_dim = int( vecs.shape[ 1 ] ) if len( vecs.shape ) == 2 else 0
+	st.session_state[ 'semantic_uploaded_names' ] = doc_names
+	st.session_state[ 'semantic_index_doc_count' ] = len( doc_names )
+	st.session_state[ 'semantic_index_chunk_count' ] = len( all_chunks )
+	st.session_state[ 'semantic_index_dim' ] = vector_dim
+	
+	return {
+			'success': True,
+			'message': 'Semantic index built successfully.',
+			'doc_count': len( doc_names ),
+			'chunk_count': len( all_chunks ),
+			'vector_dim': vector_dim
+	}
+
+def query_semantic_index( query_text: str ) -> List[ Dict[ str, Any ] ]:
+	"""
+		Purpose:
+		--------
+		Query the semantic index and return ranked chunk results.
+
+		Parameters:
+		-----------
+		query_text : str
+
+		Returns:
+		--------
+		List[Dict[str, Any]]
+	"""
+	if not query_text or not query_text.strip( ):
+		return [ ]
+	
+	if embedder is None:
+		return [ ]
+	
+	top_k = int( st.session_state.get( 'semantic_top_k', 8 ) )
+	min_similarity = float( st.session_state.get( 'semantic_min_similarity', 0.0 ) )
+	rows = decode_embedding_rows( )
+	if not rows:
+		return [ ]
+	
+	q = embedder.encode( [ query_text.strip( ) ], show_progress_bar=False )[ 0 ]
+	q = np.asarray( q, dtype=np.float32 )
+	scored_rows: List[ Dict[ str, Any ] ] = [ ]
+	for idx, (chunk_text_value, vec) in enumerate( rows, start=1 ):
+		score = cosine_similarity( q, vec )
+		if score < min_similarity:
+			continue
+		
+		scored_rows.append( {
+					'Selected': False,
+					'Rank': idx,
+					'Score': float( score ),
+					'Chunk': chunk_text_value,
+					'Length': len( chunk_text_value )
+			} )
+	
+	scored_rows.sort( key=lambda r: r[ 'Score' ], reverse=True )
+	scored_rows = scored_rows[ :top_k ]
+	st.session_state[ 'semantic_last_query' ] = query_text.strip( )
+	st.session_state[ 'semantic_result_rows' ] = scored_rows
+	return scored_rows
+
+def build_semantic_context_from_selection( ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a semantic-context text block from selected search rows.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
+	"""
+	selected_rows = st.session_state.get( 'semantic_selected_rows', [ ] )
+	if not isinstance( selected_rows, list ) or len( selected_rows ) == 0:
+		return ''
+	
+	context_parts: List[ str ] = [ ]
+	for idx, row in enumerate( selected_rows, start=1 ):
+		chunk_text_value = str( row.get( 'Chunk', '' ) or '' ).strip( )
+		score_value = row.get( 'Score', '' )
+		if not chunk_text_value:
+			continue
+		
+		context_parts.append( f'[Semantic Chunk {idx} | Score: {score_value}]\n{chunk_text_value}' )
+	
+	return '\n\n'.join( context_parts ).strip( )
+
+def extract_selected_semantic_rows( edited_rows: List[ Dict[ str, Any ] ] ) -> List[Dict[str, Any]]:
+	"""
+		Purpose:
+		--------
+		Extract selected semantic rows from a data_editor result payload.
+
+		Parameters:
+		-----------
+		edited_rows : List[Dict[str, Any]]
+
+		Returns:
+		--------
+		List[Dict[str, Any]]
+	"""
+	selected: List[ Dict[ str, Any ] ] = [ ]
+	if not isinstance( edited_rows, list ):
+		return selected
+	
+	for row in edited_rows:
+		if isinstance( row, dict ) and bool( row.get( 'Selected', False ) ):
+			selected.append( row )
+	
+	return selected
+
+def send_selected_semantic_chunks_to_text_generation( ) -> None:
+	"""
+		Purpose:
+		--------
+		Push selected semantic chunks into the shared basic document context buffer.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		None
+	"""
+	context_text = build_semantic_context_from_selection( )
+	if not context_text:
+		return
+	
+	existing_docs = st.session_state.get( 'basic_docs', [ ] )
+	if not isinstance( existing_docs, list ):
+		existing_docs = [ ]
+	
+	existing_docs.append( context_text )
+	st.session_state[ 'basic_docs' ] = existing_docs
+	st.session_state[ 'use_semantic' ] = True
+
+def send_selected_semantic_chunks_to_doc_qna( ) -> None:
+	"""
+		Purpose:
+		--------
+		Push selected semantic chunks into the shared document context buffer used by prompts.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		None
+	"""
+	context_text = build_semantic_context_from_selection( )
+	if not context_text:
+		return
+	
+	buffer_rows = st.session_state.get( 'semantic_context_buffer', [ ] )
+	if not isinstance( buffer_rows, list ):
+		buffer_rows = [ ]
+	
+	buffer_rows.append( context_text )
+	st.session_state[ 'semantic_context_buffer' ] = buffer_rows
+	
 # -------------- LLM  UTILITIES -------------------
 
 @st.cache_resource
@@ -3317,29 +3642,160 @@ elif mode == 'Document Q&A':
 # SEMANTIC SEARCH
 # ==============================================================================
 elif mode == 'Semantic Search':
-	st.subheader( "🔍 Semantic Search", help=cfg.SEMANTIC_SEARCH )
+	st.subheader( '🔍 Semantic Search', help=cfg.SEMANTIC_SEARCH )
 	st.divider( )
 	
-	# ------------------------------------------------------------------
-	# Main Chat UI
-	# ------------------------------------------------------------------
-	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
+	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ], border=True )
 	with center:
-		st.session_state.use_semantic = st.checkbox( 'Use Semantic Context',
-			st.session_state.use_semantic )
-		files = st.file_uploader( 'Upload for embedding', accept_multiple_files=True )
-		if files:
-			chunks = [ ]
-			for f in files:
-				chunks.extend( chunk_text( f.read( ).decode( errors='ignore' ) ) )
-			vecs = embedder.encode( chunks )
-			with sqlite3.connect( cfg.DB_PATH ) as conn:
-				conn.execute( 'DELETE FROM embeddings' )
-				for c, v in zip( chunks, vecs ):
-					conn.execute(
-						'INSERT INTO embeddings (chunk, vector) VALUES (?, ?)',
-						( c, v.tobytes( ) ) )
-			st.success( 'Semantic index built' )
+		with st.expander( label='Index Builder', icon='🧱', expanded=False ):
+			idx_c1, idx_c2, idx_c3, idx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
+				border=True, gap='medium' )
+			
+			with idx_c1:
+				st.slider( label='Chunk Size', min_value=256, max_value=4000, step=64,
+					key='semantic_chunk_size' )
+			
+			with idx_c2:
+				st.slider( label='Chunk Overlap', min_value=0, max_value=1000, step=25,
+					key='semantic_chunk_overlap' )
+			
+			with idx_c3:
+				st.toggle( label='Clear Existing Index',
+					value=bool( st.session_state.get( 'semantic_clear_existing', True ) ),
+					key='semantic_clear_existing' )
+			
+			with idx_c4:
+				st.toggle( label='Append to Existing Index',
+					value=bool( st.session_state.get( 'semantic_append_existing', False ) ),
+					key='semantic_append_existing' )
+			
+			st.toggle( label='Show Embedding Diagnostics',
+				value=bool( st.session_state.get( 'semantic_show_diagnostics', True ) ),
+				key='semantic_show_diagnostics' )
+			
+			semantic_files = st.file_uploader( label='Upload for embedding',
+				accept_multiple_files=True, type=[ 'pdf', 'txt', 'docx' ],
+				key='semantic_file_uploader' )
+			
+			if st.button( 'Build Index', key='semantic_build_index', width='stretch' ):
+				if semantic_files:
+					result = build_semantic_index( semantic_files )
+					if bool( result.get( 'success', False ) ):
+						st.success( str( result.get( 'message', '' ) ) )
+					else:
+						st.error( str( result.get( 'message', 'Index build failed.' ) ) )
+				else:
+					st.info( 'Upload one or more files before building the index.' )
+			
+			if bool( st.session_state.get( 'semantic_show_diagnostics', True ) ):
+				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.33, 0.33, 0.34 ] )
+				with diag_c1:
+					st.metric( 'Indexed Documents',
+						int( st.session_state.get( 'semantic_index_doc_count', 0 ) ) )
+					
+				with diag_c2:
+					st.metric( 'Indexed Chunks',
+						int( st.session_state.get( 'semantic_index_chunk_count', 0 ) ) )
+				with diag_c3:
+					st.metric( 'Vector Dimension',
+						int( st.session_state.get( 'semantic_index_dim', 0 ) ) )
+		
+		with st.expander( label='Semantic Query', icon='🧠', expanded=False ):
+			query_c1, query_c2, query_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True,
+				gap='medium' )
+			
+			with query_c1:
+				st.slider( label='Top K', min_value=1, max_value=25, step=1,
+					key='semantic_top_k' )
+			
+			with query_c2:
+				st.slider( label='Minimum Similarity', min_value=0.0, max_value=1.0, step=0.01,
+					key='semantic_min_similarity' )
+			
+			with query_c3:
+				st.toggle( label='Group by Document',
+					value=bool( st.session_state.get( 'semantic_group_by_document', False ) ),
+					key='semantic_group_by_document' )
+			
+			semantic_query = st.text_area( label='Semantic Query', height=120,
+				key='semantic_query_text' )
+			
+			if st.button( 'Run Semantic Search', key='semantic_run_query', width='stretch' ):
+				rows = query_semantic_index( semantic_query )
+				if len( rows ) == 0:
+					st.info( 'No semantic matches found.' )
+			
+			result_rows = st.session_state.get( 'semantic_result_rows', [ ] )
+			if isinstance( result_rows, list ) and len( result_rows ) > 0:
+				edited_rows = st.data_editor( result_rows, hide_index=True, use_container_width=True,
+					key='semantic_results_editor' )
+				
+				selected_rows = extract_selected_semantic_rows( edited_rows )
+				st.session_state[ 'semantic_selected_rows' ] = selected_rows
+				if len( selected_rows ) > 0:
+					st.caption( f'Selected Chunks: {len( selected_rows )}' )
+		
+		with st.expander( label='Actions', icon='🔀', expanded=False ):
+			act_c1, act_c2, act_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True )
+			
+			with act_c1:
+				if st.button( 'Send Selected Chunks to Text Generation', width='stretch' ):
+					send_selected_semantic_chunks_to_text_generation( )
+					st.success( 'Selected chunks added to shared Text Generation context.' )
+			
+			with act_c2:
+				if st.button( 'Send Selected Chunks to Document Q&A', width='stretch' ):
+					send_selected_semantic_chunks_to_doc_qna( )
+					st.success( 'Selected chunks added to the shared Document Q&A context buffer.' )
+			
+			with act_c3:
+				if st.button( 'Save Selected Chunks as Prompt Context', width='stretch' ):
+					context_text = build_semantic_context_from_selection( )
+					if context_text:
+						existing_docs = st.session_state.get( 'basic_docs', [ ] )
+						if not isinstance( existing_docs, list ):
+							existing_docs = [ ]
+						existing_docs.append( context_text )
+						st.session_state[ 'basic_docs' ] = existing_docs
+						st.success( 'Selected chunks saved to shared prompt context.' )
+					else:
+						st.info( 'Select one or more chunks first.' )
+			
+			selected_rows = st.session_state.get( 'semantic_selected_rows', [ ] )
+			if isinstance( selected_rows, list ) and len( selected_rows ) > 0:
+				st.markdown( '### Selected Semantic Context Preview' )
+				st.text_area( label='Selected Context',
+					value=build_semantic_context_from_selection( ),
+					height=220, disabled=True )
+		
+		with st.expander( label='Index Maintenance', icon='🛠️', expanded=False ):
+			maint_c1, maint_c2, maint_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True )
+			
+			with maint_c1:
+				if st.button( 'Delete Index', width='stretch' ):
+					clear_semantic_index( )
+					st.success( 'Semantic index deleted.' )
+			
+			with maint_c2:
+				if st.button( 'Recompute Diagnostics', width='stretch' ):
+					rows = decode_embedding_rows( )
+					st.session_state[ 'semantic_index_chunk_count' ] = len( rows )
+					if len( rows ) > 0:
+						st.session_state[ 'semantic_index_dim' ] = int( rows[ 0 ][ 1 ].shape[ 0 ] )
+					else:
+						st.session_state[ 'semantic_index_dim' ] = 0
+					st.success( 'Diagnostics refreshed.' )
+			
+			with maint_c3:
+				if st.button( 'Clear Query Results', width='stretch' ):
+					st.session_state[ 'semantic_result_rows' ] = [ ]
+					st.session_state[ 'semantic_selected_rows' ] = [ ]
+					st.session_state[ 'semantic_last_query' ] = ''
+					st.success( 'Query results cleared.' )
+			
+			if bool( st.session_state.get( 'semantic_show_diagnostics', True ) ):
+				st.caption( f'Last Query: {str( st.session_state.get( "semantic_last_query", "" ) )} '
+					f'| Uploaded Sources: {len( st.session_state.get( "semantic_uploaded_names", [ ] ) )}' )
 
 # ==============================================================================
 # PROMPT ENGINEERING MODE
@@ -3372,36 +3828,9 @@ elif mode == 'Prompt Engineering':
 		st.session_state.setdefault( 'pe_id', 0 )
 		
 		# ------------------------------------------------------------------
-		# DB helpers
-		# ------------------------------------------------------------------
-		def get_conn( ):
-			return sqlite3.connect( cfg.DB_PATH )
-		
-		def reset_selection( ):
-			st.session_state.pe_selected_id = None
-			st.session_state.pe_caption = ''
-			st.session_state.pe_name = ''
-			st.session_state.pe_text = ''
-			st.session_state.pe_version = ''
-			st.session_state.pe_id = 0
-		
-		def load_prompt( pid: int ) -> None:
-			with get_conn( ) as conn:
-				_select = f"SELECT Caption, Name, Text, Version, ID FROM {TABLE} WHERE PromptsId=?"
-				cur = conn.execute( _select, (pid,), )
-				row = cur.fetchone( )
-				if not row:
-					return
-				st.session_state.pe_caption = row[ 0 ]
-				st.session_state.pe_name = row[ 1 ]
-				st.session_state.pe_text = row[ 2 ]
-				st.session_state.pe_version = row[ 3 ]
-				st.session_state.pe_id = row[ 4 ]
-		
-		# ------------------------------------------------------------------
 		# Filters
 		# ------------------------------------------------------------------
-		c1, c2, c3, c4 = st.columns( [ 4, 2, 2, 3 ] )
+		c1, c2, c3, c4 = st.columns( [ 4, 2, 2, 3 ], border=True )
 		with c1:
 			st.text_input( 'Search (Name/Text contains)', key='pe_search' )
 		
@@ -3417,7 +3846,7 @@ elif mode == 'Prompt Engineering':
 				"<div style='font-size:0.95rem;font-weight:600;margin-bottom:0.25rem;'>Go to ID</div>",
 				unsafe_allow_html=True, )
 			
-			a1, a2, a3 = st.columns( [ 2, 1, 1 ] )
+			a1, a2, a3 = st.columns( [ 2, 1, 1 ], border=True )
 			with a1:
 				jump_id = st.number_input( 'Go to ID', min_value=1,
 					step=1, label_visibility='collapsed', )
@@ -3450,8 +3879,7 @@ elif mode == 'Prompt Engineering':
 	    """
 		
 		count_query = f"SELECT COUNT(*) FROM {TABLE} {where}"
-		
-		with get_conn( ) as conn:
+		with create_connection( ) as conn:
 			rows = conn.execute( query, params ).fetchall( )
 			total_rows = conn.execute( count_query, params ).fetchone( )[ 0 ]
 		
@@ -3462,8 +3890,7 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		table_rows = [ ]
 		for r in rows:
-			table_rows.append(
-				{
+			table_rows.append( {
 						'Selected': r[ 0 ] == st.session_state.pe_selected_id,
 						'PromptsId': r[ 0 ],
 						'Caption': r[ 1 ],
@@ -3525,7 +3952,7 @@ elif mode == 'Prompt Engineering':
 			with c1:
 				save_label = '💾 Save Changes' if st.session_state.pe_selected_id else '➕ Create Prompt'
 				if st.button( save_label ):
-					with get_conn( ) as conn:
+					with create_connection( ) as conn:
 						if st.session_state.pe_selected_id:
 							conn.execute(
 								f"""
@@ -3562,7 +3989,7 @@ elif mode == 'Prompt Engineering':
 			
 			with c2:
 				if st.session_state.pe_selected_id and st.button( 'Delete' ):
-					with get_conn( ) as conn:
+					with create_connection( ) as conn:
 						conn.execute(
 							f'DELETE FROM {TABLE} WHERE PromptsId=?',
 							(st.session_state.pe_selected_id,), )
