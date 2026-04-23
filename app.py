@@ -53,10 +53,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
+import fitz
 import plotly.express as px
 import streamlit as st
 from llama_cpp import Llama
-from sentence_transformers import SentenceTransformer
 import config as cfg
 
 # ==============================================================================
@@ -64,10 +64,26 @@ import config as cfg
 # ==============================================================================
 MODEL_PATH_OBJ = Path( cfg.MODEL_PATH )
 
-if not MODEL_PATH_OBJ.exists( ):
-    st.error( f'Model not found at {cfg.MODEL_PATH}' )
-    st.stop( )
-    
+def local_model_available( ) -> bool:
+	"""
+		Purpose:
+		--------
+		Determine whether the configured local GGUF model exists.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		bool
+			True when the configured model file exists; otherwise False.
+	"""
+	try:
+		return MODEL_PATH_OBJ.exists( )
+	except Exception:
+		return False
+	
 # ==============================================================================
 # SESSION STATE INITIALIZATION
 # ==============================================================================
@@ -2476,6 +2492,62 @@ def register_upload_images( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
 	
 	return { 'inserted': inserted, 'updated': updated }
 
+# -------------- LLM  UTILITIES -------------------
+
+@st.cache_resource
+def load_llm( ctx: int, threads: int ) -> Any | None:
+	"""
+		Purpose:
+		--------
+		Lazily load the local llama.cpp model using the supplied runtime settings.
+
+		Parameters:
+		-----------
+		ctx : int
+			Context window size.
+		threads : int
+			CPU thread count.
+
+		Returns:
+		--------
+		Any | None
+	"""
+	try:
+		if not local_model_available( ):
+			return None
+		
+		from llama_cpp import Llama
+		
+		ctx_value = int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX )
+		thread_value = int( threads ) if int( threads ) > 0 else int( cfg.CORES )
+		
+		return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx_value, n_threads=thread_value,
+			n_batch=512, verbose=False )
+	except Exception:
+		return None
+
+@st.cache_resource
+def load_embedder( ) -> Any | None:
+	"""
+		Purpose:
+		--------
+		Lazily load the sentence embedding model when the dependency is available.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Any | None
+			A sentence-transformer model instance when available; otherwise None.
+	"""
+	try:
+		from sentence_transformers import SentenceTransformer
+		
+		return SentenceTransformer( 'all-MiniLM-L6-v2' )
+	except Exception:
+		return None
 
 # ------------- DOCQNA UTILITIES ----------------------
 
@@ -2808,7 +2880,7 @@ def get_docqna_names( ) -> str:
 		return 'No active documents'
 	return ', '.join( [ str( name ) for name in active_docs ] )
 
-def rebuild_index( embedder: SentenceTransformer ) -> None:
+def rebuild_index( embedder: Any | None ) -> None:
 	"""
 		Purpose:
 		--------
@@ -3327,17 +3399,6 @@ def send_docqna_chunks( ) -> None:
 	
 	buffer_rows.append( context_text )
 	st.session_state[ 'semantic_context_buffer' ] = buffer_rows
-	
-# -------------- LLM  UTILITIES -------------------
-
-@st.cache_resource
-def load_llm( ctx: int, threads: int ) -> Llama:
-	return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx, n_threads=threads, n_batch=512,
-		verbose=False )
-
-@st.cache_resource
-def load_embedder( ) -> SentenceTransformer:
-	return SentenceTransformer( 'all-MiniLM-L6-v2' )
 
 # ==============================================================================
 # Init
