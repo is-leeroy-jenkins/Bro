@@ -304,6 +304,48 @@ if 'semantic_index_doc_count' not in st.session_state:
 
 if 'semantic_last_query' not in st.session_state:
 	st.session_state[ 'semantic_last_query' ] = ''
+# -------- PROMPT ENGINEERING EXTENSIONS ---------------------
+
+if 'pe_category' not in st.session_state:
+	st.session_state[ 'pe_category' ] = 'General Chat'
+
+if 'pe_task_type' not in st.session_state:
+	st.session_state[ 'pe_task_type' ] = 'Chat'
+
+if 'pe_response_format' not in st.session_state:
+	st.session_state[ 'pe_response_format' ] = 'Markdown'
+
+if 'pe_language' not in st.session_state:
+	st.session_state[ 'pe_language' ] = 'English'
+
+if 'pe_generator_goal' not in st.session_state:
+	st.session_state[ 'pe_generator_goal' ] = ''
+
+if 'pe_generator_constraints' not in st.session_state:
+	st.session_state[ 'pe_generator_constraints' ] = ''
+
+if 'pe_generator_style' not in st.session_state:
+	st.session_state[ 'pe_generator_style' ] = 'Practical'
+
+if 'pe_generated_template' not in st.session_state:
+	st.session_state[ 'pe_generated_template' ] = ''
+	
+# -------- DATABASE  ---------------------
+
+if 'dm_asset_sync_status' not in st.session_state:
+	st.session_state[ 'dm_asset_sync_status' ] = ''
+
+if 'dm_asset_counts' not in st.session_state:
+	st.session_state[ 'dm_asset_counts' ] = { }
+
+if 'dm_selected_asset_table' not in st.session_state:
+	st.session_state[ 'dm_selected_asset_table' ] = 'documents'
+
+if 'dm_register_uploaded_docs' not in st.session_state:
+	st.session_state[ 'dm_register_uploaded_docs' ] = False
+
+if 'dm_register_uploaded_images' not in st.session_state:
+	st.session_state[ 'dm_register_uploaded_images' ] = False
 	
 # ==============================================================================
 # UTILITIES
@@ -316,96 +358,6 @@ def image_to_base64( path: str ) -> str:
 def cosine_similarity( a: np.ndarray, b: np.ndarray ) -> float:
     denom = np.linalg.norm(a) * np.linalg.norm(b)
     return float( np.dot(a, b) / denom ) if denom else 0.0
-
-def initialize_database( ) -> None:
-	"""
-		Purpose:
-		--------
-		Ensure required SQLite tables exist and that the Prompts table contains the
-		columns required by the prompt utilities and Prompt Engineering mode.
-
-		Parameters:
-		-----------
-		None
-
-		Returns:
-		--------
-		None
-	"""
-	Path( 'stores/sqlite' ).mkdir( parents=True, exist_ok=True )
-	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		conn.execute(
-			"""
-            CREATE TABLE IF NOT EXISTS chat_history
-            (
-                id
-                INTEGER
-                PRIMARY
-                KEY
-                AUTOINCREMENT,
-                role
-                TEXT,
-                content
-                TEXT
-            )
-			"""
-		)
-		
-		conn.execute(
-			"""
-            CREATE TABLE IF NOT EXISTS embeddings
-            (
-                id
-                INTEGER
-                PRIMARY
-                KEY
-                AUTOINCREMENT,
-                chunk
-                TEXT,
-                vector
-                BLOB
-            )
-			"""
-		)
-		
-		conn.execute(
-			"""
-            CREATE TABLE IF NOT EXISTS Prompts
-            (
-                PromptsId
-                INTEGER
-                NOT
-                NULL
-                PRIMARY
-                KEY
-                AUTOINCREMENT,
-                Caption
-                TEXT,
-                Name
-                TEXT
-            (
-                80
-            ),
-                Text TEXT,
-                Version TEXT
-            (
-                80
-            ),
-                ID TEXT
-            (
-                80
-            )
-                )
-			"""
-		)
-		
-		prompt_columns = [ row[ 1 ] for row in
-		                   conn.execute( 'PRAGMA table_info("Prompts");' ).fetchall( ) ]
-		
-		if 'Caption' not in prompt_columns:
-			conn.execute( 'ALTER TABLE "Prompts" ADD COLUMN "Caption" TEXT;' )
-		
-		conn.commit( )
 
 # -------- CHAT/TEXT UTILITIES --------------------
 
@@ -1048,8 +1000,460 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 	output.markdown( buf )
 	return buf.strip( )
 
+def get_prompt_categories( ) -> List[ str ]:
+	"""
+		Purpose:
+		--------
+		Return supported prompt categories.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		List[str]
+	"""
+	return [
+			'General Chat',
+			'Reasoning',
+			'Coding',
+			'Translation',
+			'Summarization',
+			'Extraction',
+			'Document Extraction',
+			'OCR',
+			'JSON Output'
+	]
+
+def get_prompt_task_types( ) -> List[ str ]:
+	"""
+		Purpose:
+		--------
+		Return supported task types.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		List[str]
+	"""
+	return [
+			'Chat',
+			'Reasoning',
+			'Coding',
+			'Translation',
+			'Summarization',
+			'Extraction'
+	]
+
+def infer_prompt_category( prompt_row: Dict[ str, Any ] | None ) -> str:
+	"""
+		Purpose:
+		--------
+		Infer a prompt category from the prompt row content.
+
+		Parameters:
+		-----------
+		prompt_row : Dict[str, Any] | None
+
+		Returns:
+		--------
+		str
+	"""
+	if not isinstance( prompt_row, dict ):
+		return 'General Chat'
+	
+	caption = str( prompt_row.get( 'Caption', '' ) or '' ).lower( )
+	name = str( prompt_row.get( 'Name', '' ) or '' ).lower( )
+	text = str( prompt_row.get( 'Text', '' ) or '' ).lower( )
+	
+	blob = f'{caption} {name} {text}'
+	
+	if 'json' in blob:
+		return 'JSON Output'
+	if 'ocr' in blob:
+		return 'OCR'
+	if 'document' in blob and 'extract' in blob:
+		return 'Document Extraction'
+	if 'extract' in blob:
+		return 'Extraction'
+	if 'summar' in blob:
+		return 'Summarization'
+	if 'translat' in blob:
+		return 'Translation'
+	if 'coding' in blob or 'code' in blob or 'debug' in blob or 'refactor' in blob:
+		return 'Coding'
+	if 'reason' in blob or 'analysis' in blob:
+		return 'Reasoning'
+	
+	return 'General Chat'
+
+def build_starter_prompt_template( category: str, task_type: str, response_format: str,
+		language: str ) -> str:
+	"""
+		Purpose:
+		--------
+		Build a starter prompt template from high-level prompt metadata.
+
+		Parameters:
+		-----------
+		category : str
+		task_type : str
+		response_format : str
+		language : str
+
+		Returns:
+		--------
+		str
+	"""
+	category_value = str( category or 'General Chat' ).strip( )
+	task_value = str( task_type or 'Chat' ).strip( )
+	format_value = str( response_format or 'Markdown' ).strip( )
+	language_value = str( language or 'English' ).strip( )
+	lines: List[ str ] = [ ]
+	lines.append( f'You are Bro, a local AI assistant operating in the category "{category_value}".' )
+	lines.append( f'Primary task type: {task_value}.' )
+	lines.append( f'Response format: {format_value}.' )
+	lines.append( f'Preferred language: {language_value}.' )
+	
+	if category_value == 'Reasoning':
+		lines.append(
+			'Provide careful, structured analytical answers grounded in the supplied information.' )
+	elif category_value == 'Coding':
+		lines.append(
+			'Produce editor-ready code and explain only what is necessary for correct implementation.' )
+	elif category_value == 'Translation':
+		lines.append( 'Translate faithfully while preserving meaning, tone, and structure.' )
+	elif category_value == 'Summarization':
+		lines.append( 'Summarize faithfully and preserve key facts, names, and dates.' )
+	elif category_value == 'Extraction':
+		lines.append( 'Extract only supported facts. Do not invent missing values.' )
+	elif category_value == 'Document Extraction':
+		lines.append(
+			'Use the document content as the evidence base and extract structured facts faithfully.' )
+	elif category_value == 'OCR':
+		lines.append( 'Extract visible text accurately and preserve structural cues where possible.' )
+	elif category_value == 'JSON Output':
+		lines.append( 'Return valid JSON only, matching the requested structure exactly.' )
+	else:
+		lines.append( 'Respond helpfully, accurately, and concisely.' )
+	
+	lines.append( 'If information is missing, state that clearly.' )
+	return '\n'.join( lines ).strip( )
+
+def generate_prompt_template_draft( goal: str, constraints: str, style: str,
+		category: str, task_type: str, response_format: str, language: str ) -> str:
+	"""
+		Purpose:
+		--------
+		Generate a draft system prompt using the local model.
+
+		Parameters:
+		-----------
+		goal : str
+		constraints : str
+		style : str
+		category : str
+		task_type : str
+		response_format : str
+		language : str
+
+		Returns:
+		--------
+		str
+	"""
+	prompt = f"""
+	Create a strong system prompt for the Bro local AI application.
+	
+	Category: {category}
+	Task Type: {task_type}
+	Response Format: {response_format}
+	Language: {language}
+	Goal: {goal}
+	Constraints: {constraints}
+	Style: {style}
+	
+	Write only the system prompt text. Do not add explanation.
+	""".strip( )
+	
+	return run_llm_turn( user_input=prompt,
+		temperature=float( st.session_state.get( 'temperature', 0.2 ) ),
+		top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
+		repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.05 ) ),
+		max_tokens=512, stream=False, output=None )
+
+def apply_prompt_to_text_generation( prompt_text: str ) -> None:
+	"""
+		Purpose:
+		--------
+		Apply a prompt to shared Text Generation settings.
+
+		Parameters:
+		-----------
+		prompt_text : str
+
+		Returns:
+		--------
+		None
+	"""
+	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
+
+def apply_prompt_to_document_qna( prompt_text: str ) -> None:
+	"""
+		Purpose:
+		--------
+		Apply a prompt to shared Document Q&A settings.
+
+		Parameters:
+		-----------
+		prompt_text : str
+
+		Returns:
+		--------
+		None
+	"""
+	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
+	st.session_state[ 'require_grounding' ] = True
+	st.session_state[ 'answer_from_excerpts_only' ] = True
+
+def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
+		response_format: str, language: str ) -> None:
+	"""
+		Purpose:
+		--------
+		Apply prompt metadata to the shared app contract.
+
+		Parameters:
+		-----------
+		category : str
+		task_type : str
+		response_format : str
+		language : str
+
+		Returns:
+		--------
+		None
+	"""
+	st.session_state[ 'task_preset' ] = str( task_type or 'Chat' )
+	st.session_state[ 'response_format' ] = str( response_format or 'Markdown' )
+	st.session_state[ 'translation_target_language' ] = str( language or 'English' )
+
+def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
+	"""
+		Purpose:
+		--------
+		Clone a selected prompt into the edit surface as a new prompt draft.
+
+		Parameters:
+		-----------
+		source_prompt : Dict[str, Any] | None
+
+		Returns:
+		--------
+		None
+	"""
+	if not isinstance( source_prompt, dict ):
+		return
+	
+	st.session_state.pe_selected_id = None
+	st.session_state.pe_caption = f'{str( source_prompt.get( "Caption", "" ) )} Copy'.strip( )
+	st.session_state.pe_name = str( source_prompt.get( 'Name', '' ) or '' )
+	st.session_state.pe_text = str( source_prompt.get( 'Text', '' ) or '' )
+	st.session_state.pe_version = str( source_prompt.get( 'Version', '' ) or '' )
+	st.session_state.pe_id = source_prompt.get( 'ID', 0 )
+
 # ----------- DATABASE UTILITIES -------------------------
 
+def initialize_database( ) -> None:
+	"""
+		Purpose:
+		--------
+		Ensure required SQLite tables exist and that the Prompts table contains the
+		columns required by the prompt utilities, Prompt Engineering mode, and
+		AI-asset governance features.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		None
+	"""
+	Path( 'stores/sqlite' ).mkdir( parents=True, exist_ok=True )
+	
+	with sqlite3.connect( cfg.DB_PATH ) as conn:
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS chat_history
+            (
+                id
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                role
+                TEXT,
+                content
+                TEXT
+            )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS embeddings
+            (
+                id
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                chunk
+                TEXT,
+                vector
+                BLOB
+            )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS Prompts
+            (
+                PromptsId
+                INTEGER
+                NOT
+                NULL
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                Caption
+                TEXT,
+                Name
+                TEXT
+            (
+                80
+            ),
+                Text TEXT,
+                Version TEXT
+            (
+                80
+            ),
+                ID TEXT
+            (
+                80
+            )
+                )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS documents
+            (
+                DocumentId
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                Name
+                TEXT
+                NOT
+                NULL,
+                Type
+                TEXT,
+                SizeBytes
+                INTEGER,
+                Source
+                TEXT,
+                Fingerprint
+                TEXT,
+                TextLength
+                INTEGER,
+                ChunkCount
+                INTEGER,
+                CreatedOn
+                TEXT
+            )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS document_chunks
+            (
+                ChunkId
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                DocumentName
+                TEXT
+                NOT
+                NULL,
+                ChunkIndex
+                INTEGER,
+                ChunkText
+                TEXT,
+                ChunkLength
+                INTEGER,
+                Fingerprint
+                TEXT,
+                CreatedOn
+                TEXT
+            )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS document_embeddings
+            (
+                EmbeddingId
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                DocumentName
+                TEXT
+                NOT
+                NULL,
+                ChunkIndex
+                INTEGER,
+                VectorDim
+                INTEGER,
+                Fingerprint
+                TEXT,
+                CreatedOn
+                TEXT
+            )
+			""" )
+		
+		conn.execute( """
+            CREATE TABLE IF NOT EXISTS images
+            (
+                ImageId
+                INTEGER
+                PRIMARY
+                KEY
+                AUTOINCREMENT,
+                Name
+                TEXT
+                NOT
+                NULL,
+                MimeType
+                TEXT,
+                SizeBytes
+                INTEGER,
+                Fingerprint
+                TEXT,
+                Source
+                TEXT,
+                CreatedOn
+                TEXT
+            )
+			""" )
+		
+		prompt_columns = [ row[ 1 ] for row in conn.execute( 'PRAGMA table_info("Prompts");' ).fetchall( ) ]
+		
+		if 'Caption' not in prompt_columns:
+			conn.execute( 'ALTER TABLE "Prompts" ADD COLUMN "Caption" TEXT;' )
+		
+		conn.commit( )
+		
 def create_connection( ) -> sqlite3.Connection:
 	return sqlite3.connect( cfg.DB_PATH )
 
@@ -1751,6 +2155,339 @@ def load_prompt( pid: int ) -> None:
 		st.session_state.pe_text = row[ 2 ]
 		st.session_state.pe_version = row[ 3 ]
 		st.session_state.pe_id = row[ 4 ]
+
+def get_ai_asset_tables( ) -> List[ str ]:
+	"""
+		Purpose:
+		--------
+		Return the AI-asset governance table names.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		List[str]
+	"""
+	return [ 'documents', 'document_chunks', 'document_embeddings', 'images' ]
+
+def get_timestamp_text( ) -> str:
+	"""
+		Purpose:
+		--------
+		Return a UTC-like timestamp string for metadata rows.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		str
+	"""
+	return time.strftime( '%Y-%m-%d %H:%M:%S' )
+
+def register_documents_from_session( ) -> Dict[ str, int ]:
+	"""
+		Purpose:
+		--------
+		Register active uploaded documents into the governed documents table.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Dict[str, int]
+	"""
+	active_docs = st.session_state.get( 'active_docs', [ ] )
+	doc_bytes = st.session_state.get( 'doc_bytes', { } )
+	
+	inserted = 0
+	updated = 0
+	
+	with create_connection( ) as conn:
+		for name in active_docs:
+			file_bytes = doc_bytes.get( name, b'' )
+			if not file_bytes:
+				continue
+			
+			text = extract_text( file_bytes, name )
+			chunks = chunk_text( text ) if text else [ ]
+			fingerprint = hashlib.sha256( file_bytes ).hexdigest( )
+			file_type = Path( name ).suffix.lower( ).replace( '.', '' )
+			created_on = get_timestamp_text( )
+			
+			existing = conn.execute(
+				'''
+                SELECT DocumentId
+                FROM documents
+                WHERE Name = ?
+                  AND Fingerprint = ?
+				''',
+				(name, fingerprint)
+			).fetchone( )
+			
+			if existing:
+				conn.execute(
+					'''
+                    UPDATE documents
+                    SET Type       = ?,
+                        SizeBytes  = ?,
+                        Source     = ?,
+                        TextLength = ?,
+                        ChunkCount = ?,
+                        CreatedOn  = ?
+                    WHERE DocumentId = ?
+					''',
+					(
+							file_type,
+							len( file_bytes ),
+							'uploadlocal',
+							len( text ),
+							len( chunks ),
+							created_on,
+							existing[ 0 ]
+					)
+				)
+				updated += 1
+			else:
+				conn.execute(
+					'''
+                    INSERT INTO documents
+                    (Name,
+                     Type,
+                     SizeBytes,
+                     Source,
+                     Fingerprint,
+                     TextLength,
+                     ChunkCount,
+                     CreatedOn)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+					''',
+					(
+							name,
+							file_type,
+							len( file_bytes ),
+							'uploadlocal',
+							fingerprint,
+							len( text ),
+							len( chunks ),
+							created_on
+					)
+				)
+				inserted += 1
+		
+		conn.commit( )
+	
+	return { 'inserted': inserted, 'updated': updated }
+
+def register_document_chunks_from_session( ) -> Dict[ str, int ]:
+	"""
+		Purpose:
+		--------
+		Register active document chunks into the governed document_chunks table.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Dict[str, int]
+	"""
+	active_docs = st.session_state.get( 'active_docs', [ ] )
+	doc_bytes = st.session_state.get( 'doc_bytes', { } )
+	inserted = 0
+	
+	with create_connection( ) as conn:
+		for name in active_docs:
+			file_bytes = doc_bytes.get( name, b'' )
+			if not file_bytes:
+				continue
+			
+			text = extract_text( file_bytes, name )
+			chunks = chunk_text( text ) if text else [ ]
+			file_fingerprint = hashlib.sha256( file_bytes ).hexdigest( )
+			created_on = get_timestamp_text( )
+			
+			conn.execute(
+				'DELETE FROM document_chunks WHERE DocumentName = ? AND Fingerprint = ?',
+				(name, file_fingerprint)
+			)
+			
+			for idx, chunk_value in enumerate( chunks ):
+				conn.execute(
+					'''
+                    INSERT INTO document_chunks
+                    (DocumentName,
+                     ChunkIndex,
+                     ChunkText,
+                     ChunkLength,
+                     Fingerprint,
+                     CreatedOn)
+                    VALUES (?, ?, ?, ?, ?, ?)
+					''',
+					(
+							name,
+							idx,
+							chunk_value,
+							len( chunk_value ),
+							file_fingerprint,
+							created_on
+					)
+				)
+				inserted += 1
+		
+		conn.commit( )
+	
+	return { 'inserted': inserted }
+
+def register_document_embeddings_from_session( ) -> Dict[ str, int ]:
+	"""
+		Purpose:
+		--------
+		Register active document embedding metadata into the governed
+		document_embeddings table.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Dict[str, int]
+	"""
+	active_docs = st.session_state.get( 'active_docs', [ ] )
+	doc_bytes = st.session_state.get( 'doc_bytes', { } )
+	inserted = 0
+	
+	if embedder is None:
+		return { 'inserted': 0 }
+	
+	vector_dim = getattr( embedder, 'get_sentence_embedding_dimension', lambda: 384 )( )
+	vector_dim = int( vector_dim ) if vector_dim else 384
+	with create_connection( ) as conn:
+		for name in active_docs:
+			file_bytes = doc_bytes.get( name, b'' )
+			if not file_bytes:
+				continue
+			
+			text = extract_text( file_bytes, name )
+			chunks = chunk_text( text ) if text else [ ]
+			file_fingerprint = hashlib.sha256( file_bytes ).hexdigest( )
+			created_on = get_timestamp_text( )
+			
+			conn.execute(
+				'DELETE FROM document_embeddings WHERE DocumentName = ? AND Fingerprint = ?',
+				(name, file_fingerprint) )
+			
+			for idx, _chunk_value in enumerate( chunks ):
+				conn.execute( '''
+                    INSERT INTO document_embeddings
+                    (DocumentName,
+                     ChunkIndex,
+                     VectorDim,
+                     Fingerprint,
+                     CreatedOn)
+                    VALUES (?, ?, ?, ?, ?)
+					''', (name, idx, vector_dim, file_fingerprint, created_on) )
+				inserted += 1
+		
+		conn.commit( )
+	
+	return { 'inserted': inserted }
+
+def register_images_from_upload( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
+	"""
+		Purpose:
+		--------
+		Register uploaded image metadata into the governed images table.
+
+		Parameters:
+		-----------
+		uploaded_files : List[Any]
+
+		Returns:
+		--------
+		Dict[str, int]
+	"""
+	inserted = 0
+	updated = 0
+	
+	with create_connection( ) as conn:
+		for f in uploaded_files:
+			try:
+				name = str( getattr( f, 'name', '' ) or '' ).strip( )
+				file_bytes = f.getvalue( )
+				mime_type = str( getattr( f, 'type', '' ) or '' ).strip( )
+			except Exception:
+				continue
+			
+			if not name or not file_bytes:
+				continue
+			
+			fingerprint = hashlib.sha256( file_bytes ).hexdigest( )
+			created_on = get_timestamp_text( )
+			
+			existing = conn.execute(
+				'''
+                SELECT ImageId
+                FROM images
+                WHERE Name = ?
+                  AND Fingerprint = ?
+				''',
+				(name, fingerprint)
+			).fetchone( )
+			
+			if existing:
+				conn.execute(
+					'''
+                    UPDATE images
+                    SET MimeType  = ?,
+                        SizeBytes = ?,
+                        Source    = ?,
+                        CreatedOn = ?
+                    WHERE ImageId = ?
+					''',
+					(
+							mime_type,
+							len( file_bytes ),
+							'uploadlocal',
+							created_on,
+							existing[ 0 ]
+					)
+				)
+				updated += 1
+			else:
+				conn.execute(
+					'''
+                    INSERT INTO images
+                    (Name,
+                     MimeType,
+                     SizeBytes,
+                     Fingerprint,
+                     Source,
+                     CreatedOn)
+                    VALUES (?, ?, ?, ?, ?, ?)
+					''',
+					(
+							name,
+							mime_type,
+							len( file_bytes ),
+							fingerprint,
+							'uploadlocal',
+							created_on
+					)
+				)
+				inserted += 1
+		
+		conn.commit( )
+	
+	return { 'inserted': inserted, 'updated': updated }
+
 
 # ------------- DOCQNA UTILITIES ----------------------
 
@@ -3179,6 +3916,7 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			
 			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
 				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
@@ -3645,8 +4383,9 @@ elif mode == 'Semantic Search':
 	st.subheader( '🔍 Semantic Search', help=cfg.SEMANTIC_SEARCH )
 	st.divider( )
 	
-	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ], border=True )
+	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
 	with center:
+		
 		with st.expander( label='Index Builder', icon='🧱', expanded=False ):
 			idx_c1, idx_c2, idx_c3, idx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 				border=True, gap='medium' )
@@ -3688,7 +4427,7 @@ elif mode == 'Semantic Search':
 					st.info( 'Upload one or more files before building the index.' )
 			
 			if bool( st.session_state.get( 'semantic_show_diagnostics', True ) ):
-				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.33, 0.33, 0.34 ] )
+				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.33, 0.33, 0.34 ], border=True )
 				with diag_c1:
 					st.metric( 'Indexed Documents',
 						int( st.session_state.get( 'semantic_index_doc_count', 0 ) ) )
@@ -3736,7 +4475,7 @@ elif mode == 'Semantic Search':
 					st.caption( f'Selected Chunks: {len( selected_rows )}' )
 		
 		with st.expander( label='Actions', icon='🔀', expanded=False ):
-			act_c1, act_c2, act_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True )
+			act_c1, act_c2, act_c3 = st.columns( [ 0.34, 0.33, 0.33 ] )
 			
 			with act_c1:
 				if st.button( 'Send Selected Chunks to Text Generation', width='stretch' ):
@@ -3769,7 +4508,7 @@ elif mode == 'Semantic Search':
 					height=220, disabled=True )
 		
 		with st.expander( label='Index Maintenance', icon='🛠️', expanded=False ):
-			maint_c1, maint_c2, maint_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True )
+			maint_c1, maint_c2, maint_c3 = st.columns( [ 0.34, 0.33, 0.33 ] )
 			
 			with maint_c1:
 				if st.button( 'Delete Index', width='stretch' ):
@@ -3803,15 +4542,19 @@ elif mode == 'Semantic Search':
 elif mode == 'Prompt Engineering':
 	st.subheader( '📝 Prompt Engineering', help=cfg.PROMPT_ENGINEERING )
 	st.divider( )
+	
 	import sqlite3
 	import math
 	
 	TABLE = 'Prompts'
 	PAGE_SIZE = 10
+	
 	st.session_state.setdefault( 'pe_cascade_enabled', False )
 	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
+	
 	with center:
-		st.checkbox( 'Cascade selection into System Instructions', key='pe_cascade_enabled' )
+		st.checkbox( 'Cascade selection into shared System Instructions and task settings',
+			key='pe_cascade_enabled' )
 		
 		# ------------------------------------------------------------------
 		# Session state
@@ -3828,28 +4571,76 @@ elif mode == 'Prompt Engineering':
 		st.session_state.setdefault( 'pe_id', 0 )
 		
 		# ------------------------------------------------------------------
+		# DB helpers
+		# ------------------------------------------------------------------
+		def get_conn( ):
+			return sqlite3.connect( cfg.DB_PATH )
+		
+		def reset_selection( ):
+			st.session_state.pe_selected_id = None
+			st.session_state.pe_caption = ''
+			st.session_state.pe_name = ''
+			st.session_state.pe_text = ''
+			st.session_state.pe_version = ''
+			st.session_state.pe_id = 0
+		
+		def load_prompt( pid: int ) -> None:
+			with get_conn( ) as conn:
+				_select = f'''
+					SELECT PromptsId, Caption, Name, Text, Version, ID
+					FROM {TABLE}
+					WHERE PromptsId=?
+				'''
+				cur = conn.execute( _select, (pid,) )
+				row = cur.fetchone( )
+				if not row:
+					return
+				
+				st.session_state.pe_selected_id = row[ 0 ]
+				st.session_state.pe_caption = row[ 1 ]
+				st.session_state.pe_name = row[ 2 ]
+				st.session_state.pe_text = row[ 3 ]
+				st.session_state.pe_version = row[ 4 ]
+				st.session_state.pe_id = row[ 5 ]
+				
+				prompt_row = {
+						'PromptsId': row[ 0 ],
+						'Caption': row[ 1 ],
+						'Name': row[ 2 ],
+						'Text': row[ 3 ],
+						'Version': row[ 4 ],
+						'ID': row[ 5 ]
+				}
+				
+				st.session_state[ 'pe_category' ] = infer_prompt_category( prompt_row )
+		
+		# ------------------------------------------------------------------
 		# Filters
 		# ------------------------------------------------------------------
-		c1, c2, c3, c4 = st.columns( [ 4, 2, 2, 3 ], border=True )
+		c1, c2, c3, c4, c5 = st.columns( [ 3, 2, 2, 2, 3 ], border=True )
+		
 		with c1:
-			st.text_input( 'Search (Name/Text contains)', key='pe_search' )
+			st.text_input( 'Search (Caption / Name / Text)', key='pe_search' )
 		
 		with c2:
-			st.selectbox( 'Sort by', [ 'PromptsId', 'Caption', 'Name', 'Text', 'Version', 'ID' ],
-				key='pe_sort_col', )
+			st.selectbox( 'Category', get_prompt_categories( ), key='pe_category_selection' )
 		
 		with c3:
-			st.selectbox( 'Direction', [ 'ASC', 'DESC' ], key='pe_sort_dir' )
+			st.selectbox( 'Sort by',
+				[ 'PromptsId', 'Caption', 'Name', 'Text', 'Version', 'ID' ], key='pe_sort_col' )
 		
 		with c4:
+			st.selectbox( 'Direction', [ 'ASC', 'DESC' ], key='pe_sort_dir' )
+		
+		with c5:
 			st.markdown(
 				"<div style='font-size:0.95rem;font-weight:600;margin-bottom:0.25rem;'>Go to ID</div>",
-				unsafe_allow_html=True, )
+				unsafe_allow_html=True )
 			
-			a1, a2, a3 = st.columns( [ 2, 1, 1 ], border=True )
+			a1, a2, a3 = st.columns( [ 2, 1, 1 ] )
 			with a1:
-				jump_id = st.number_input( 'Go to ID', min_value=1,
-					step=1, label_visibility='collapsed', )
+				jump_id = st.number_input( 'Go to ID', min_value=1, step=1,
+					label_visibility='collapsed' )
 			
 			with a2:
 				if st.button( 'Go' ):
@@ -3862,14 +4653,20 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		# Load prompt table
 		# ------------------------------------------------------------------
-		where = ""
-		params = [ ]
+		where_clauses: List[ str ] = [ ]
+		params: List[ Any ] = [ ]
+		
 		if st.session_state.pe_search:
-			where = 'WHERE Name LIKE ? OR Text LIKE ?'
+			where_clauses.append( '(Caption LIKE ? OR Name LIKE ? OR Text LIKE ?)' )
 			s = f"%{st.session_state.pe_search}%"
-			params.extend( [ s, s ] )
+			params.extend( [ s, s, s ] )
+		
+		where = ''
+		if len( where_clauses ) > 0:
+			where = 'WHERE ' + ' AND '.join( where_clauses )
 		
 		offset = (st.session_state.pe_page - 1) * PAGE_SIZE
+		
 		query = f"""
 	        SELECT PromptsId, Caption, Name, Text, Version, ID
 	        FROM {TABLE}
@@ -3879,7 +4676,8 @@ elif mode == 'Prompt Engineering':
 	    """
 		
 		count_query = f"SELECT COUNT(*) FROM {TABLE} {where}"
-		with create_connection( ) as conn:
+		
+		with get_conn( ) as conn:
 			rows = conn.execute( query, params ).fetchall( )
 			total_rows = conn.execute( count_query, params ).fetchone( )[ 0 ]
 		
@@ -3888,33 +4686,55 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		# Prompt table
 		# ------------------------------------------------------------------
-		table_rows = [ ]
+		table_rows: List[ Dict[ str, Any ] ] = [ ]
+		selected_category = str( st.session_state.get( 'pe_category_table', 'General Chat' ) or 'General Chat' )
+		
 		for r in rows:
+			prompt_row = {
+					'PromptsId': r[ 0 ],
+					'Caption': r[ 1 ],
+					'Name': r[ 2 ],
+					'Text': r[ 3 ],
+					'Version': r[ 4 ],
+					'ID': r[ 5 ]
+			}
+			
+			inferred_category = infer_prompt_category( prompt_row )
+			if selected_category and inferred_category != selected_category:
+				continue
+			
 			table_rows.append( {
 						'Selected': r[ 0 ] == st.session_state.pe_selected_id,
 						'PromptsId': r[ 0 ],
+						'Category': inferred_category,
 						'Caption': r[ 1 ],
 						'Name': r[ 2 ],
 						'Text': r[ 3 ],
 						'Version': r[ 4 ],
-						'ID': r[ 5 ],
+						'ID': r[ 5 ]
 				} )
 		
 		edited = st.data_editor( table_rows, hide_index=True, use_container_width=True,
-			key="prompt_table", )
+			key='prompt_table' )
 		
 		# ------------------------------------------------------------------
-		# SELECTION PROCESSING (must run BEFORE widgets below)
+		# Selection processing
 		# ------------------------------------------------------------------
 		selected = [ r for r in edited if isinstance( r, dict ) and r.get( 'Selected' ) ]
 		if len( selected ) == 1:
 			pid = int( selected[ 0 ][ 'PromptsId' ] )
 			if pid != st.session_state.pe_selected_id:
-				st.session_state.pe_selected_id = pid
 				load_prompt( pid )
+				if bool( st.session_state.get( 'pe_cascade_enabled', False ) ):
+					apply_prompt_to_text_generation( st.session_state.pe_text )
+					apply_prompt_metadata_to_shared_state(
+						category=selected[ 0 ].get( 'Category', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language', 'English' ) )
 		
 		elif len( selected ) == 0:
-			reset_selection( )
+			pass
 		
 		elif len( selected ) > 1:
 			st.warning( 'Select exactly one prompt row.' )
@@ -3924,76 +4744,172 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		p1, p2, p3 = st.columns( [ 0.25, 3.5, 0.25 ] )
 		with p1:
-			if st.button( "◀ Prev" ) and st.session_state.pe_page > 1:
+			if st.button( '◀ Prev' ) and st.session_state.pe_page > 1:
 				st.session_state.pe_page -= 1
 		
 		with p2:
-			st.markdown( f"Page **{st.session_state.pe_page}** of **{total_pages}**" )
+			st.markdown( f'Page **{st.session_state.pe_page}** of **{total_pages}**' )
 		
 		with p3:
-			if st.button( "Next ▶" ) and st.session_state.pe_page < total_pages:
+			if st.button( 'Next ▶' ) and st.session_state.pe_page < total_pages:
 				st.session_state.pe_page += 1
 		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
 		# ------------------------------------------------------------------
+		# Prompt actions
+		# ------------------------------------------------------------------
+		with st.expander( '⚙️ Prompt Actions', expanded=False ):
+			act_c1, act_c2, act_c3, act_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
+			
+			with act_c1:
+				if st.button( 'Apply to Text Generation', width='stretch' ):
+					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
+					apply_prompt_metadata_to_shared_state(
+						category=st.session_state.get( 'pe_category_apply', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language', 'English' ) )
+					st.success( 'Applied to shared Text Generation settings.' )
+			
+			with act_c2:
+				if st.button( 'Apply to Document Q&A', width='stretch' ):
+					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
+					apply_prompt_metadata_to_shared_state(
+						category=st.session_state.get( 'pe_category_meta', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language', 'English' ) )
+					st.success( 'Applied to shared Document Q&A settings.' )
+			
+			with act_c3:
+				if st.button( 'Clone as New Template', width='stretch' ):
+					source_prompt = {
+							'PromptsId': st.session_state.get( 'pe_selected_id' ),
+							'Caption': st.session_state.get( 'pe_caption', '' ),
+							'Name': st.session_state.get( 'pe_name', '' ),
+							'Text': st.session_state.get( 'pe_text', '' ),
+							'Version': st.session_state.get( 'pe_version', '' ),
+							'ID': st.session_state.get( 'pe_id', 0 )
+					}
+					clone_prompt_record( source_prompt )
+					st.success( 'Prompt cloned into a new editable draft.' )
+			
+			with act_c4:
+				if st.button( 'Generate Starter Prompt', width='stretch' ):
+					st.session_state.pe_text = build_starter_prompt_template(
+						category=st.session_state.get( 'pe_category_generate', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language', 'English' ) )
+					st.success( 'Starter prompt generated into the edit surface.' )
+		
+		# ------------------------------------------------------------------
+		# Prompt generator
+		# ------------------------------------------------------------------
+		with st.expander( '🧪 Prompt Generator', expanded=False ):
+			gen_c1, gen_c2, gen_c3, gen_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ], border=True )
+			
+			with gen_c1:
+				st.selectbox( 'Task Type', get_prompt_task_types( ), key='pe_task_type_generator' )
+			
+			with gen_c2:
+				st.selectbox( 'Response Format',
+					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
+					key='pe_response_format_generator' )
+			
+			with gen_c3:
+				st.text_input( 'Language', key='pe_language' )
+			
+			with gen_c4:
+				st.selectbox( 'Generator Style', [ 'Practical', 'Formal', 'Analytical', 'Concise' ],
+					key='pe_generator_style' )
+			
+			st.text_input( 'Goal', key='pe_generator_goal' )
+			
+			st.text_area( 'Constraints', height=120, key='pe_generator_constraints' )
+			
+			if st.button( 'Generate Template Draft', width='stretch' ):
+				draft = generate_prompt_template_draft(
+					goal=st.session_state.get( 'pe_generator_goal', '' ),
+					constraints=st.session_state.get( 'pe_generator_constraints', '' ),
+					style=st.session_state.get( 'pe_generator_style', 'Practical' ),
+					category=st.session_state.get( 'pe_category_draft', 'General Chat' ),
+					task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
+					response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+					language=st.session_state.get( 'pe_language', 'English' ) )
+				st.session_state[ 'pe_generated_template' ] = draft
+				st.session_state.pe_text = draft
+			
+			if st.session_state.get( 'pe_generated_template', '' ):
+				st.text_area( 'Generated Draft',
+					value=st.session_state.get( 'pe_generated_template', '' ),
+					height=180, disabled=True )
+		
+		# ------------------------------------------------------------------
 		# Edit Prompt
 		# ------------------------------------------------------------------
-		with st.expander( "🖊️ Edit Prompt", expanded=False ):
-			st.text_input( "PromptsId", value=st.session_state.pe_selected_id or "",
-				disabled=True )
+		with st.expander( '🖊️ Edit Prompt', expanded=False ):
+			meta_c1, meta_c2, meta_c3, meta_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
+			
+			with meta_c1:
+				st.text_input( 'PromptsId', value=st.session_state.pe_selected_id or '',
+					disabled=True )
+			
+			with meta_c2:
+				st.selectbox( 'Category', get_prompt_categories( ),
+					key='pe_category_edit' )
+			
+			with meta_c3:
+				st.selectbox( 'Task Type', get_prompt_task_types( ),
+					key='pe_task_type_edit' )
+			
+			with meta_c4:
+				st.selectbox( 'Response Format', [ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
+					key='pe_response_format' )
+			
 			st.text_input( 'Caption', key='pe_caption' )
 			st.text_input( 'Name', key='pe_name' )
+			st.text_input( 'Language', key='pe_language_edit' )
 			st.text_area( 'Text', key='pe_text', height=260 )
 			st.text_input( 'Version', key='pe_version' )
-			
 			
 			c1, c2, c3 = st.columns( 3 )
 			with c1:
 				save_label = '💾 Save Changes' if st.session_state.pe_selected_id else '➕ Create Prompt'
 				if st.button( save_label ):
-					with create_connection( ) as conn:
+					with get_conn( ) as conn:
 						if st.session_state.pe_selected_id:
-							conn.execute(
-								f"""
+							conn.execute( f"""
 	                            UPDATE {TABLE}
 	                            SET Caption=?, Name=?, Text=?, Version=?, ID=?
 	                            WHERE PromptsId=?
 	                            """,
-								(
-										st.session_state.pe_caption,
-										st.session_state.pe_name,
-										st.session_state.pe_text,
-										st.session_state.pe_version,
-										st.session_state.pe_id,
-										st.session_state.pe_selected_id
-								), )
+								( st.session_state.pe_caption, st.session_state.pe_name,
+								  st.session_state.pe_text, st.session_state.pe_version,
+								  st.session_state.pe_id, st.session_state.pe_selected_id ) )
 						else:
-							conn.execute(
-								f"""
+							conn.execute( f"""
 	                            INSERT INTO {TABLE} (Caption, Name, Text, Version, ID)
-	                            VALUES (?, ?, ?, ? , ?)
-	                            """,
-								(
-										st.session_state.pe_caption,
+	                            VALUES (?, ?, ?, ?, ?)
+	                            """, ( st.session_state.pe_caption,
 										st.session_state.pe_name,
 										st.session_state.pe_text,
 										st.session_state.pe_version,
-										st.session_state.pe_id
-								),
-							)
+										st.session_state.pe_id ) )
 						conn.commit( )
 					
 					st.success( 'Saved.' )
-					reset_selection( )
 			
 			with c2:
 				if st.session_state.pe_selected_id and st.button( 'Delete' ):
-					with create_connection( ) as conn:
+					with get_conn( ) as conn:
 						conn.execute(
 							f'DELETE FROM {TABLE} WHERE PromptsId=?',
-							(st.session_state.pe_selected_id,), )
+							(st.session_state.pe_selected_id,)
+						)
 						conn.commit( )
+					
 					reset_selection( )
 					st.success( 'Deleted.' )
 			
@@ -4004,26 +4920,29 @@ elif mode == 'Prompt Engineering':
 # DATA MANAGEMENT MODE
 # ==============================================================================
 elif mode == 'Data Management':
-	st.subheader( "🏛️ Data Management", help=cfg.DATA_MANAGEMENT )
+	st.subheader( '🏛️ Data Management', help=cfg.DATA_MANAGEMENT )
 	st.divider( )
+	
 	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
 	with center:
-		tabs = st.tabs( [ "📥 Import", "🗂 Browse", "💉 CRUD", "📊 Explore", "🔎 Filter",
-		                  "🧮 Aggregate", "📈 Visualize", "⚙ Admin", "🧠 SQL" ] )
+		tabs = st.tabs( [ '📥 Import', '🗂 Browse', '💉 CRUD', '📊 Explore', '🔎 Filter',
+		                  '🧮 Aggregate', '📈 Visualize', '⚙ Admin', '🧠 SQL' ] )
 		
 		tables = list_tables( )
 		if not tables:
-			st.info( "No tables available." )
+			st.info( 'No tables available.' )
 		else:
-			table = st.selectbox( "Table", tables )
+			table = st.selectbox( 'Table', tables )
 			df_full = read_table( table )
 		
-		# ------------------------------------------------------------------------------
-		# UPLOAD TAB
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# IMPORT TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 0 ]:
+			st.subheader( 'Structured Data Import' )
 			uploaded_file = st.file_uploader( 'Upload Excel File', type=[ 'xlsx' ] )
 			overwrite = st.checkbox( 'Overwrite existing tables', value=True )
+			
 			if uploaded_file:
 				try:
 					sheets = pd.read_excel( uploaded_file, sheet_name=None )
@@ -4034,31 +4953,23 @@ elif mode == 'Data Management':
 							if overwrite:
 								conn.execute( f'DROP TABLE IF EXISTS "{table_name}"' )
 							
-							# --- Create Table ---
 							columns = [ ]
 							df.columns = [ create_identifier( c ) for c in df.columns ]
 							for col in df.columns:
 								sql_type = get_sqlite_type( df[ col ].dtype )
 								columns.append( f'"{col}" {sql_type}' )
 							
-							create_stmt = (
-									f'CREATE TABLE "{table_name}" '
-									f'({", ".join( columns )});'
-							)
+							create_stmt = ( f'CREATE TABLE "{table_name}" '
+									f'({", ".join( columns )});' )
 							
 							conn.execute( create_stmt )
 							
-							# --- Insert Data ---
 							placeholders = ", ".join( [ "?" ] * len( df.columns ) )
-							insert_stmt = (
-									f'INSERT INTO "{table_name}" '
-									f'VALUES ({placeholders});'
-							)
+							insert_stmt = ( f'INSERT INTO "{table_name}" '
+									f'VALUES ({placeholders});' )
 							
-							conn.executemany(
-								insert_stmt,
-								df.where( pd.notnull( df ), None ).values.tolist( )
-							)
+							conn.executemany( insert_stmt,
+								df.where( pd.notnull( df ), None ).values.tolist( ) )
 						
 						conn.commit( )
 					
@@ -4068,13 +4979,48 @@ elif mode == 'Data Management':
 				except Exception as e:
 					try:
 						conn.rollback( )
-					except:
+					except Exception:
 						pass
 					st.error( f'Import failed — transaction rolled back.\n\n{e}' )
+			
+			st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
+			st.subheader( 'AI Asset Registration' )
+			asset_c1, asset_c2 = st.columns( [ 0.5, 0.5 ], border=True )
+			with asset_c1:
+				if st.button( 'Register Active Documents', width='stretch' ):
+					doc_result = register_documents_from_session( )
+					chunk_result = register_document_chunks_from_session( )
+					embed_result = register_document_embeddings_from_session( )
+					
+					st.session_state[ 'dm_asset_sync_status' ] = (
+							f'Documents inserted: {doc_result[ "inserted" ]}, '
+							f'updated: {doc_result[ "updated" ]}, '
+							f'chunks inserted: {chunk_result[ "inserted" ]}, '
+							f'embeddings inserted: {embed_result[ "inserted" ]}'
+					)
+					st.success( st.session_state[ 'dm_asset_sync_status' ] )
+			
+			with asset_c2:
+				image_uploads = st.file_uploader( 'Upload images for metadata registration',
+					type=[ 'png', 'jpg', 'jpeg', 'webp' ], accept_multiple_files=True,
+					key='dm_image_uploads' )
+				
+				if st.button( 'Register Uploaded Images', width='stretch' ):
+					if image_uploads:
+						image_result = register_images_from_upload( image_uploads )
+						st.session_state[ 'dm_asset_sync_status' ] = (
+								f'Images inserted: {image_result[ "inserted" ]}, '
+								f'updated: {image_result[ "updated" ]}' )
+						st.success( st.session_state[ 'dm_asset_sync_status' ] )
+					else:
+						st.info( 'Upload one or more images first.' )
+			
+			if st.session_state.get( 'dm_asset_sync_status', '' ):
+				st.caption( st.session_state.get( 'dm_asset_sync_status', '' ) )
 		
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
 		# BROWSE TAB
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
 		with tabs[ 1 ]:
 			tables = list_tables( )
 			if tables:
@@ -4084,9 +5030,9 @@ elif mode == 'Data Management':
 			else:
 				st.info( 'No tables available.' )
 		
-		# ------------------------------------------------------------------------------
-		# CRUD (Schema-Aware)
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# CRUD TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 2 ]:
 			tables = list_tables( )
 			if not tables:
@@ -4096,27 +5042,17 @@ elif mode == 'Data Management':
 				df = read_table( table )
 				schema = create_schema( table )
 				
-				# Build type map
 				type_map = { col[ 1 ]: col[ 2 ].upper( ) for col in schema if col[ 1 ] != 'rowid' }
 				
-				# ------------------------------------------------------------------
-				# INSERT
-				# ------------------------------------------------------------------
 				st.subheader( 'Insert Row' )
 				insert_data = { }
 				for column, col_type in type_map.items( ):
 					if 'INT' in col_type:
-						insert_data[
-							column ] = st.number_input( column, step=1, key=f'ins_{column}' )
-					
+						insert_data[ column ] = st.number_input( column, step=1, key=f'ins_{column}' )
 					elif 'REAL' in col_type:
-						insert_data[
-							column ] = st.number_input( column, format='%.6f', key=f'ins_{column}' )
-					
+						insert_data[ column ] = st.number_input( column, format='%.6f', key=f'ins_{column}' )
 					elif 'BOOL' in col_type:
-						insert_data[
-							column ] = 1 if st.checkbox( column, key=f'ins_{column}' ) else 0
-					
+						insert_data[ column ] = 1 if st.checkbox( column, key=f'ins_{column}' ) else 0
 					else:
 						insert_data[ column ] = st.text_input( column, key=f'ins_{column}' )
 				
@@ -4132,9 +5068,6 @@ elif mode == 'Data Management':
 					st.success( 'Row inserted.' )
 					st.rerun( )
 				
-				# ------------------------------------------------------------------
-				# UPDATE
-				# ------------------------------------------------------------------
 				st.subheader( 'Update Row' )
 				rowid = st.number_input( 'Row ID', min_value=1, step=1 )
 				update_data = { }
@@ -4142,17 +5075,14 @@ elif mode == 'Data Management':
 					if 'INT' in col_type:
 						val = st.number_input( column, step=1, key=f'upd_{column}' )
 						update_data[ column ] = val
-					
 					elif 'REAL' in col_type:
 						val = st.number_input( column, format='%.6f', key=f'upd_{column}' )
 						update_data[ column ] = val
-					
 					elif 'BOOL' in col_type:
 						val = 1 if st.checkbox( column, key=f'upd_{column}' ) else 0
 						update_data[ column ] = val
-					
 					else:
-						val = st.text_input( column, key=f"upd_{column}" )
+						val = st.text_input( column, key=f'upd_{column}' )
 						update_data[ column ] = val
 				
 				if st.button( 'Update Row' ):
@@ -4166,9 +5096,6 @@ elif mode == 'Data Management':
 					st.success( 'Row updated.' )
 					st.rerun( )
 				
-				# ------------------------------------------------------------------
-				# DELETE
-				# ------------------------------------------------------------------
 				st.subheader( 'Delete Row' )
 				delete_id = st.number_input( 'Row ID to Delete', min_value=1, step=1 )
 				if st.button( 'Delete Row' ):
@@ -4179,9 +5106,9 @@ elif mode == 'Data Management':
 					st.success( 'Row deleted.' )
 					st.rerun( )
 		
-		# ------------------------------------------------------------------------------
-		# EXPLORE
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# EXPLORE TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 3 ]:
 			tables = list_tables( )
 			if tables:
@@ -4192,9 +5119,9 @@ elif mode == 'Data Management':
 				df_page = read_table( table, page_size, offset )
 				st.dataframe( df_page, use_container_width=True )
 		
-		# ------------------------------------------------------------------------------
-		# FILTER
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# FILTER TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 4 ]:
 			tables = list_tables( )
 			if tables:
@@ -4206,9 +5133,9 @@ elif mode == 'Data Management':
 					df = df[ df[ column ].astype( str ).str.contains( value ) ]
 				st.dataframe( df, use_container_width=True )
 		
-		# ------------------------------------------------------------------------------
-		# AGGREGATE
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# AGGREGATE TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 5 ]:
 			tables = list_tables( )
 			if tables:
@@ -4225,9 +5152,9 @@ elif mode == 'Data Management':
 					elif agg == 'COUNT':
 						st.metric( 'Result', df[ col ].count( ) )
 		
-		# ------------------------------------------------------------------------------
-		# VISUALIZE
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# VISUALIZE TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 6 ]:
 			tables = list_tables( )
 			if tables:
@@ -4239,15 +5166,56 @@ elif mode == 'Data Management':
 					fig = px.histogram( df, x=col )
 					st.plotly_chart( fig, use_container_width=True )
 		
-		# ------------------------------------------------------------------------------
-		# ADMIN
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# ADMIN TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 7 ]:
 			tables = list_tables( )
 			if tables:
 				table = st.selectbox( 'Table', tables, key='admin_table' )
 			
 			st.divider( )
+			
+			st.subheader( 'AI Asset Governance' )
+			
+			if st.button( 'Refresh AI Asset Counts', width='stretch' ):
+				st.session_state[ 'dm_asset_counts' ] = get_ai_asset_counts( )
+			
+			asset_counts = st.session_state.get( 'dm_asset_counts', { } )
+			if asset_counts:
+				ac1, ac2, ac3, ac4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
+				with ac1:
+					st.metric( 'Documents', int( asset_counts.get( 'documents', 0 ) ) )
+				with ac2:
+					st.metric( 'Document Chunks',
+						int( asset_counts.get( 'document_chunks', 0 ) ) )
+				with ac3:
+					st.metric( 'Document Embeddings',
+						int( asset_counts.get( 'document_embeddings', 0 ) ) )
+				with ac4:
+					st.metric( 'Images', int( asset_counts.get( 'images', 0 ) ) )
+			
+			asset_admin_c1, asset_admin_c2 = st.columns( [ 0.5, 0.5 ], border=True )
+			
+			with asset_admin_c1:
+				if st.button( 'Rebuild Active Document Asset Rows', width='stretch' ):
+					doc_result = register_documents_from_session( )
+					chunk_result = register_document_chunks_from_session( )
+					embed_result = register_document_embeddings_from_session( )
+					
+					st.success(
+						f'Documents inserted: {doc_result[ "inserted" ]}, '
+						f'updated: {doc_result[ "updated" ]}, '
+						f'chunks inserted: {chunk_result[ "inserted" ]}, '
+						f'embeddings inserted: {embed_result[ "inserted" ]}' )
+			
+			with asset_admin_c2:
+				if st.button( 'Purge Orphaned AI Assets', width='stretch' ):
+					purge_result = purge_orphaned_ai_assets( )
+					st.success( f'Deleted chunks: {purge_result[ "deleted_chunks" ]}, '
+						f'deleted embeddings: {purge_result[ "deleted_embeddings" ]}' )
+			
+			st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 			
 			st.subheader( 'Data Profiling' )
 			tables = list_tables( )
@@ -4263,18 +5231,15 @@ elif mode == 'Data Management':
 			if tables:
 				table = st.selectbox( 'Select Table to Drop', tables, key='admin_drop_table' )
 				
-				# Initialize confirmation state
 				if 'dm_confirm_drop' not in st.session_state:
 					st.session_state.dm_confirm_drop = False
 				
-				# Step 1: Initial Drop click
 				if st.button( 'Drop Table', key='admin_drop_button' ):
 					st.session_state.dm_confirm_drop = True
 				
-				# Step 2: Confirmation UI
 				if st.session_state.dm_confirm_drop:
 					st.warning( f'You are about to permanently delete table {table}. '
-					            'This action cannot be undone.' )
+						'This action cannot be undone.' )
 					
 					col1, col2 = st.columns( 2 )
 					
@@ -4303,7 +5268,8 @@ elif mode == 'Data Management':
 			
 			st.subheader( 'Create Custom Table' )
 			new_table_name = st.text_input( 'Table Name' )
-			column_count = st.number_input( 'Number of Columns', min_value=1, max_value=20, value=1 )
+			column_count = st.number_input( 'Number of Columns', min_value=1, max_value=20,
+				value=1 )
 			columns = [ ]
 			for i in range( column_count ):
 				st.markdown( f'### Column {i + 1}' )
@@ -4316,18 +5282,18 @@ elif mode == 'Data Management':
 				auto_inc = st.checkbox( 'AUTOINCREMENT (INTEGER only)', key=f'ai_{i}' )
 				
 				columns.append( {
-						'name': col_name,
-						'type': col_type,
-						'not_null': not_null,
-						'primary_key': primary_key,
-						'auto_increment': auto_inc } )
+							'name': col_name,
+							'type': col_type,
+							'not_null': not_null,
+							'primary_key': primary_key,
+							'auto_increment': auto_inc
+					} )
 			
 			if st.button( 'Create Table' ):
 				try:
 					create_custom_table( new_table_name, columns )
 					st.success( 'Table created successfully.' )
 					st.rerun( )
-				
 				except Exception as e:
 					st.error( f'Error: {e}' )
 			
@@ -4337,39 +5303,27 @@ elif mode == 'Data Management':
 			tables = list_tables( )
 			if tables:
 				table = st.selectbox( 'Select Table', tables, key='schema_view_table' )
-				
-				# Column schema
 				schema = create_schema( table )
-				schema_df = pd.DataFrame(
-					schema,
+				schema_df = pd.DataFrame( schema,
 					columns=[ 'cid', 'name', 'type', 'notnull', 'default', 'pk' ] )
 				
-				st.markdown( "### Columns" )
+				st.markdown( '### Columns' )
 				st.dataframe( schema_df, use_container_width=True )
-				
-				# Row count
 				with create_connection( ) as conn:
-					count = conn.execute(
-						f'SELECT COUNT(*) FROM "{table}"'
-					).fetchone( )[ 0 ]
+					count = conn.execute( f'SELECT COUNT(*) FROM "{table}"' ).fetchone( )[ 0 ]
 				
-				st.metric( "Row Count", f"{count:,}" )
-				
-				# Indexes
+				st.metric( 'Row Count', f'{count:,}' )
 				indexes = get_indexes( table )
 				if indexes:
-					idx_df = pd.DataFrame(
-						indexes,
-						columns=[ 'seq', 'name', 'unique', 'origin', 'partial' ]
-					)
-					st.markdown( "### Indexes" )
+					idx_df = pd.DataFrame( indexes,
+						columns=[ 'seq', 'name', 'unique', 'origin', 'partial' ] )
+					st.markdown( '### Indexes' )
 					st.dataframe( idx_df, use_container_width=True )
 				else:
-					st.info( "No indexes defined." )
+					st.info( 'No indexes defined.' )
 			
 			st.divider( )
-			st.subheader( "ALTER TABLE Operations" )
-			
+			st.subheader( 'ALTER TABLE Operations' )
 			tables = list_tables( )
 			if tables:
 				table = st.selectbox( 'Select Table', tables, key='alter_table_select' )
@@ -4388,7 +5342,6 @@ elif mode == 'Data Management':
 				elif operation == 'Rename Column':
 					schema = create_schema( table )
 					col_names = [ col[ 1 ] for col in schema ]
-					
 					old_col = st.selectbox( 'Column to Rename', col_names )
 					new_col = st.text_input( 'New Column Name' )
 					
@@ -4408,7 +5361,6 @@ elif mode == 'Data Management':
 				elif operation == 'Drop Column':
 					schema = create_schema( table )
 					col_names = [ col[ 1 ] for col in schema ]
-					
 					drop_col = st.selectbox( 'Column to Drop', col_names )
 					
 					if st.button( 'Drop Column' ):
@@ -4416,9 +5368,9 @@ elif mode == 'Data Management':
 						st.success( 'Column dropped.' )
 						st.rerun( )
 		
-		# ------------------------------------------------------------------------------
-		# SQL
-		# ------------------------------------------------------------------------------
+		# ----------------------------------------------------------------------
+		# SQL TAB
+		# ----------------------------------------------------------------------
 		with tabs[ 8 ]:
 			st.subheader( 'SQL Console' )
 			query = st.text_area( 'Enter SQL Query' )
@@ -4433,31 +5385,19 @@ elif mode == 'Data Management':
 						
 						end_time = time.perf_counter( )
 						elapsed = end_time - start_time
-						
-						# ----------------------------------------------------------
-						# Display Results
-						# ----------------------------------------------------------
 						st.dataframe( result, use_container_width=True )
 						row_count = len( result )
-						
-						# ----------------------------------------------------------
-						# Execution Metrics
-						# ----------------------------------------------------------
 						col1, col2 = st.columns( 2 )
 						col1.metric( 'Rows Returned', f'{row_count:,}' )
 						col2.metric( 'Execution Time (seconds)', f'{elapsed:.6f}' )
 						
-						# Optional slow query warning
 						if elapsed > 2.0:
 							st.warning( 'Slow query detected (> 2 seconds). Consider indexing.' )
 						
-						# ----------------------------------------------------------
-						# Download
-						# ----------------------------------------------------------
 						if not result.empty:
 							csv = result.to_csv( index=False ).encode( 'utf-8' )
-							st.download_button( 'Download CSV', csv,
-								'query_results.csv', 'text/csv' )
+							st.download_button( 'Download CSV', csv, 'query_results.csv',
+								'text/csv' )
 					
 					except Exception as e:
 						st.error( f'Execution failed: {e}' )
