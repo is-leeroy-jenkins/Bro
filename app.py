@@ -2188,7 +2188,7 @@ def get_timestamp_text( ) -> str:
 	"""
 	return time.strftime( '%Y-%m-%d %H:%M:%S' )
 
-def register_documents_from_session( ) -> Dict[ str, int ]:
+def register_session_documents( ) -> Dict[ str, int ]:
 	"""
 		Purpose:
 		--------
@@ -2284,7 +2284,7 @@ def register_documents_from_session( ) -> Dict[ str, int ]:
 	
 	return { 'inserted': inserted, 'updated': updated }
 
-def register_document_chunks_from_session( ) -> Dict[ str, int ]:
+def register_session_chunks( ) -> Dict[ str, int ]:
 	"""
 		Purpose:
 		--------
@@ -2345,7 +2345,7 @@ def register_document_chunks_from_session( ) -> Dict[ str, int ]:
 	
 	return { 'inserted': inserted }
 
-def register_document_embeddings_from_session( ) -> Dict[ str, int ]:
+def register_session_embeddings( ) -> Dict[ str, int ]:
 	"""
 		Purpose:
 		--------
@@ -2400,7 +2400,7 @@ def register_document_embeddings_from_session( ) -> Dict[ str, int ]:
 	
 	return { 'inserted': inserted }
 
-def register_images_from_upload( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
+def register_upload_images( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
 	"""
 		Purpose:
 		--------
@@ -2491,7 +2491,7 @@ def register_images_from_upload( uploaded_files: List[ Any ] ) -> Dict[ str, int
 
 # ------------- DOCQNA UTILITIES ----------------------
 
-def get_doc_action_instruction( action_name: str ) -> str:
+def create_docqna_instruction( action_name: str ) -> str:
 	"""
 		Purpose:
 		--------
@@ -2525,7 +2525,7 @@ def get_doc_action_instruction( action_name: str ) -> str:
 	
 	return action_map.get( action, action_map[ 'Answer Question' ] )
 
-def build_document_instruction_block( ) -> str:
+def build_instruction_block( ) -> str:
 	"""
 		Purpose:
 		--------
@@ -2551,7 +2551,7 @@ def build_document_instruction_block( ) -> str:
 	lines.append( 'Document Q&A Instructions:' )
 	lines.append( f'- Action: {doc_action}' )
 	lines.append( f'- Response Format: {response_format}' )
-	lines.append( f'- Action Guidance: {get_doc_action_instruction( doc_action )}' )
+	lines.append( f'- Action Guidance: {create_docqna_instruction( doc_action )}' )
 	if require_grounding:
 		lines.append( '- Ground every answer in the retrieved document excerpts.' )
 	
@@ -2565,7 +2565,7 @@ def build_document_instruction_block( ) -> str:
 	
 	return '\n'.join( lines ).strip( )
 
-def extract_text_from_bytes( file_bytes: bytes, file_name: str='' ) -> str:
+def extract_text_bytes( file_bytes: bytes, file_name: str='' ) -> str:
 	"""
 		Purpose:
 		--------
@@ -2634,7 +2634,7 @@ def route_document_query( prompt: str ) -> str:
 		max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
 		stream=False, output=None )
 
-def summarize_active_document( ) -> str:
+def summarize_document( ) -> str:
 	"""
 		Purpose:
 		--------
@@ -2702,7 +2702,7 @@ def extract_text( file_bytes: bytes, file_name: str='' ) -> str:
 		--------
 		str
 	"""
-	return extract_text_from_bytes( file_bytes=file_bytes, file_name=file_name )
+	return extract_text( file_bytes=file_bytes, file_name=file_name )
 
 def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	'''
@@ -3004,7 +3004,7 @@ def build_document_user_input( user_query: str, k: int=None ) -> str:
 		--------
 		str
 	"""
-	doc_instruction_block = build_document_instruction_block( )
+	doc_instruction_block = build_instruction_block( )
 	hits = retrieve_chunks( user_query, k=k )
 	st.session_state[ 'doc_last_retrieval_hits' ] = hits
 	context_blocks: List[ str ] = [ ]
@@ -3138,7 +3138,7 @@ def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
 		if not file_name or not file_bytes:
 			continue
 		
-		text = extract_text_from_bytes( file_bytes=file_bytes, file_name=file_name )
+		text = extract_text( file_bytes=file_bytes, file_name=file_name )
 		if not text:
 			try:
 				text = file_bytes.decode( errors='ignore' )
@@ -3236,7 +3236,7 @@ def query_semantic_index( query_text: str ) -> List[ Dict[ str, Any ] ]:
 	st.session_state[ 'semantic_result_rows' ] = scored_rows
 	return scored_rows
 
-def build_semantic_context_from_selection( ) -> str:
+def create_semantic_context( ) -> str:
 	"""
 		Purpose:
 		--------
@@ -3265,7 +3265,7 @@ def build_semantic_context_from_selection( ) -> str:
 	
 	return '\n\n'.join( context_parts ).strip( )
 
-def extract_selected_semantic_rows( edited_rows: List[ Dict[ str, Any ] ] ) -> List[Dict[str, Any]]:
+def extract_selected_rows( edited_rows: List[ Dict[ str, Any ] ] ) -> List[Dict[str, Any]]:
 	"""
 		Purpose:
 		--------
@@ -3289,7 +3289,7 @@ def extract_selected_semantic_rows( edited_rows: List[ Dict[ str, Any ] ] ) -> L
 	
 	return selected
 
-def send_selected_semantic_chunks_to_text_generation( ) -> None:
+def send_text_chunks( ) -> None:
 	"""
 		Purpose:
 		--------
@@ -3303,7 +3303,7 @@ def send_selected_semantic_chunks_to_text_generation( ) -> None:
 		--------
 		None
 	"""
-	context_text = build_semantic_context_from_selection( )
+	context_text = create_semantic_context( )
 	if not context_text:
 		return
 	
@@ -3315,7 +3315,7 @@ def send_selected_semantic_chunks_to_text_generation( ) -> None:
 	st.session_state[ 'basic_docs' ] = existing_docs
 	st.session_state[ 'use_semantic' ] = True
 
-def send_selected_semantic_chunks_to_doc_qna( ) -> None:
+def send_docqna_chunks( ) -> None:
 	"""
 		Purpose:
 		--------
@@ -3329,7 +3329,7 @@ def send_selected_semantic_chunks_to_doc_qna( ) -> None:
 		--------
 		None
 	"""
-	context_text = build_semantic_context_from_selection( )
+	context_text = create_semantic_context( )
 	if not context_text:
 		return
 	
@@ -3416,25 +3416,14 @@ if mode == 'Text Generation':
 				)
 				
 				with task_c1:
-					st.selectbox(
-						label='Task Type',
-						options=[
-								'Chat',
-								'Reasoning',
-								'Coding',
-								'Translation',
-								'Summarization',
-								'Extraction'
-						],
-						key='task_preset'
-					)
+					st.selectbox( label='Task Type',
+						options=[ 'Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization',
+								'Extraction' ], key='task_preset' )
 				
 				with task_c2:
-					st.selectbox(
-						label='Response Format',
+					st.selectbox( label='Response Format',
 						options=[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-						key='response_format'
-					)
+						key='response_format' )
 				
 				with task_c3:
 					st.toggle(
@@ -4469,7 +4458,7 @@ elif mode == 'Semantic Search':
 				edited_rows = st.data_editor( result_rows, hide_index=True, use_container_width=True,
 					key='semantic_results_editor' )
 				
-				selected_rows = extract_selected_semantic_rows( edited_rows )
+				selected_rows = extract_selected_rows( edited_rows )
 				st.session_state[ 'semantic_selected_rows' ] = selected_rows
 				if len( selected_rows ) > 0:
 					st.caption( f'Selected Chunks: {len( selected_rows )}' )
@@ -4479,17 +4468,17 @@ elif mode == 'Semantic Search':
 			
 			with act_c1:
 				if st.button( 'Send Selected Chunks to Text Generation', width='stretch' ):
-					send_selected_semantic_chunks_to_text_generation( )
+					send_text_chunks( )
 					st.success( 'Selected chunks added to shared Text Generation context.' )
 			
 			with act_c2:
 				if st.button( 'Send Selected Chunks to Document Q&A', width='stretch' ):
-					send_selected_semantic_chunks_to_doc_qna( )
+					send_docqna_chunks( )
 					st.success( 'Selected chunks added to the shared Document Q&A context buffer.' )
 			
 			with act_c3:
 				if st.button( 'Save Selected Chunks as Prompt Context', width='stretch' ):
-					context_text = build_semantic_context_from_selection( )
+					context_text = create_semantic_context( )
 					if context_text:
 						existing_docs = st.session_state.get( 'basic_docs', [ ] )
 						if not isinstance( existing_docs, list ):
@@ -4504,7 +4493,7 @@ elif mode == 'Semantic Search':
 			if isinstance( selected_rows, list ) and len( selected_rows ) > 0:
 				st.markdown( '### Selected Semantic Context Preview' )
 				st.text_area( label='Selected Context',
-					value=build_semantic_context_from_selection( ),
+					value=create_semantic_context( ),
 					height=220, disabled=True )
 		
 		with st.expander( label='Index Maintenance', icon='🛠️', expanded=False ):
@@ -4988,9 +4977,9 @@ elif mode == 'Data Management':
 			asset_c1, asset_c2 = st.columns( [ 0.5, 0.5 ], border=True )
 			with asset_c1:
 				if st.button( 'Register Active Documents', width='stretch' ):
-					doc_result = register_documents_from_session( )
-					chunk_result = register_document_chunks_from_session( )
-					embed_result = register_document_embeddings_from_session( )
+					doc_result = register_session_documents( )
+					chunk_result = register_session_chunks( )
+					embed_result = register_session_embeddings( )
 					
 					st.session_state[ 'dm_asset_sync_status' ] = (
 							f'Documents inserted: {doc_result[ "inserted" ]}, '
@@ -5007,7 +4996,7 @@ elif mode == 'Data Management':
 				
 				if st.button( 'Register Uploaded Images', width='stretch' ):
 					if image_uploads:
-						image_result = register_images_from_upload( image_uploads )
+						image_result = register_upload_images( image_uploads )
 						st.session_state[ 'dm_asset_sync_status' ] = (
 								f'Images inserted: {image_result[ "inserted" ]}, '
 								f'updated: {image_result[ "updated" ]}' )
@@ -5199,9 +5188,9 @@ elif mode == 'Data Management':
 			
 			with asset_admin_c1:
 				if st.button( 'Rebuild Active Document Asset Rows', width='stretch' ):
-					doc_result = register_documents_from_session( )
-					chunk_result = register_document_chunks_from_session( )
-					embed_result = register_document_embeddings_from_session( )
+					doc_result = register_session_documents( )
+					chunk_result = register_session_chunks( )
+					embed_result = register_session_embeddings( )
 					
 					st.success(
 						f'Documents inserted: {doc_result[ "inserted" ]}, '
