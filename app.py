@@ -2621,7 +2621,7 @@ def route_document_query( prompt: str ) -> str:
 		--------
 		str
 	"""
-	user_input = build_document_user_input( user_query=prompt,
+	user_input = build_docqna_input( user_query=prompt,
 		k=int( st.session_state.get( 'retrieval_k', 6 ) ) )
 	
 	if not user_input:
@@ -2770,7 +2770,7 @@ def ensure_schema( dim: int ) -> bool:
 	finally:
 		conn.close( )
 
-def build_document_inventory_rows( ) -> List[ Dict[ str, Any ] ]:
+def build_docqna_inventory( ) -> List[ Dict[ str, Any ] ]:
 	"""
 		Purpose:
 		--------
@@ -2801,7 +2801,7 @@ def build_document_inventory_rows( ) -> List[ Dict[ str, Any ] ]:
 	
 	return rows
 
-def get_active_document_names_text( ) -> str:
+def get_docqna_names( ) -> str:
 	"""
 		Purpose:
 		--------
@@ -2844,13 +2844,13 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 	fp = hashlib.sha256( fp_seed.encode( 'utf-8', errors='ignore' ) ).hexdigest( )
 	
 	if fp and fp == st.session_state.get( 'docqna_fingerprint', '' ):
-		st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
+		st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
 		return
 	
 	st.session_state[ 'docqna_fingerprint' ] = fp
 	st.session_state[ 'docqna_chunk_count' ] = 0
 	st.session_state[ 'docqna_fallback_rows' ] = [ ]
-	st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
+	st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
 	
 	dim_value = getattr( embedder, 'get_sentence_embedding_dimension', lambda: 384 )( )
 	dim = int( dim_value ) if dim_value else 384
@@ -2989,7 +2989,7 @@ def retrieve_chunks( query: str, k: int=None ) -> List[ Tuple[ str, str, float ]
 	results.sort( key=lambda r: r[ 2 ], reverse=True )
 	return results[ : int( k_value ) ]
 
-def build_document_user_input( user_query: str, k: int=None ) -> str:
+def build_docqna_input( user_query: str, k: int=None ) -> str:
 	"""
 		Purpose:
 		--------
@@ -3018,7 +3018,7 @@ def build_document_user_input( user_query: str, k: int=None ) -> str:
 				context_blocks.append( f'[Semantic Context]\n{value.strip( )}' )
 	
 	context = '\n\n'.join( context_blocks ).strip( )
-	active_doc_names = get_active_document_names_text( )
+	active_doc_names = get_docqna_names( )
 	prompt_parts: List[ str ] = [ ]
 	if doc_instruction_block:
 		prompt_parts.append( doc_instruction_block )
@@ -3977,7 +3977,7 @@ elif mode == 'Document Q&A':
 							
 							with st.chat_message( 'assistant' ):
 								out = st.empty( )
-								response = run_llm_turn( user_input=build_document_user_input(
+								response = run_llm_turn( user_input=build_docqna_input(
 									user_query=action_prompt,
 									k=int( st.session_state.get( 'retrieval_k', 6 ) ) ),
 									temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
@@ -4192,7 +4192,7 @@ elif mode == 'Document Q&A':
 						except Exception:
 							continue
 					
-					st.session_state[ 'doc_inventory_rows' ] = build_document_inventory_rows( )
+					st.session_state[ 'doc_inventory_rows' ] = build_docqna_inventory( )
 				else:
 					st.info( 'Load a document.' )
 				
@@ -4296,7 +4296,7 @@ elif mode == 'Document Q&A':
 			with st.chat_message( 'user' ):
 				st.markdown( user_input )
 			
-			doc_user_input = build_document_user_input( user_query=user_input,
+			doc_user_input = build_docqna_input( user_query=user_input,
 				k=int( st.session_state.get( 'retrieval_k', 6 ) ) )
 			
 			if not doc_user_input or not isinstance( doc_user_input,

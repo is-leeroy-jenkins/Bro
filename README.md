@@ -38,7 +38,7 @@ A fine-tuned variant of Google's **Gemma-3-4B-IT**, optimized for:
 
 **Model characteristics:**
 
-* ~1B parameters
+* ~4B parameters
 * GGUF format (`Q4_K_M`)
 * Optimized for llama.cpp
 * Text-only (no image or audio input)

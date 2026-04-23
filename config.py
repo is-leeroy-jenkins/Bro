@@ -152,3 +152,102 @@ SEMANTIC_SEARCH = '''LLM semantic search uses Large Language Models and embeddin
 		By converting documents and queries into numerical vector embeddings stored in a database,
 		systems can find contextually relevant information, enabling more accurate, conversational,
 		and nuanced search experiences, often used in RAG (Retrieval-Augmented Generation) systems.'''
+
+USE_CHAT_HISTORY = '''When enabled, Bro includes prior user and assistant turns when constructing
+		the current prompt. This helps preserve conversational continuity, allows follow-up
+		questions to reference earlier context, and makes multi-turn interactions feel coherent.
+		Disable it when you want each request to be handled as a fresh, isolated prompt.'''
+
+USE_DOCUMENT_CONTEXT = '''When enabled, Bro appends shared document context stored in session state
+		to the prompt. This is useful when you want generation to be influenced by previously
+		selected excerpts, semantic-search results, or other document-derived context beyond
+		the live user message. Disable it for purely standalone generation.'''
+
+ANSWER_ONLY = '''When enabled, Bro instructs the model to return the answer directly with minimal
+		prefatory narration. This is useful for concise responses, direct question answering,
+		and structured workflows where extra explanation is undesirable. Disable it when you
+		want fuller reasoning, framing, or narrative context in the response.'''
+
+USE_SELF_CHECK = '''When enabled, Bro instructs the model to internally verify its conclusion before
+		responding. This can improve care and consistency for reasoning-heavy tasks, though it
+		may slightly increase response latency or verbosity depending on the prompt.'''
+
+DETERMINISTIC_REASONING = '''When enabled, Bro biases the model toward stable, conservative reasoning
+		and reduced variation across similar prompts. This is useful when you want less creative
+		drift and more repeatable analytical behavior. It complements, but does not replace,
+		temperature and sampling controls.'''
+
+CODING_INCLUDE_COMMENTS = '''When enabled, Bro asks the model to include documentation comments
+		and useful inline comments in generated code where appropriate. This is helpful for
+		readability, maintainability, and teaching scenarios. Disable it when you want cleaner,
+		minimal code with less commentary.'''
+
+CODING_EDITOR_FORMAT = '''When enabled, Bro instructs the model to format code as editor-ready
+		source rather than pseudo-code or conversational fragments. This is useful when the
+		output is intended to be copied directly into an IDE, notebook, or source file.'''
+
+CODING_FENCED_OUTPUT = '''When enabled, Bro wraps generated code in fenced Markdown code blocks.
+		This improves readability in the UI and preserves formatting for copy/paste. Disable it
+		when you prefer raw source text without Markdown fences.'''
+
+USE_GROUNDING = '''When enabled, Bro indicates that responses should remain anchored to available
+		context rather than drifting into unsupported generalization. In text generation this is
+		a soft behavioral instruction; in document-oriented workflows, grounding is reinforced
+		through retrieved evidence.'''
+
+SHOW_RETRIEVED_CHUNKS = '''When enabled, Bro displays the document chunks retrieved for the current
+		Document Q&A request. This makes retrieval behavior transparent, helps with debugging,
+		and lets users inspect exactly what evidence informed the answer. Disable it for a
+		cleaner chat experience.'''
+
+REQUIRE_GROUNDING = '''When enabled, Document Q&A instructs the model to ground its answer in the
+		retrieved document excerpts. This reduces unsupported claims and keeps responses tied to
+		the active evidence base rather than general background knowledge.'''
+
+ANSWER_FROM_EXCERPTS_ONLY = '''When enabled, Bro tells the model to answer only from the retrieved
+		excerpts and to say clearly when the evidence is insufficient. This is useful when you
+		want strict retrieval-based answering and minimal hallucination risk. Disable it when
+		you are willing to allow broader model inference beyond the excerpts.'''
+
+USE_SQLITE_VEC = '''When enabled, Bro attempts to use the sqlite-vec virtual table for vector
+		retrieval in Document Q&A. This can provide fast nearest-neighbor lookup over document
+		embeddings. Disable it if sqlite-vec is unavailable or if you want to force fallback
+		retrieval behavior.'''
+
+FALLBACK_COSINE_SEARCH = '''When enabled, Bro falls back to in-memory cosine-similarity search if
+		sqlite-vec retrieval is unavailable or fails. This improves robustness and keeps Document
+		Q&A usable even when vector-table support is not available, though it may be slower on
+		larger document sets.'''
+
+ENABLE_OCR = '''When enabled, Bro is permitted to use OCR-oriented parsing behavior for documents
+		when native text extraction is inadequate. This is most useful for scanned PDFs or image-
+		like documents where embedded text is missing or poor.'''
+
+PREFER_NATIVE_PDF_TEXT = '''When enabled, Bro prioritizes native text extraction from PDFs before
+		considering other parsing approaches. This is generally faster and cleaner for digital PDFs
+		with embedded text. Disable it when native extraction is unreliable for the document set.'''
+
+INCLUDE_PAGE_MARKERS = '''When enabled, Bro inserts page markers such as [Page N] into extracted
+		document text. This helps preserve page locality, improves traceability during retrieval,
+		and can make downstream answers easier to verify against the source document.'''
+
+SHOW_DOC_PARSE_DIAGNOSTICS = '''When enabled, Bro displays document parsing and indexing diagnostics
+		such as chunk size, overlap, vector readiness, and chunk counts. This is useful for
+		debugging ingestion and retrieval behavior during development or evaluation.'''
+
+SEMANTIC_CLEAR_EXISTING = '''When enabled, building a semantic index will clear the existing
+		embeddings table before inserting new chunks. Use this when you want a fresh semantic
+		search corpus rather than a cumulative one.'''
+
+SEMANTIC_APPEND_EXISTING = '''When enabled, Bro appends new semantic chunks to the existing
+		embeddings table instead of replacing prior content. This is useful when you want to
+		accumulate multiple document sets into one searchable semantic index.'''
+
+SEMANTIC_SHOW_DIAGNOSTICS = '''When enabled, Semantic Search displays index diagnostics such as
+		document count, chunk count, and vector dimension. This helps validate indexing behavior
+		and troubleshoot embedding workflows.'''
+
+SEMANTIC_GROUP_BY_DOCUMENT = '''When enabled, Semantic Search is intended to group ranked results
+		by source document rather than treating all chunks as one flat result set. In the current
+		implementation this is primarily a UI intent flag and will be most useful once document-
+		level grouping metadata is fully surfaced in the embeddings workflow.'''
