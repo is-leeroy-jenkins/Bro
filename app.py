@@ -51,7 +51,6 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-import fitz
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -4488,7 +4487,7 @@ elif mode == 'Prompt Engineering':
 			st.text_input( 'Search (Caption / Name / Text)', key='pe_search' )
 		
 		with c2:
-			st.selectbox( 'Category', get_prompt_categories( ), key='pe_category_selection' )
+			st.selectbox( 'Category', get_prompt_categories( ), key='prompt_category_selection' )
 		
 		with c3:
 			st.selectbox( 'Sort by',
@@ -4552,7 +4551,7 @@ elif mode == 'Prompt Engineering':
 		# Prompt table
 		# ------------------------------------------------------------------
 		table_rows: List[ Dict[ str, Any ] ] = [ ]
-		selected_category = str( st.session_state.get( 'pe_category_table', 'General Chat' ) or 'General Chat' )
+		selected_category = str( st.session_state.get( 'prompt_category_table', 'General Chat' ) or 'General Chat' )
 		
 		for r in rows:
 			prompt_row = {
@@ -4631,7 +4630,7 @@ elif mode == 'Prompt Engineering':
 				if st.button( 'Apply to Text Generation', width='stretch' ):
 					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category_apply', 'General Chat' ),
+						category=st.session_state.get( 'prompt_category_apply', 'General Chat' ),
 						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
 						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
@@ -4641,7 +4640,7 @@ elif mode == 'Prompt Engineering':
 				if st.button( 'Apply to Document Q&A', width='stretch' ):
 					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category_meta', 'General Chat' ),
+						category=st.session_state.get( 'prompt_category_meta', 'General Chat' ),
 						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
 						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
@@ -4663,7 +4662,7 @@ elif mode == 'Prompt Engineering':
 			with act_c4:
 				if st.button( 'Generate Starter Prompt', width='stretch' ):
 					st.session_state.pe_text = build_starter_prompt_template(
-						category=st.session_state.get( 'pe_category_generate', 'General Chat' ),
+						category=st.session_state.get( 'prompt_category', 'General Chat' ),
 						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
 						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
@@ -4676,12 +4675,12 @@ elif mode == 'Prompt Engineering':
 			gen_c1, gen_c2, gen_c3, gen_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ], border=True )
 			
 			with gen_c1:
-				st.selectbox( 'Task Type', get_prompt_task_types( ), key='pe_task_type_generator' )
+				st.selectbox( 'Task Type', get_prompt_task_types( ), key='prompt_task_generator' )
 			
 			with gen_c2:
 				st.selectbox( 'Response Format',
 					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='pe_response_format_generator' )
+					key='prompt_format' )
 			
 			with gen_c3:
 				st.text_input( 'Language', key='pe_language' )
@@ -4699,7 +4698,7 @@ elif mode == 'Prompt Engineering':
 					goal=st.session_state.get( 'pe_generator_goal', '' ),
 					constraints=st.session_state.get( 'pe_generator_constraints', '' ),
 					style=st.session_state.get( 'pe_generator_style', 'Practical' ),
-					category=st.session_state.get( 'pe_category_draft', 'General Chat' ),
+					category=st.session_state.get( 'prompt_category_draft', 'General Chat' ),
 					task_type=st.session_state.get( 'prompt_task', 'Chat' ),
 					response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 					language=st.session_state.get( 'pe_language', 'English' ) )
@@ -4723,7 +4722,7 @@ elif mode == 'Prompt Engineering':
 			
 			with meta_c2:
 				st.selectbox( 'Category', get_prompt_categories( ),
-					key='pe_category_edit' )
+					key='prompt_category_edit' )
 			
 			with meta_c3:
 				st.selectbox( 'Task Type', get_prompt_task_types( ),
