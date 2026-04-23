@@ -3,15 +3,15 @@
 
 
 
-A small application designed to run LLMs locally in GGUF format for fast, reliable instruction following, contextual comprehension, and structured reasoning. It runs entirely on your machine using a fine-tuned version Google's Gemma-3-1B-IT model, with no cloud APIs, no telemetry, and full control over your data.
+A small application designed to run a LLM  (bro-)locally in GGUF format for fast, reliable instruction following, contextual comprehension, and structured reasoning. It runs entirely on your machine using a fine-tuned version Google's Gemma-3-4B-IT model, with no cloud APIs, no telemetry, and full control over your data.
 
-Bro is intentionally lightweight making it ideal for **everyday analysis, drafting, summarization, and reasoning tasks** on CPU-only systems.
+Bro is lightweight making it ideal for **everyday analysis, drafting, summarization, and reasoning tasks** on CPU-only systems.
 
 
 
 ## ✨ Key Features
 
-* 🧠 **Gemma-3-1B-IT–based LLM (GGUF, llama.cpp)**
+* 🧠 **Gemma-3-4B-IT–GGUF LLM (GGUF, llama.cpp)**
 * 🔒 **100% local inference** — no external APIs
 * 💬 **Persistent chat history** (SQLite)
 * 📄 **Document-based RAG**
@@ -22,14 +22,14 @@ Bro is intentionally lightweight making it ideal for **everyday analysis, drafti
 * 🖥️ **CPU-friendly and fast**
 
 
-## 🧠 Sup with Bro
+## 🧠 Sup with Lil Bro?
 
-A fine-tuned variant of Google's **Gemma-3-1B-IT**, optimized for:
+A fine-tuned variant of Google's **Gemma-3-4B-IT**, optimized for:
 
 * Instruction following
 * Contextual understanding
 * Concise, structured responses
-* Low-latency local inference
+* Low-latency, local inference
 
 ### LLM Repository
 
@@ -42,6 +42,7 @@ A fine-tuned variant of Google's **Gemma-3-1B-IT**, optimized for:
 * GGUF format (`Q4_K_M`)
 * Optimized for llama.cpp
 * Text-only (no image or audio input)
+
 
 ---
 
