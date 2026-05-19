@@ -21,7 +21,7 @@ Bro is lightweight making it ideal for **everyday analysis, drafting, summarizat
 * 📝 **Export chat history to Markdown or PDF**
 * 🖥️ **CPU-friendly and fast**
 
-## 🧠 LLM Repository
+### 🧠 LLM Repository
 
 [![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
 
@@ -117,7 +117,7 @@ pip install -r requirements.txt
 
 
 
-## 📥 Download the Bro Model
+## 📥 Download Lil Bro
 
 1. Go to the Hugging Face model page:
    👉  [![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
