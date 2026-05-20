@@ -8,7 +8,6 @@
   <a href="#-architecture">Architecture</a> ·
   <a href="#-repository-structure">Structure</a> ·
   <a href="#-installation--setup">Install</a> ·
-  <a href="#-download-lil-bro">Download</a> ·
   <a href="#-configuration">Configuration</a> ·
   <a href="#-text-generation">AI</a> ·
   <a href="#-document-qa">RAG</a> ·
@@ -410,14 +409,4 @@ The table below reflects the active imports and runtime features used by the cur
 
 This application is provided for personal, research, and open-source use. Refer to the project and
 model repositories for application and model-specific licensing terms.
-
-## 🙌 Acknowledgements
-
-* llama.cpp community
-* Hugging Face
-* LM Studio ecosystem
-* Streamlit
-* sentence-transformers
-* sqlite-vec
-* Open-source Python and machine-learning tooling communities
 
