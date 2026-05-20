@@ -30,15 +30,9 @@ application data.
 
 
 
-## 🧠 Custom LLM
-
-[![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
-- Fine-tuned
-- Post-trained
-![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
-
 ## 🕸️ Streamlit (Web)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://bro-py.streamlit.app/)
+![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
 - A Python framework to build dynamic, interactive web applications.
 
 
@@ -48,6 +42,11 @@ application data.
 - Codebase
   
 
+## 🧠 Custom LLM
+
+[![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
+- Fine-tuned
+- Post-trained
   
 ## ✨ Key Features
 
