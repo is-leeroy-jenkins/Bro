@@ -28,15 +28,7 @@ application data.
 
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/bro-demo.gif)
 
-Bro is built around a practical local-AI workflow:
 
-* Run instruction-following and reasoning tasks with a local GGUF model.
-* Upload PDF, TXT, or DOCX documents for local document question answering.
-* Build a semantic index from uploaded documents using sentence-transformers.
-* Store chat history, prompts, embeddings, document metadata, chunks, and image metadata in SQLite.
-* Use Prompt Engineering mode to create, edit, clone, search, and apply prompt templates.
-* Use Data Management mode to import Excel data, browse tables, run guarded SQL, profile data, and
-  administer local AI-asset tables.
 
 ## 🧠 Custom LLM
 
@@ -50,7 +42,13 @@ Bro is built around a practical local-AI workflow:
 - A Python framework to build dynamic, interactive web applications.
 
 
+## 🧱 Databricks
+[![Bro](https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351)
+- A data engineering, analytics, and artificial intelligence collaborative workspace
+- Codebase
+  
 
+  
 ## ✨ Key Features
 
 | Feature                 | Description                                                                                                                                                |
@@ -70,6 +68,16 @@ Bro is built around a practical local-AI workflow:
 
 ## 🧭 Application Modes
 
+Bro is built around a practical local-AI workflow:
+
+* Run instruction-following and reasoning tasks with a local GGUF model.
+* Upload PDF, TXT, or DOCX documents for local document question answering.
+* Build a semantic index from uploaded documents using sentence-transformers.
+* Store chat history, prompts, embeddings, document metadata, chunks, and image metadata in SQLite.
+* Use Prompt Engineering mode to create, edit, clone, search, and apply prompt templates.
+* Use Data Management mode to import Excel data, browse tables, run guarded SQL, profile data, and
+  administer local AI-asset tables.
+  
 The current `app.py` exposes these sidebar modes through `cfg.MODES`.
 
 | Mode                   | Purpose                                                                  | Major Controls / Outputs                                                                                                                                                                                           |
