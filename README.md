@@ -43,8 +43,8 @@ Bro is built around a practical local-AI workflow:
 [![](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
 
 ## 🕸️ Web
-
-[![Streamlit App](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://bro-py.streamlit.app/)
+![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
 
 
 ## ✨ Key Features
