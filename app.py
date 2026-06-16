@@ -2888,7 +2888,7 @@ def extract_text( file_bytes: bytes, file_name: str = '' ) -> str:
 	Returns:
 		str: Text produced by the operation.
 	"""
-	return extract_text_from_bytes( file_bytes=file_bytes, file_name=file_name )
+	return extract_text( file_bytes=file_bytes, file_name=file_name )
 
 def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	"""Attempts to load the sqlite-vec extension into an active SQLite connection.
