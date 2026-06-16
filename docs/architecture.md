@@ -1,4 +1,8 @@
-# Bro Architecture
+
+![](./img/bro-architecture.png)
+
+___
+
 
 Bro is a local-first Streamlit application organized around a central user interface, shared runtime configuration, local model execution, local document retrieval, and SQLite-backed persistence.
 

@@ -17,6 +17,10 @@
   <a href="#-requirements">Requirements</a> ·
 </p>
 
+___
+
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](https://github.com/is-leeroy-jenkins/Bro.git)
+
 
 Bro is a local-first Streamlit application for text generation, document-grounded retrieval,
 semantic search, prompt engineering, and SQLite-backed data management. It is designed to run a

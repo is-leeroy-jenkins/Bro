@@ -109,6 +109,7 @@ extra:
 nav:
   - Home: index.md
   - Architecture: architecture.md
+  - Local Model: local-model.md
   - User Guide:
       - Text Generation: text-generation.md
       - Document Q&A: document-qna.md
