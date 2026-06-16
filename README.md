@@ -19,7 +19,7 @@
 
 ___
 
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](https://is-leeroy-jenkins.github.io/bro/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](https://is-leeroy-jenkins.github.io/Bro/)
 
 
 Bro is a local-first Streamlit application for text generation, document-grounded retrieval,
