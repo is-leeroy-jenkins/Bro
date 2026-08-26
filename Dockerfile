@@ -28,6 +28,32 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 
 COPY . /app
 
+# Correct a legacy nested-quote f-string defect before the image is accepted.
+# py_compile then makes Python syntax validity a build-time invariant.
+RUN python - <<'PY'
+from pathlib import Path
+
+path = Path('/app/app.py')
+text = path.read_text(encoding='utf-8')
+replacements = {
+    "f'Chunk Size: {int( st.session_state.get( 'retrieval_chunk_size', 1200 ) )} '":
+        "f\"Chunk Size: {int( st.session_state.get( 'retrieval_chunk_size', 1200 ) )} \"",
+    "f'| Chunk Overlap: {int( st.session_state.get( 'retrieval_chunk_overlap', 200 ) )} '":
+        "f\"| Chunk Overlap: {int( st.session_state.get( 'retrieval_chunk_overlap', 200 ) )} \"",
+    "f'| Index Ready: {bool( st.session_state.get( 'docqna_vec_ready', False ) )} '":
+        "f\"| Index Ready: {bool( st.session_state.get( 'docqna_vec_ready', False ) )} \"",
+    "f'| Chunk Count: {int( st.session_state.get( 'docqna_chunk_count', 0 ) )}'":
+        "f\"| Chunk Count: {int( st.session_state.get( 'docqna_chunk_count', 0 ) )}\"",
+}
+for old, new in replacements.items():
+    if old not in text:
+        raise RuntimeError(f'Expected app.py syntax pattern was not found: {old}')
+    text = text.replace(old, new, 1)
+path.write_text(text, encoding='utf-8')
+PY
+
+RUN python -m py_compile /app/app.py /app/config.py
+
 # Bro's development config contains a Windows-only fallback path. The Azure image
 # makes MODEL_PATH honor BRO_LLM_PATH while allowing the GGUF itself to be supplied
 # separately after deployment.
