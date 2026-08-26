@@ -33,17 +33,22 @@ application data.
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/bro-demo.gif)
 
 
+## 🧠 GPT
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white)](https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro)
 
-## 🕸️ Streamlit (Web)
+## 🔥 Streamlit (Web)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://bro-py.streamlit.app/)
+
+## 🧱 Databricks
+[![Bro](https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351)
+
+- A data engineering, analytics, and artificial intelligence collaborative workspace
+- Codebase
+- 
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
 - A Python framework to build dynamic, interactive web applications.
 
 
-## 🧱 Databricks
-[![Bro](https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351)
-- A data engineering, analytics, and artificial intelligence collaborative workspace
-- Codebase
   
 
 ## 🧠 Custom LLM
