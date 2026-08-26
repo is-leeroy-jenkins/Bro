@@ -24,6 +24,8 @@ export BRO_LLM_PATH="${BRO_LLM_PATH:-${MODEL_DIR}/${MODEL_FILE}}"
 export STREAMLIT_SERVER_PORT="${PORT}"
 export STREAMLIT_SERVER_ADDRESS="${STREAMLIT_SERVER_ADDRESS}"
 
+mkdir -p "${MODEL_DIR}"
+
 log "startup.sh entered"
 log "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log "app_file=${APP_FILE}"
@@ -33,18 +35,14 @@ log "BRO_LLM_PATH=${BRO_LLM_PATH}"
 log "python=$(python --version 2>&1)"
 log "working_directory=$(pwd)"
 
-if [[ ! -f "${BRO_LLM_PATH}" ]]; then
-  echo "STARTUP ERROR: baked model file not found at ${BRO_LLM_PATH}" >&2
-  exit 90
+if [[ -s "${BRO_LLM_PATH}" ]]; then
+  log "local GGUF model detected"
+  log "model_size_bytes=$(stat -c %s "${BRO_LLM_PATH}")"
+else
+  log "no local GGUF model detected; Bro will start in model-optional mode"
+  log "place a compatible GGUF at ${BRO_LLM_PATH} to enable local generation"
 fi
 
-if [[ ! -s "${BRO_LLM_PATH}" ]]; then
-  echo "STARTUP ERROR: baked model file is empty at ${BRO_LLM_PATH}" >&2
-  exit 91
-fi
-
-log "baked model verification succeeded"
-log "model_size_bytes=$(stat -c %s "${BRO_LLM_PATH}")"
 log "filesystem state:"
 df -h "${MODEL_DIR}" || true
 
