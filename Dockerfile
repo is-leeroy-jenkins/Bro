@@ -7,8 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
     BRO_MODEL_DIR=/app/models \
     BRO_MODEL_REPO=leeroy-jankins/bro \
-    BRO_MODEL_FILE=bro-3-4b-it-qat-Q4_K_M.gguf \
-    BRO_LLM_PATH=/app/models/bro-3-4b-it-qat-Q4_K_M.gguf
+    BRO_MODEL_FILE=gemma-3-4b-it-Q4_K_M.gguf \
+    BRO_LLM_PATH=/app/models/gemma-3-4b-it-Q4_K_M.gguf
 
 WORKDIR /app
 
@@ -63,7 +63,7 @@ COPY . /app
 
 # Bro's development config contains a Windows-only fallback path. The Azure image
 # replaces that one assignment so MODEL_PATH honors the Linux BRO_LLM_PATH value.
-RUN sed -i "s|^MODEL_PATH = .*|MODEL_PATH = os.getenv( 'BRO_LLM_PATH', r'/app/models/bro-3-4b-it-qat-Q4_K_M.gguf' )|" /app/config.py \
+RUN sed -i "s|^MODEL_PATH = .*|MODEL_PATH = os.getenv( 'BRO_LLM_PATH', r'/app/models/gemma-3-4b-it-Q4_K_M.gguf' )|" /app/config.py \
     && grep -F "MODEL_PATH = os.getenv" /app/config.py
 
 RUN mkdir -p /app/stores/sqlite /app/logging \
