@@ -28,19 +28,10 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 
 COPY . /app
 
-# Bro's development config contains a Windows-only fallback path. In the Linux
-# Azure image, make MODEL_PATH honor BRO_LLM_PATH while preserving local source behavior.
-RUN python - <<'PY'
-from pathlib import Path
-
-path = Path('/app/config.py')
-text = path.read_text(encoding='utf-8')
-old = "MODEL_PATH = r'C:\\\\Users\\\\terry\\\\source\\\\llm\\\\bro\\\\bro-3-4b-it-qat-Q4_K_M.gguf'"
-new = "MODEL_PATH = os.getenv( 'BRO_LLM_PATH', r'/app/models/bro-3-4b-it-qat-Q4_K_M.gguf' )"
-if old not in text:
-    raise SystemExit('Expected MODEL_PATH assignment was not found in config.py')
-path.write_text(text.replace(old, new, 1), encoding='utf-8')
-PY
+# Bro's development config contains a Windows-only fallback path. The Azure image
+# replaces that one assignment so MODEL_PATH honors the Linux BRO_LLM_PATH value.
+RUN sed -i "s|^MODEL_PATH = .*|MODEL_PATH = os.getenv( 'BRO_LLM_PATH', r'/app/models/bro-3-4b-it-qat-Q4_K_M.gguf' )|" /app/config.py \
+    && grep -F "MODEL_PATH = os.getenv" /app/config.py
 
 RUN mkdir -p /app/models /app/stores/sqlite /app/logging \
     && chmod +x /app/startup.sh
