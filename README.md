@@ -32,15 +32,15 @@ application data.
 <table>
 <tr>
 <th align="center">
-<img width="220" height="1" alt=""><br>
+<img width="240" height="1" alt=""><br>
 🧠 GPT
 </th>
 <th align="center">
-<img width="220" height="1" alt=""><br>
+<img width="240" height="1" alt=""><br>
 🔥 Streamlit
 </th>
 <th align="center">
-<img width="220" height="1" alt=""><br>
+<img width="240" height="1" alt=""><br>
 🧱 Databricks
 </th>
 </tr>
@@ -48,7 +48,6 @@ application data.
 <td align="center">
 <a href="https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro">
 <img src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white" alt="OpenAI GPT">
-
 </a>
 </td>
 <td align="center">
