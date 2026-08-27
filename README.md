@@ -23,30 +23,43 @@ ___
 
 
 Bro is a local-first Streamlit application for text generation, document-grounded retrieval,
-semantic search, prompt engineering, and SQLite-backed data management. It is designed to run a
+semantic search, prompt engineering, and SQLite-backed data management. It is designed to run a local 
 GGUF language model through `llama-cpp-python` while giving analysts direct control over inference
 parameters, prompt templates, document context, retrieval behavior, semantic chunking, and local
 application data.
 
-## 🎥 Demo
+## ☁️ Cloud 
+<table>
+<tr>
+<th align="center">🔥 Streamlit</th>
+<th align="center">🧠 GPT</th>
+<th align="center">🧱 Databricks</th>
+</tr>
+<tr>
+<td width="33%" align="center">
+<a href="https://bro-py.streamlit.app/">
+<img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App">
+</a>
+</td>
+<td width="33%" align="center">
+<a href="https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro">
+<img src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white" alt="OpenAI GPT">
+</a>
+</td>
+<td width="33%" align="center">
+<a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351">
+<img src="https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white" alt="Databricks Bro">
+</a>
+</td>
+</tr>
+</table>
 
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/bro-demo.gif)
 
+___
 
-## 🧠 GPT
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white)](https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro)
-
-## 🔥 Streamlit (Web)
-[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://bro-py.streamlit.app/)
-
-## 🧱 Databricks
-[![Bro](https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351)
-
-- A data engineering, analytics, and artificial intelligence collaborative workspace
-- Codebase
-- 
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/Bro-streamlit.gif)
-- A Python framework to build dynamic, interactive web applications.
+
 
 
   
