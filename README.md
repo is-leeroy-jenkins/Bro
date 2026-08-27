@@ -27,8 +27,6 @@ semantic search, prompt engineering, and SQLite-backed data management. It is de
 GGUF language model through `llama-cpp-python` while giving analysts direct control over inference
 parameters, prompt templates, document context, retrieval behavior, semantic chunking, and local
 application data.
-
-## ☁️ Cloud 
 <table>
 <tr>
 <th align="center">
@@ -62,6 +60,9 @@ application data.
 </td>
 </tr>
 </table>
+
+## 🎬 Demo
+
 
 ![](https://github.com/is-leeroy-jenkins/Bro/blob/main/resources/images/bro-demo.gif)
 
