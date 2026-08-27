@@ -31,22 +31,32 @@ application data.
 ## ☁️ Cloud 
 <table>
 <tr>
-<th align="center">🔥 Streamlit</th>
-<th align="center">🧠 GPT</th>
-<th align="center">🧱 Databricks</th>
+<th align="center">
+<img width="220" height="1" alt=""><br>
+🧠 GPT
+</th>
+<th align="center">
+<img width="220" height="1" alt=""><br>
+🔥 Streamlit
+</th>
+<th align="center">
+<img width="220" height="1" alt=""><br>
+🧱 Databricks
+</th>
 </tr>
 <tr>
-<td width="33%" align="center">
+<td align="center">
+<a href="https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro">
+<img src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white" alt="OpenAI GPT">
+
+</a>
+</td>
+<td align="center">
 <a href="https://bro-py.streamlit.app/">
 <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App">
 </a>
 </td>
-<td width="33%" align="center">
-<a href="https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro">
-<img src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white" alt="OpenAI GPT">
-</a>
-</td>
-<td width="33%" align="center">
+<td align="center">
 <a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351">
 <img src="https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white" alt="Databricks Bro">
 </a>
