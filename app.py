@@ -1104,20 +1104,12 @@ def get_prompt_categories( ) -> List[ str ]:
 	Returns:
 		List[str]: Result produced by the operation.
 	"""
-	return [
-			'General Chat',
-			'Reasoning',
-			'Coding',
-			'Translation',
-			'Summarization',
-			'Extraction',
-			'Document Extraction',
-			'OCR',
-			'JSON Output'
-	]
+	return [ 'General Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization', 'Extraction',
+			'Document Extraction', 'OCR', 'JSON Output' ]
 
 def get_prompt_task_types( ) -> List[ str ]:
-	"""Returns the supported task types used by Prompt Engineering controls and Text Generation presets.
+	"""Returns the supported task types used by Prompt Engineering controls and Text Generation
+	presets.
 
 	Purpose:
 		Returns the supported task types used by Prompt Engineering controls and Text
@@ -1126,14 +1118,7 @@ def get_prompt_task_types( ) -> List[ str ]:
 	Returns:
 		List[str]: Result produced by the operation.
 	"""
-	return [
-			'Chat',
-			'Reasoning',
-			'Coding',
-			'Translation',
-			'Summarization',
-			'Extraction'
-	]
+	return [ 'Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization', 'Extraction' ]
 
 def infer_prompt_category( prompt_row: Dict[ str, Any ] | None ) -> str:
 	"""Infers a prompt category from prompt caption, name, and text fields for prompt-management workflows.
@@ -1849,16 +1834,13 @@ def create_aggregation( df: pd.DataFrame ):
 		df: DataFrame to process.
 	"""
 	st.subheader( 'Aggregation Engine' )
-	
 	numeric_cols = df.select_dtypes( include=[ 'number' ] ).columns.tolist( )
-	
 	if not numeric_cols:
 		st.info( 'No numeric columns available.' )
 		return
 	
 	col = st.selectbox( 'Column', numeric_cols )
 	agg = st.selectbox( 'Aggregation', [ 'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'MEDIAN' ] )
-	
 	if agg == 'COUNT':
 		result = df[ col ].count( )
 	elif agg == 'SUM':
@@ -2166,11 +2148,9 @@ def create_profile_table( table: str ):
 		distinct_count = series.nunique( dropna=True )
 		row = \
 			{
-					'column': col, 'dtype': str( series.dtype ),
-					'null_%': round( (null_count / total_rows) * 100, 2 ) if total_rows else 0,
-					'distinct_%': round( (
-							                     distinct_count / total_rows) * 100,
-						2 ) if total_rows else 0,
+				'column': col, 'dtype': str( series.dtype ),
+				'null_%': round( (null_count / total_rows) * 100, 2 ) if total_rows else 0,
+				'distinct_%': round( ( distinct_count / total_rows) * 100, 2 ) if total_rows else 0,
 			}
 		
 		if pd.api.types.is_numeric_dtype( series ):
@@ -2247,10 +2227,8 @@ def drop_column( table: str, column: str ):
 		remaining_cols = [ r[ 1 ] for r in remaining ]
 		col_list = ", ".join( [ f'"{c}"' for c in remaining_cols ] )
 		
-		conn.execute(
-			f'INSERT INTO "{temp_table}" ({col_list}) '
-			f'SELECT {col_list} FROM "{table}";'
-		)
+		conn.execute( f'INSERT INTO "{temp_table}" ({col_list}) '
+		              f'SELECT {col_list} FROM "{table}";' )
 		
 		indexes = conn.execute(
 			"""
@@ -3529,14 +3507,10 @@ st.caption( cfg.APP_SUBTITLE )
 with st.sidebar:
 	style_subheaders( )
 	st.logo( cfg.LOGO, size='large' )
-	
-	c1, c2 = st.columns( [ 0.05, 0.95 ] )
-	with c2:
-		st.text( '⚙️ Application Mode' )
-		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
-		mode = st.radio( label='', options=cfg.MODES, index=0 )
-	
-	st.divider( )
+	st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
+	with st.expander( label='Mode', expanded=True ):
+		mode = st.radio( label='Select', options=cfg.MODES, index=0 )
+
 
 # ==============================================================================
 # TEXT GENERATION MODE
@@ -3587,7 +3561,8 @@ if mode == 'Text Generation':
 						value=bool( st.session_state.get( 'use_document_context', False ) ),
 						key='use_document_context' )
 				
-				if st.button( label='Reset', key='task_preset_reset', width='stretch' ):
+				if st.button( label='Reset', key='task_preset_reset',
+						width='stretch', icon='🔄' ):
 					for key in [ 'task_preset', 'response_format',
 					             'use_chat_history', 'use_document_context' ]:
 						if key in st.session_state:
@@ -3618,7 +3593,8 @@ if mode == 'Text Generation':
 						value=bool( st.session_state.get( 'deterministic_reasoning', False ) ),
 						key='deterministic_reasoning' )
 				
-				if st.button( label='Reset', key='reasoning_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='reasoning_controls_reset',
+						width='stretch', icon='🔄'  ):
 					for key in [ 'reasoning_depth', 'answer_only', 'use_self_check',
 					             'deterministic_reasoning' ]:
 						if key in st.session_state:
@@ -3662,7 +3638,8 @@ if mode == 'Text Generation':
 				
 				with translation_col_right:
 					st.markdown( '<br>', unsafe_allow_html=True )
-					if st.button( label='Reset', key='coding_controls_reset', width='stretch' ):
+					if st.button( label='Reset', key='coding_controls_reset',
+							width='stretch', icon='🔄'  ):
 						for key in [ 'coding_language', 'coding_task', 'coding_include_comments',
 						             'coding_editor_format', 'coding_fenced_output',
 						             'translation_target_language' ]:
@@ -3697,7 +3674,8 @@ if mode == 'Text Generation':
 					
 					is_grounded = st.session_state[ 'is_grounded' ]
 				
-				if st.button( label='Reset', key='response_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='response_controls_reset',
+						width='stretch', icon='🔄'  ):
 					for key in [ 'top_k', 'top_percent', 'temperature', 'is_grounded' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -3749,14 +3727,8 @@ if mode == 'Text Generation':
 				)
 				
 				with ctx_c1:
-					st.slider(
-						label='Context Window',
-						min_value=0,
-						max_value=8192,
-						key='context_window',
-						step=512,
-						help=cfg.CONTEXT_WINDOW
-					)
+					st.slider( label='Context Window', min_value=0, max_value=8192,
+						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
 					context_window = st.session_state[ 'context_window' ]
 				
 				with ctx_c2:
@@ -3773,7 +3745,8 @@ if mode == 'Text Generation':
 					st.slider( label='Random Seed', min_value=0, max_value=4096,
 						step=1, key='random_seed', help=cfg.SEED )
 				
-				if st.button( label='Reset', key='context_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='context_controls_reset',
+						width='stretch', icon='🔄'  ):
 					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -3791,13 +3764,8 @@ if mode == 'Text Generation':
 				prompt_names = [ '' ]
 			
 			with in_left:
-				st.text_area(
-					label='Enter Text',
-					height=120,
-					width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS,
-					key='system_instructions'
-				)
+				st.text_area( label='Enter Text', height=120, width='stretch',
+					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
 			
 			def _on_template_change( ) -> None:
 				name = st.session_state.get( 'instructions' )
@@ -3808,13 +3776,8 @@ if mode == 'Text Generation':
 						st.session_state[ 'active_prompt_caption' ] = name
 			
 			with in_right:
-				st.selectbox(
-					label='Use Template',
-					options=prompt_names,
-					index=None,
-					key='instructions',
-					on_change=_on_template_change
-				)
+				st.selectbox( label='Use Template', options=prompt_names, index=None,
+					key='instructions', on_change=_on_template_change )
 			
 			def _on_clear( ) -> None:
 				st.session_state[ 'system_instructions' ] = ''
@@ -3854,39 +3817,25 @@ if mode == 'Text Generation':
 			user_preview_input = st.session_state.get( 'last_preview_input', '' )
 			btn_c1, btn_c2, btn_c3, btn_c4 = st.columns( [ 0.35, 0.2, 0.2, 0.25 ] )
 			with btn_c1:
-				st.button(
-					label='Clear Instructions',
-					width='stretch',
-					on_click=_on_clear
-				)
+				st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
 			
 			with btn_c2:
-				st.button(
-					label='XML <-> Markdown',
-					width='stretch',
-					on_click=_on_convert_system_instructions
-				)
+				st.button( label='XML <-> Markdown', width='stretch',
+					on_click=_on_convert_system_instructions )
 			
 			with btn_c3:
-				st.button(
-					label='Apply Preset',
-					width='stretch',
-					on_click=_on_apply_preset_template
-				)
+				st.button( label='Apply Preset', width='stretch',
+					on_click=_on_apply_preset_template )
 			
 			with btn_c4:
 				if st.button( label='Preview Prompt', width='stretch' ):
-					st.session_state[ 'preview_effective_prompt' ] = not bool(
-						st.session_state.get( 'preview_effective_prompt', False )
-					)
+					st.session_state[ 'preview_effective_prompt' ] = not bool( st.session_state.get(
+						'preview_effective_prompt', False ) )
 			
 			if bool( st.session_state.get( 'preview_effective_prompt', False ) ):
-				st.text_area(
-					label='Effective Prompt Preview',
-					value=build_effective_prompt_preview( user_preview_input ),
-					height=220,
-					disabled=True
-				)
+				st.text_area( label='Effective Prompt Preview',
+					value=build_effective_prompt_preview( user_preview_input ), height=220,
+					disabled=True )
 		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
@@ -3897,10 +3846,8 @@ if mode == 'Text Generation':
 		user_input = st.chat_input( 'Ask Bro…' )
 		if user_input:
 			st.session_state[ 'last_preview_input' ] = str( user_input )
-			
 			save_message( 'user', user_input )
 			st.session_state.messages.append( ('user', user_input) )
-			
 			with st.chat_message( 'user' ):
 				st.markdown( user_input )
 			
@@ -3954,50 +3901,47 @@ elif mode == 'Document Q&A':
 					border=True, gap='medium' )
 				
 				with ret_c1:
-					st.slider( label='Chunks to Retrieve', min_value=1,
-						max_value=20, step=1, key='retrieval_k' )
+					st.slider( label='Chunks to Retrieve', min_value=1, max_value=20, step=1,
+						key='retrieval_k' )
 				
 				with ret_c2:
-					st.slider( label='Chunk Size', min_value=256, max_value=4000,
-						step=64, key='retrieval_chunk_size' )
+					st.slider( label='Chunk Size', min_value=256, max_value=4000, step=64,
+						key='retrieval_chunk_size' )
 				
 				with ret_c3:
-					st.slider( label='Chunk Overlap', min_value=0, max_value=1000,
-						step=25, key='retrieval_chunk_overlap' )
+					st.slider( label='Chunk Overlap', min_value=0, max_value=1000, step=25,
+						key='retrieval_chunk_overlap' )
 				
 				with ret_c4:
-					st.toggle( label='Show Retrieved Chunks',
-						value=bool( st.session_state.get( 'show_retrieved_chunks', True ) ),
-						key='show_retrieved_chunks' )
+					st.toggle( label='Show Retrieved Chunks', value=bool( st.session_state.get(
+						'show_retrieved_chunks', True ) ), key='show_retrieved_chunks' )
 				
-				ret_c5, ret_c6, ret_c7, ret_c8 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
+				ret_c5, ret_c6, ret_c7, ret_c8 = st.columns( [ 0.25, 0.25, 0.25,  0.25 ], border=True,
+					gap='medium' )
 				
 				with ret_c5:
-					st.toggle( label='Require Grounding',
-						value=bool( st.session_state.get( 'require_grounding', True ) ),
-						key='require_grounding' )
+					st.toggle( label='Require Grounding', value=bool( st.session_state.get(
+						'require_grounding', True ) ), key='require_grounding' )
 				
 				with ret_c6:
-					st.toggle( label='Answer From Excerpts Only',
-						value=bool( st.session_state.get( 'answer_from_excerpts_only', True ) ),
+					st.toggle( label='Answer From Excerpts Only', value=bool(
+						st.session_state.get( 'answer_from_excerpts_only', True ) ),
 						key='answer_from_excerpts_only' )
 				
 				with ret_c7:
-					st.toggle( label='Use sqlite-vec',
-						value=bool( st.session_state.get( 'prefer_sqlite_vec', True ) ),
-						key='prefer_sqlite_vec' )
+					st.toggle( label='Use sqlite-vec', value=bool( st.session_state.get(
+						'prefer_sqlite_vec', True ) ), key='prefer_sqlite_vec' )
 				
 				with ret_c8:
-					st.toggle( label='Fallback Cosine Search',
-						value=bool( st.session_state.get( 'allow_similarity_fallback', True ) ),
-						key='allow_similarity_fallback' )
+					st.toggle( label='Fallback Cosine Search', value=bool( st.session_state.get(
+						'allow_similarity_fallback', True ) ), key='allow_similarity_fallback' )
 				
-				if st.button( label='Reset', key='doc_retrieval_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_retrieval_controls_reset', width='stretch',
+						icon='🔄'  ):
 					for key in [ 'retrieval_k', 'retrieval_chunk_size', 'retrieval_chunk_overlap',
 					             'show_retrieved_chunks', 'require_grounding',
-					             'answer_from_excerpts_only',
-					             'prefer_sqlite_vec', 'allow_similarity_fallback' ]:
+					             'answer_from_excerpts_only', 'prefer_sqlite_vec',
+					             'allow_similarity_fallback' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -4007,94 +3951,90 @@ elif mode == 'Document Q&A':
 				action_c1, action_c2 = st.columns( [ 0.6, 0.4 ], border=True )
 				
 				with action_c1:
-					st.selectbox( label='Action',
-						options=[ 'Answer Question', 'Summarize Active Document',
-						          'Extract Key Points', 'Generate Outline',
-						          'Extract Entities', 'Extract Tables',
-						          'Compare Active Documents' ], key='docqna_action' )
+					st.selectbox( label='Action', options=[ 'Answer Question',
+					                                        'Summarize Active Document',
+					                                        'Extract Key Points',
+					                                        'Generate Outline', 'Extract Entities',
+					                                        'Extract Tables',
+					                                        'Compare Active Documents' ],
+						key='docqna_action' )
 				
 				with action_c2:
 					st.markdown( '<br>', unsafe_allow_html=True )
 					if st.button( 'Run Action', key='doc_run_action', width='stretch' ):
-						action_name = str(
-							st.session_state.get( 'docqna_action', 'Answer Question' ) or
-							'Answer Question' ).strip( )
+						action_name = str( st.session_state.get( 'docqna_action', 'Answer '
+						                                                          'Question' ) or
+						                   'Answer Question' ).strip( )
 						
 						action_prompts = {
-								'Summarize Active Document':
-									'Summarize the active document set clearly and faithfully.',
-								'Extract Key Points':
-									'Extract the key points from the active document set.',
-								'Generate Outline':
-									'Generate an outline of the active document set.',
-								'Extract Entities':
-									'Extract named entities, dates, organizations, and references from the active document set.',
-								'Extract Tables':
-									'Describe the tabular or structured information visible in the active document set.',
-								'Compare Active Documents':
-									'Compare the active documents and explain major agreements, differences, and gaps.'
-						}
+								'Summarize Active Document': 'Summarize the active document set '
+								                             'clearly and faithfully.',
+								'Extract Key Points': 'Extract the key points from the active '
+								                      'document set.',
+								'Generate Outline': 'Generate an outline of the active document '
+								                    'set.',
+								'Extract Entities': 'Extract named entities, dates, organizations, '
+								                    'and references from the active document set.',
+								'Extract Tables': 'Describe the tabular or structured information '
+								                  'visible in the active document set.',
+								'Compare Active Documents': 'Compare the active documents and '
+								                            'explain major agreements, '
+								                            'differences, and gaps.' }
 						
 						if action_name != 'Answer Question':
-							action_prompt = action_prompts.get( action_name,
-								'Summarize the active document set.' )
+							action_prompt = action_prompts.get( action_name, 'Summarize the active '
+							                                                 'document set.' )
 							
 							with st.chat_message( 'assistant' ):
 								out = st.empty( )
 								response = run_llm_turn( user_input=build_docqna_input(
-									user_query=action_prompt,
-									k=int( st.session_state.get( 'retrieval_k', 6 ) ) ),
-									temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
-									top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
-									repeat_penalty=float(
-										st.session_state.get( 'repeat_penalty', 1.1 ) ),
-									max_tokens=int(
-										st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
-									stream=True, output=out )
+									user_query=action_prompt, k=int( st.session_state.get(
+										'retrieval_k', 6 ) ) ), temperature=float(
+									st.session_state.get( 'temperature', 0.0 ) ), top_p=float(
+									st.session_state.get( 'top_percent', 0.95 ) ),
+									repeat_penalty=float( st.session_state.get( 'repeat_penalty',
+										1.1 ) ), max_tokens=int( st.session_state.get(
+										'max_tokens', 1024 ) ) or 1024, stream=True, output=out )
 							
 							save_message( 'assistant', response )
 							st.session_state.messages.append( ('assistant', response) )
 			
 			with st.expander( label='Document Parsing', icon='📄', expanded=False ):
-				parse_c1, parse_c2, parse_c3, parse_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
+				parse_c1, parse_c2, parse_c3, parse_c4 = st.columns( [ 0.25, 0.25, 0.25,  0.25 ],
 					border=True, gap='medium' )
 				
 				with parse_c1:
-					st.toggle( label='Enable OCR',
-						value=bool( st.session_state.get( 'ocr_enabled', False ) ),
-						key='ocr_enabled' )
+					st.toggle( label='Enable OCR', value=bool( st.session_state.get(
+						'ocr_enabled', False ) ), key='ocr_enabled' )
 				
 				with parse_c2:
-					st.toggle( label='Prefer Native PDF Text',
-						value=bool( st.session_state.get( 'prefer_native_pdf_text', True ) ),
-						key='prefer_native_pdf_text' )
+					st.toggle( label='Prefer Native PDF Text', value=bool( st.session_state.get(
+						'prefer_native_pdf_text', True ) ), key='prefer_native_pdf_text' )
 				
 				with parse_c3:
-					st.toggle( label='Include Page Markers',
-						value=bool( st.session_state.get( 'include_page_markers', False ) ),
-						key='include_page_markers' )
+					st.toggle( label='Include Page Markers', value=bool( st.session_state.get(
+						'include_page_markers', False ) ), key='include_page_markers' )
 				
 				with parse_c4:
-					st.toggle( label='Show Diagnostics',
-						value=bool( st.session_state.get( 'show_docqna_diagnostics', False ) ),
-						key='show_docqna_diagnostics' )
+					st.toggle( label='Show Diagnostics', value=bool( st.session_state.get(
+						'show_docqna_diagnostics', False ) ), key='show_docqna_diagnostics' )
 				
-				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch' ):
-					for key in [ 'ocr_enabled', 'prefer_native_pdf_text',
-					             'include_page_markers', 'show_docqna_diagnostics' ]:
+				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch',
+						icon='🔄' ):
+					for key in [ 'ocr_enabled', 'prefer_native_pdf_text', 'include_page_markers',
+					             'show_docqna_diagnostics' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
 			
 			with st.expander( label='Response Settings', icon='↔️', expanded=False ):
-				mind_c1, mind_c2, mind_c3 = st.columns( [ 0.33, 0.33, 0.33 ],
-					border=True, gap='medium' )
+				mind_c1, mind_c2, mind_c3 = st.columns( [ 0.33, 0.33, 0.33 ], border=True,
+					gap='medium' )
 				
 				with mind_c1:
-					st.slider( label='Temperature', min_value=0.0, max_value=1.0,
-						value=float( st.session_state.get( 'temperature', 0.0 ) ),
-						help=cfg.TEMPERATURE, key='temperature' )
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0, value=float(
+						st.session_state.get( 'temperature', 0.0 ) ), help=cfg.TEMPERATURE,
+						key='temperature' )
 					temperature = st.session_state[ 'temperature' ]
 				
 				with mind_c2:
@@ -4103,11 +4043,12 @@ elif mode == 'Document Q&A':
 					top_percent = st.session_state[ 'top_percent' ]
 				
 				with mind_c3:
-					st.slider( label='Top-K', min_value=0, max_value=50, step=1,
-						key='top_k', help=cfg.TOP_K )
+					st.slider( label='Top-K', min_value=0, max_value=50, step=1, key='top_k',
+						help=cfg.TOP_K )
 					top_k = st.session_state[ 'top_k' ]
 				
-				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch',
+						icon='🔄' ):
 					for key in [ 'top_k', 'top_percent', 'temperature' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -4119,8 +4060,8 @@ elif mode == 'Document Q&A':
 					border=True, gap='medium' )
 				
 				with prob_c1:
-					st.slider( label='Repeat Window', min_value=0, max_value=1024,
-						step=16, key='repeat_window', help=cfg.REPEAT_WINDOW )
+					st.slider( label='Repeat Window', min_value=0, max_value=1024, step=16,
+						key='repeat_window', help=cfg.REPEAT_WINDOW )
 					repeat_window = st.session_state[ 'repeat_window' ]
 				
 				with prob_c2:
@@ -4138,10 +4079,10 @@ elif mode == 'Document Q&A':
 						key='frequency_penalty', step=0.05, help=cfg.FREQUENCY_PENALTY )
 					frequency_penalty = st.session_state[ 'frequency_penalty' ]
 				
-				if st.button( label='Reset', key='doc_probability_controls_reset',
-						width='stretch' ):
-					for key in [ 'frequency_penalty', 'presense_penalty',
-					             'temperature', 'repeat_penalty', 'repeat_window' ]:
+				if st.button( label='Reset', key='doc_probability_controls_reset', width='stretch',
+						icon='🔄' ):
+					for key in [ 'frequency_penalty', 'presense_penalty', 'temperature',
+					             'repeat_penalty', 'repeat_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -4170,7 +4111,8 @@ elif mode == 'Document Q&A':
 					st.slider( label='Random Seed', min_value=0, max_value=4096, step=1,
 						key='random_seed', help=cfg.SEED )
 				
-				if st.button( label='Reset', key='doc_context_controls_reset', width='stretch' ):
+				if st.button( label='Reset', key='doc_context_controls_reset', width='stretch',
+						icon='🔄' ):
 					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -4223,7 +4165,7 @@ elif mode == 'Document Q&A':
 			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
 			with btn_c1:
 				st.button( label='Clear Instructions', width='stretch',
-					on_click=_on_doc_clear )
+					on_click=_on_doc_clear, icon='🧹' )
 			
 			with btn_c2:
 				st.button( label='XML <-> Markdown', width='stretch',
@@ -4542,8 +4484,7 @@ elif mode == 'Semantic Search':
 			selected_rows = st.session_state.get( 'semantic_selected_rows', [ ] )
 			if isinstance( selected_rows, list ) and len( selected_rows ) > 0:
 				st.markdown( '### Selected Semantic Context Preview' )
-				st.text_area( label='Selected Context',
-					value=create_semantic_context( ),
+				st.text_area( label='Selected Context', value=create_semantic_context( ),
 					height=220, disabled=True )
 		
 		with st.expander( label='Index Maintenance', icon='🛠️', expanded=False ):
@@ -4967,8 +4908,6 @@ elif mode == 'Data Management':
 	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
 	with center:
 		st.subheader( '🏛️ Data Management', help=cfg.DATA_MANAGEMENT )
-		st.divider( )
-		
 		tabs = st.tabs( [ '📥 Import', '🗂 Browse', '💉 CRUD', '📊 Explore', '🔎 Filter',
 		                  '🧮 Aggregate', '📈 Visualize', '⚙ Admin', '🧠 SQL' ] )
 		
@@ -4983,7 +4922,7 @@ elif mode == 'Data Management':
 		# IMPORT TAB
 		# ----------------------------------------------------------------------
 		with tabs[ 0 ]:
-			st.subheader( 'Structured Data Import' )
+			st.markdown( '#### Structured Data Import' )
 			uploaded_file = st.file_uploader( 'Upload Excel File', type=[ 'xlsx' ] )
 			overwrite = st.checkbox( 'Overwrite existing tables', value=True )
 			
@@ -5038,7 +4977,7 @@ elif mode == 'Data Management':
 					st.error( f'Import failed — transaction rolled back.\n\n{e}' )
 			
 			st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
-			st.subheader( 'AI Asset Registration' )
+			st.markdown( '#### AI Asset Registration' )
 			asset_c1, asset_c2 = st.columns( [ 0.5, 0.5 ], border=True )
 			with asset_c1:
 				if st.button( 'Register Active Documents', width='stretch' ):
@@ -5050,8 +4989,7 @@ elif mode == 'Data Management':
 							f'Documents inserted: {doc_result[ "inserted" ]}, '
 							f'updated: {doc_result[ "updated" ]}, '
 							f'chunks inserted: {chunk_result[ "inserted" ]}, '
-							f'embeddings inserted: {embed_result[ "inserted" ]}'
-					)
+							f'embeddings inserted: {embed_result[ "inserted" ]}')
 					st.success( st.session_state[ 'dm_asset_sync_status' ] )
 			
 			with asset_c2:
@@ -5489,19 +5427,18 @@ st.markdown(
 )
 
 # ---- Fixed Container
-st.markdown(
-	"""
+st.markdown( """
 	<style>
 	.boo-status-bar {
 		position: fixed;
 		bottom: 0;
 		left: 0;
 		width: 100%;
-		background-color: rgba(17, 17, 17, 0.95);
-		border-top: 1px solid #2a2a2a;
+		background-color: rgba(27, 27, 27, 0.95);
+		border-top: 1px solid #4d4d4d;
 		padding: 10px 16px;
 		font-size: 0.80rem;
-		color: #35618c;
+		color: #4aa2f7;
 		z-index: 1000;
 	}
 	.boo-status-inner {
