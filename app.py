@@ -3511,7 +3511,6 @@ with st.sidebar:
 	with st.expander( label='Mode', expanded=True ):
 		mode = st.radio( label='Select', options=cfg.MODES, index=0 )
 
-
 # ==============================================================================
 # TEXT GENERATION MODE
 # ==============================================================================
@@ -3537,6 +3536,7 @@ if mode == 'Text Generation':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			
 			with st.expander( label='Task Preset', icon='🧭', expanded=False ):
 				task_c1, task_c2, task_c3, task_c4 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
@@ -3708,14 +3708,10 @@ if mode == 'Text Generation':
 						step=0.05, help=cfg.FREQUENCY_PENALTY )
 					frequency_penalty = st.session_state[ 'frequency_penalty' ]
 				
-				if st.button( label='Reset', key='probability_controls_reset', width='stretch' ):
-					for key in [
-							'frequency_penalty',
-							'presense_penalty',
-							'temperature',
-							'repeat_penalty',
-							'repeat_window'
-					]:
+				if st.button( label='Reset', key='probability_controls_reset',
+						width='stretch', icon='🔄' ):
+					for key in [ 'frequency_penalty', 'presense_penalty', 'temperature',
+							'repeat_penalty', 'repeat_window' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					
@@ -3816,10 +3812,11 @@ if mode == 'Text Generation':
 			user_preview_input = st.session_state.get( 'last_preview_input', '' )
 			btn_c1, btn_c2, btn_c3, btn_c4 = st.columns( [ 0.35, 0.2, 0.2, 0.25 ] )
 			with btn_c1:
-				st.button( label='Clear Instructions', width='stretch', on_click=_on_clear )
+				st.button( label='Clear Instructions', width='stretch',
+					on_click=_on_clear, icon='🧹' )
 			
 			with btn_c2:
-				st.button( label='XML <-> Markdown', width='stretch',
+				st.button( label='XML ↔️ Markdown', width='stretch',
 					on_click=_on_convert_system_instructions )
 			
 			with btn_c3:
