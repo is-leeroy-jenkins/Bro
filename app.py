@@ -3528,7 +3528,7 @@ if mode == 'Text Generation':
 	repeat_window = st.session_state.get( 'repeat_window', 0.0 )
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
 	context_window = st.session_state.get( 'context_window', cfg.DEFAULT_CTX )
-	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
 	with center:
 		st.subheader( '💬 Text Generation', help=cfg.TEXT_GENERATION )
 		st.divider( )
@@ -3723,8 +3723,7 @@ if mode == 'Text Generation':
 			
 			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
 				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium'
-				)
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with ctx_c1:
 					st.slider( label='Context Window', min_value=0, max_value=8192,
@@ -3887,7 +3886,7 @@ elif mode == 'Document Q&A':
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
 	context_window = st.session_state.get( 'context_window', cfg.DEFAULT_CTX )
 	
-	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
 	with center:
 		st.subheader( '📚 Retrieval Augementation', help=cfg.RETRIEVAL_AUGMENTATION )
 		st.divider( )
@@ -3896,6 +3895,7 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			
 			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
 				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
 					border=True, gap='medium' )
@@ -4168,7 +4168,7 @@ elif mode == 'Document Q&A':
 					on_click=_on_doc_clear, icon='🧹' )
 			
 			with btn_c2:
-				st.button( label='XML <-> Markdown', width='stretch',
+				st.button( label='XML ↔️ Markdown', width='stretch',
 					on_click=_on_doc_convert_system_instructions )
 		
 		# ------------------------------------------------------------------
@@ -4344,13 +4344,8 @@ elif mode == 'Document Q&A':
 							
 							st.markdown( f'**{idx}. {doc_name}**' )
 							st.caption( f'Score / Distance: {score_value}' )
-							st.text_area(
-								label=f'Chunk {idx}',
-								value=chunk_text_value,
-								height=140,
-								disabled=True,
-								key=f'doc_hit_{idx}'
-							)
+							st.text_area( label=f'Chunk {idx}', value=chunk_text_value,
+								height=140, disabled=True, key=f'doc_hit_{idx}' )
 		
 		if st.button( '🧹 Clear Chat', key='doc_clear_chat' ):
 			clear_history( )
@@ -4361,7 +4356,7 @@ elif mode == 'Document Q&A':
 # SEMANTIC SEARCH
 # ==============================================================================
 elif mode == 'Semantic Search':
-	left, center, right = st.columns( [ 0.05, 0.9, 0.05 ] )
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
 	with center:
 		st.subheader( '🔍 Semantic Search', help=cfg.SEMANTIC_SEARCH )
 		st.divider( )
@@ -4527,7 +4522,7 @@ elif mode == 'Prompt Engineering':
 	TABLE = 'Prompts'
 	PAGE_SIZE = 10
 	st.session_state.setdefault( 'pe_cascade_enabled', False )
-	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
 	with center:
 		st.subheader( '📝 Prompt Engineering', help=cfg.PROMPT_ENGINEERING )
 		st.divider( )
@@ -4905,7 +4900,7 @@ elif mode == 'Prompt Engineering':
 # DATA MANAGEMENT MODE
 # ==============================================================================
 elif mode == 'Data Management':
-	left, center, right = st.columns( [ 0.05, 0.90, 0.05 ] )
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
 	with center:
 		st.subheader( '🏛️ Data Management', help=cfg.DATA_MANAGEMENT )
 		tabs = st.tabs( [ '📥 Import', '🗂 Browse', '💉 CRUD', '📊 Explore', '🔎 Filter',
@@ -5423,8 +5418,7 @@ st.markdown(
 	}
 	</style>
 	""",
-	unsafe_allow_html=True,
-)
+	unsafe_allow_html=True )
 
 # ---- Fixed Container
 st.markdown( """
