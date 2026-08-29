@@ -190,8 +190,38 @@ if 'coding_editor_format' not in st.session_state:
 if 'coding_fenced_output' not in st.session_state:
 	st.session_state[ 'coding_fenced_output' ] = True
 
+if 'response_language' not in st.session_state:
+	st.session_state[ 'response_language' ] = 'English'
+
+if 'translation_source_language' not in st.session_state:
+	st.session_state[ 'translation_source_language' ] = 'Auto Detect'
+
 if 'translation_target_language' not in st.session_state:
 	st.session_state[ 'translation_target_language' ] = 'English'
+
+if 'writing_task' not in st.session_state:
+	st.session_state[ 'writing_task' ] = 'Draft'
+
+if 'writing_tone' not in st.session_state:
+	st.session_state[ 'writing_tone' ] = 'Professional'
+
+if 'writing_audience' not in st.session_state:
+	st.session_state[ 'writing_audience' ] = 'General'
+
+if 'classification_type' not in st.session_state:
+	st.session_state[ 'classification_type' ] = 'Multi-Class'
+
+if 'classification_confidence' not in st.session_state:
+	st.session_state[ 'classification_confidence' ] = False
+
+if 'classification_allow_unknown' not in st.session_state:
+	st.session_state[ 'classification_allow_unknown' ] = True
+
+if 'instruction_category' not in st.session_state:
+	st.session_state[ 'instruction_category' ] = 'General Assistant'
+
+if 'instruction_prompt_id' not in st.session_state:
+	st.session_state[ 'instruction_prompt_id' ] = None
 
 if 'active_prompt_caption' not in st.session_state:
 	st.session_state[ 'active_prompt_caption' ] = ''
@@ -328,7 +358,7 @@ if 'semantic_last_query' not in st.session_state:
 # -------- PROMPT ENGINEERING EXTENSIONS ---------------------
 
 if 'prompt_category' not in st.session_state:
-	st.session_state[ 'prompt_category' ] = 'General Chat'
+	st.session_state[ 'prompt_category' ] = 'General Assistant'
 
 if 'prompt_task' not in st.session_state:
 	st.session_state[ 'prompt_task' ] = 'Chat'
@@ -667,53 +697,245 @@ def clear_history( ) -> None:
 
 # -------- PROMPT ENGINEERING UTILITIES ----------------
 
-def fetch_prompt_names( db_path: str ) -> list[ str ]:
-	"""Retrieves sorted prompt captions from the local Prompts table for prompt-template selection controls.
+PROMPT_CATEGORY_OPTIONS: List[ str ] = [ 'General Assistant', 'Analysis & Reasoning',
+		'Software Development', 'Writing & Editing', 'Summarization', 'Information Extraction',
+		'Classification', 'Translation', 'Structured Output', 'Document Analysis',
+		'Federal / Administrative Analysis' ]
+
+PROMPT_TASK_OPTIONS: List[ str ] = [ 'Chat', 'Analysis', 'Reasoning', 'Coding', 'Writing',
+		'Editing', 'Summarization', 'Extraction', 'Classification', 'Translation', 'Comparison',
+		'Structured Output' ]
+
+RESPONSE_FORMAT_OPTIONS: List[ str ] = [ 'Plain Text', 'Markdown', 'Bullet List', 'Numbered List',
+		'Markdown Table', 'JSON', 'XML', 'YAML', 'CSV', 'Code' ]
+
+CODING_LANGUAGE_OPTIONS: List[ str ] = [ 'Python', 'C', 'C++', 'C#', 'Java', 'JavaScript',
+		'TypeScript', 'SQL', 'VBA', 'PowerShell', 'Bash', 'HTML', 'CSS', 'Markdown', 'JSON',
+		                                 'YAML', 'Other' ]
+
+CODING_TASK_OPTIONS: List[ str ] = [ 'Generate', 'Complete', 'Refactor', 'Debug', 'Review',
+		'Explain', 'Optimize', 'Convert', 'Test', 'Document', 'Design' ]
+
+SPOKEN_LANGUAGE_OPTIONS: List[ str ] = [ 'Auto Detect', 'Arabic', 'Bengali', 'Chinese (Simplified)',
+		'Chinese (Traditional)', 'Czech', 'Danish', 'Dutch', 'English', 'Finnish', 'French',
+		'German', 'Greek', 'Hebrew', 'Hindi', 'Hungarian', 'Indonesian', 'Italian', 'Japanese',
+		'Korean', 'Norwegian', 'Persian', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Spanish',
+		'Swedish', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese' ]
+
+WRITING_TASK_OPTIONS: List[ str ] = [ 'Draft', 'Rewrite', 'Edit', 'Proofread', 'Expand', 'Condense',
+		'Reformat' ]
+
+WRITING_TONE_OPTIONS: List[ str ] = [ 'Neutral', 'Professional', 'Formal', 'Conversational',
+		'Technical', 'Academic' ]
+
+WRITING_AUDIENCE_OPTIONS: List[ str ] = [ 'General', 'Technical', 'Executive', 'Federal',
+		'Academic' ]
+
+CLASSIFICATION_TYPE_OPTIONS: List[ str ] = [ 'Binary', 'Multi-Class', 'Multi-Label', 'Sentiment',
+		'Intent', 'Topic', 'Relevance' ]
+
+
+def throw_if( name: str, value: object ) -> None:
+	"""Input guard.
 
 	Purpose:
-		Retrieves sorted prompt captions from the local Prompts table for prompt-template
-		selection controls.
+		Validates that a required argument contains a usable value before the surrounding workflow
+		continues. This guard centralizes early validation so prompt and runtime routines fail with
+		consistent, readable error messages.
 
 	Args:
-		db_path: SQLite database path.
+		name (str): Name value used by the operation.
+		value (object): Value value used by the operation.
 
 	Returns:
-		list[str]: Result produced by the operation.
+		None: This function performs its work through validation and does not return a value.
+	"""
+	if value is None or value == '':
+		raise ValueError( f'Argument "{name}" cannot be empty!' )
+
+
+def get_prompt_categories( ) -> List[ str ]:
+	"""Returns the supported prompt categories used by Prompt Engineering controls.
+
+	Purpose:
+		Returns the supported prompt categories used by Prompt Engineering controls and the
+		category-aware System Instructions selector.
+
+	Returns:
+		List[str]: Supported prompt category values.
+	"""
+	return PROMPT_CATEGORY_OPTIONS.copy( )
+
+
+def get_prompt_task_types( ) -> List[ str ]:
+	"""Returns the supported task types used by Prompt Engineering controls and Text Generation presets.
+
+	Purpose:
+		Returns the complete text-task set that the current Gemma 3 text runtime can execute through
+		the shared chat-completion path.
+
+	Returns:
+		List[str]: Supported task values.
+	"""
+	return PROMPT_TASK_OPTIONS.copy( )
+
+
+def get_response_formats( ) -> List[ str ]:
+	"""Returns supported response-format values.
+
+	Purpose:
+		Provides a single bounded option source for every response-format selectbox used by the
+		application.
+
+	Returns:
+		List[str]: Supported response-format values.
+	"""
+	return RESPONSE_FORMAT_OPTIONS.copy( )
+
+
+def get_spoken_languages( include_auto_detect: bool = True ) -> List[ str ]:
+	"""Returns supported human-language values for language selectboxes.
+
+	Purpose:
+		Provides bounded language options for translation and prompt-generation controls so users do
+		not need to enter language names manually.
+
+	Args:
+		include_auto_detect (bool): True to include the Auto Detect source-language option.
+
+	Returns:
+		List[str]: Supported language values.
+	"""
+	if include_auto_detect:
+		return SPOKEN_LANGUAGE_OPTIONS.copy( )
+	return [ language for language in SPOKEN_LANGUAGE_OPTIONS if language != 'Auto Detect' ]
+
+
+def fetch_prompt_categories( db_path: str ) -> List[ str ]:
+	"""Retrieves distinct prompt categories from the Prompts table.
+
+	Purpose:
+		Returns persisted categories from the authoritative Prompts.Category column for category-aware
+		template selection while retaining supported categories that do not yet have saved templates.
+
+	Args:
+		db_path (str): SQLite database path.
+
+	Returns:
+		List[str]: Sorted category values available to the application.
 	"""
 	try:
-		conn = sqlite3.connect( db_path )
-		cur = conn.cursor( )
-		cur.execute( "SELECT Caption FROM Prompts ORDER BY PromptsId;" )
-		rows = cur.fetchall( )
-		conn.close( )
-		return [ r[ 0 ] for r in rows if r and r[ 0 ] is not None ]
+		throw_if( 'db_path', db_path )
+		with sqlite3.connect( db_path ) as conn:
+			rows = conn.execute(
+				'''SELECT DISTINCT Category FROM Prompts
+				   WHERE Category IS NOT NULL AND TRIM(Category) <> ''
+				   ORDER BY Category;'''
+			).fetchall( )
+		db_categories = [ str( row[ 0 ] ) for row in rows if row and row[ 0 ] ]
+		return sorted( set( get_prompt_categories( ) + db_categories ) )
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'fetch_prompt_categories'
+		exception.method = 'fetch_prompt_categories( db_path: str ) -> List[str]'
+		Logger( ).write( exception )
+		return get_prompt_categories( )
+
+
+def fetch_prompt_names( db_path: str, category: str = '' ) -> List[ str ]:
+	"""Retrieves sorted prompt captions from the local Prompts table.
+
+	Purpose:
+		Retrieves prompt captions for the selected category while preserving the existing helper used
+		by prompt-template controls.
+
+	Args:
+		db_path (str): SQLite database path.
+		category (str): Optional persisted category used to filter prompt captions.
+
+	Returns:
+		List[str]: Sorted prompt captions.
+	"""
+	try:
+		throw_if( 'db_path', db_path )
+		with sqlite3.connect( db_path ) as conn:
+			if category:
+				rows = conn.execute(
+					'''SELECT Caption FROM Prompts
+					   WHERE Category = ? AND Caption IS NOT NULL
+					   ORDER BY Caption, ID;''',
+					(category,)
+				).fetchall( )
+			else:
+				rows = conn.execute(
+					'''SELECT Caption FROM Prompts
+					   WHERE Caption IS NOT NULL ORDER BY Caption, ID;'''
+				).fetchall( )
+		return [ str( row[ 0 ] ) for row in rows if row and row[ 0 ] is not None ]
 	except Exception as e:
 		exception = Error( e )
 		exception.module = 'app'
 		exception.cause = 'fetch_prompt_names'
-		exception.method = 'fetch_prompt_names( db_path: str ) -> list[str]'
+		exception.method = 'fetch_prompt_names( db_path: str, category: str ) -> List[str]'
+		Logger( ).write( exception )
+		return [ ]
+
+def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str ] ]:
+	"""Retrieves prompt identifiers and captions for a selected category.
+
+	Purpose:
+		Builds ID-backed template options so duplicate captions cannot cause the wrong prompt record to
+		be loaded.
+
+	Args:
+		db_path (str): SQLite database path.
+		category (str): Persisted prompt category.
+
+	Returns:
+		List[Tuple[int, str]]: Prompt ID and caption pairs ordered for display.
+	"""
+	try:
+		throw_if( 'db_path', db_path )
+		throw_if( 'category', category )
+		with sqlite3.connect( db_path ) as conn:
+			rows = conn.execute(
+				'''SELECT ID, Caption FROM Prompts
+				   WHERE Category = ? AND Text IS NOT NULL AND TRIM(Text) <> ''
+				   ORDER BY Caption, ID;''',
+				(category,)
+			).fetchall( )
+		return [ (int( row[ 0 ] ), str( row[ 1 ] or f'Prompt {row[ 0 ]}' )) for row in rows ]
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'fetch_prompt_options'
+		exception.method = 'fetch_prompt_options( db_path: str, category: str ) -> List[Tuple[int, str]]'
 		Logger( ).write( exception )
 		return [ ]
 
 def fetch_prompt_text( db_path: str, name: str ) -> str | None:
-	"""Retrieves prompt template text for a selected caption from the local Prompts table.
+	"""Retrieves prompt template text for a selected caption.
 
 	Purpose:
-		Retrieves prompt template text for a selected caption from the local Prompts table.
+		Retains caption-based lookup for legacy callers while deterministic System Instructions controls
+		use primary-key lookup.
 
 	Args:
-		db_path: SQLite database path.
-		name: Prompt caption or environment variable name.
+		db_path (str): SQLite database path.
+		name (str): Prompt caption.
 
 	Returns:
-		str | None: Result produced by the operation.
+		str | None: Prompt text when available.
 	"""
 	try:
-		conn = sqlite3.connect( db_path )
-		cur = conn.cursor( )
-		cur.execute( "SELECT Text FROM Prompts WHERE Caption = ?;", (name,) )
-		row = cur.fetchone( )
-		conn.close( )
+		throw_if( 'db_path', db_path )
+		throw_if( 'name', name )
+		with sqlite3.connect( db_path ) as conn:
+			row = conn.execute(
+				'SELECT Text FROM Prompts WHERE Caption = ? ORDER BY ID LIMIT 1;',
+				(name,)
+			).fetchone( )
 		return str( row[ 0 ] ) if row and row[ 0 ] is not None else None
 	except Exception as e:
 		exception = Error( e )
@@ -724,269 +946,324 @@ def fetch_prompt_text( db_path: str, name: str ) -> str | None:
 		return None
 
 def fetch_prompts_df( ) -> pd.DataFrame:
-	"""Builds a prompt-management DataFrame from the Prompts table and adds a selection column for Streamlit editing.
+	"""Builds a prompt-management DataFrame from the Prompts table.
 
 	Purpose:
-		Builds a prompt-management DataFrame from the Prompts table and adds a selection
-		column for Streamlit editing.
+		Builds the Prompt Engineering data surface from the authoritative five-column Prompts schema and
+		adds a selection column for Streamlit editing.
 
 	Returns:
-		pd.DataFrame: DataFrame produced by the operation.
+		pd.DataFrame: Prompt-management DataFrame.
 	"""
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		df = pd.read_sql_query(
-			"SELECT PromptsId, Caption,  Name, Version, ID FROM Prompts ORDER BY PromptsId DESC",
-			conn )
-	df.insert( 0, "Selected", False )
-	return df
+		df_prompts = pd.read_sql_query(
+			'SELECT ID, Caption, Name, Category, Text FROM Prompts ORDER BY ID DESC;', conn )
+	df_prompts.insert( 0, 'Selected', False )
+	return df_prompts
 
 def fetch_prompt_by_id( pid: int ) -> Dict[ str, Any ] | None:
-	"""Retrieves one prompt record by primary key and returns it as a dictionary keyed by database column name.
+	"""Retrieves one prompt record by primary key.
 
 	Purpose:
-		Retrieves one prompt record by primary key and returns it as a dictionary keyed by
-		database column name.
+		Retrieves the authoritative prompt record used by System Instructions and Prompt Engineering.
 
 	Args:
-		pid: Prompt primary key.
+		pid (int): Prompt primary key.
 
 	Returns:
-		Dict[str, Any] | None: Result produced by the operation.
+		Dict[str, Any] | None: Prompt record when found.
 	"""
-	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		cur = conn.execute(
-			"SELECT PromptsId, Caption, Name, Text, Version, ID FROM Prompts WHERE PromptsId=?",
-			(pid,)
-		)
-		row = cur.fetchone( )
-		return dict( zip( [ c[ 0 ] for c in cur.description ], row ) ) if row else None
+	try:
+		throw_if( 'pid', pid )
+		with sqlite3.connect( cfg.DB_PATH ) as conn:
+			cur = conn.execute(
+				'SELECT ID, Caption, Name, Category, Text FROM Prompts WHERE ID = ?;',
+				(pid,)
+			)
+			row = cur.fetchone( )
+			return dict( zip( [ column[ 0 ] for column in cur.description ], row ) ) if row else None
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'fetch_prompt_by_id'
+		exception.method = 'fetch_prompt_by_id( pid: int ) -> Dict[str, Any] | None'
+		Logger( ).write( exception )
+		return None
 
 def fetch_prompt_by_name( name: str ) -> Dict[ str, Any ] | None:
-	"""Retrieves one prompt record by caption and returns it as a dictionary keyed by database column name.
+	"""Retrieves one prompt record by caption.
 
 	Purpose:
-		Retrieves one prompt record by caption and returns it as a dictionary keyed by
-		database column name.
+		Retains caption lookup for legacy behavior while primary-key lookup remains authoritative for
+		interactive selection.
 
 	Args:
-		name: Prompt caption or environment variable name.
+		name (str): Prompt caption.
 
 	Returns:
-		Dict[str, Any] | None: Result produced by the operation.
+		Dict[str, Any] | None: Prompt record when found.
 	"""
+	try:
+		throw_if( 'name', name )
+		with sqlite3.connect( cfg.DB_PATH ) as conn:
+			cur = conn.execute(
+				'''SELECT ID, Caption, Name, Category, Text FROM Prompts
+				   WHERE Caption = ? ORDER BY ID LIMIT 1;''',
+				(name,)
+			)
+			row = cur.fetchone( )
+			return dict( zip( [ column[ 0 ] for column in cur.description ], row ) ) if row else None
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'fetch_prompt_by_name'
+		exception.method = 'fetch_prompt_by_name( name: str ) -> Dict[str, Any] | None'
+		Logger( ).write( exception )
+		return None
+
+def insert_prompt( data: Dict[ str, Any ] ) -> int:
+	"""Inserts a prompt-template record into the local Prompts table.
+
+	Purpose:
+		Persists Caption, Name, Category, and Text while allowing SQLite to assign the immutable ID.
+
+	Args:
+		data (Dict[str, Any]): Prompt record fields to write.
+
+	Returns:
+		int: Newly generated prompt ID.
+	"""
+	throw_if( 'data', data )
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
 		cur = conn.execute(
-			"SELECT PromptsId, Caption, Name, Text, Version, ID FROM Prompts WHERE Caption=?",
-			(name,)
+			'INSERT INTO Prompts (Caption, Name, Category, Text) VALUES (?, ?, ?, ?);',
+			(data[ 'Caption' ], data[ 'Name' ], data[ 'Category' ], data[ 'Text' ])
 		)
-		row = cur.fetchone( )
-		return dict( zip( [ c[ 0 ] for c in cur.description ], row ) ) if row else None
-
-def insert_prompt( data: Dict[ str, Any ] ) -> None:
-	"""Inserts a prompt-template record into the local Prompts table using the edit-surface payload.
-
-	Purpose:
-		Inserts a prompt-template record into the local Prompts table using the edit-surface
-		payload.
-
-	Args:
-		data: Prompt record fields to write.
-	"""
-	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		conn.execute(
-			'INSERT INTO Prompts (Caption, Name, Text, Version, ID) VALUES (?, ?, ?, ?, ?)',
-			(data[ 'Caption' ], data[ 'Name' ], data[ 'Text' ], data[ 'Version' ], data[ 'ID' ]) )
+		conn.commit( )
+		return int( cur.lastrowid )
 
 def update_prompt( pid: int, data: Dict[ str, Any ] ) -> None:
-	"""Updates an existing prompt-template record in the local Prompts table using the edit-surface payload.
+	"""Updates an existing prompt-template record by primary key.
 
 	Purpose:
-		Updates an existing prompt-template record in the local Prompts table using the
-		edit-surface payload.
+		Updates mutable prompt metadata without modifying the SQLite-assigned ID.
 
 	Args:
-		pid: Prompt primary key.
-		data: Prompt record fields to write.
+		pid (int): Prompt primary key.
+		data (Dict[str, Any]): Prompt record fields to write.
+
+	Returns:
+		None: This function performs its work through database side effects.
 	"""
+	throw_if( 'pid', pid )
+	throw_if( 'data', data )
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
 		conn.execute(
-			"UPDATE Prompts SET Caption=?, Name=?, Text=?, Version=?, ID=? WHERE PromptsId=?",
-			(data[ "Caption" ], data[ "Name" ], data[ "Text" ], data[ "Version" ], data[ "ID" ],
-			 pid)
+			'''UPDATE Prompts SET Caption = ?, Name = ?, Category = ?, Text = ?
+			   WHERE ID = ?;''',
+			(data[ 'Caption' ], data[ 'Name' ], data[ 'Category' ], data[ 'Text' ], pid)
 		)
+		conn.commit( )
 
 def delete_prompt( pid: int ) -> None:
 	"""Deletes a prompt-template record from the local Prompts table by primary key.
 
 	Purpose:
-		Deletes a prompt-template record from the local Prompts table by primary key.
+		Deletes the selected prompt without relying on caption uniqueness.
 
 	Args:
-		pid: Prompt primary key.
-	"""
-	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		conn.execute( "DELETE FROM Prompts WHERE PromptsId=?", (pid,) )
-
-def get_effective_system_instructions( ) -> str:
-	"""Returns the active system-instruction text from Streamlit session state for prompt construction workflows.
-
-	Purpose:
-		Returns the active system-instruction text from Streamlit session state for prompt
-		construction workflows.
+		pid (int): Prompt primary key.
 
 	Returns:
-		str: Text produced by the operation.
+		None: This function performs its work through database side effects.
+	"""
+	throw_if( 'pid', pid )
+	with sqlite3.connect( cfg.DB_PATH ) as conn:
+		conn.execute( 'DELETE FROM Prompts WHERE ID = ?;', (pid,) )
+		conn.commit( )
+
+def get_effective_system_instructions( ) -> str:
+	"""Returns the active system-instruction text from Streamlit session state.
+
+	Purpose:
+		Returns the active instruction text used by every model-facing text execution path.
+
+	Returns:
+		str: Active system instructions.
 	"""
 	text = st.session_state.get( 'system_instructions', '' )
 	return str( text ).strip( ) if text is not None else ''
 
 def build_task_instruction_block( ) -> str:
-	"""Builds task-specific instruction text from Text Generation controls stored in Streamlit session state.
+	"""Builds task-specific instruction text from Text Generation controls.
 
 	Purpose:
-		Builds task-specific instruction text from Text Generation controls stored in
-		Streamlit session state.
+		Converts bounded UI selections into a single task contract consumed by the shared Gemma 3 chat
+		path.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Task instruction block.
 	"""
 	task_preset = str( st.session_state.get( 'task_preset', 'Chat' ) or 'Chat' ).strip( )
-	response_format = str(
-		st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
-	reasoning_depth = str(
-		st.session_state.get( 'reasoning_depth', 'Medium' ) or 'Medium' ).strip( )
+	response_format = str( st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
+	response_language = str( st.session_state.get( 'response_language', 'English' ) or 'English' ).strip( )
+	reasoning_depth = str( st.session_state.get( 'reasoning_depth', 'Medium' ) or 'Medium' ).strip( )
 	answer_only = bool( st.session_state.get( 'answer_only', False ) )
 	use_self_check = bool( st.session_state.get( 'use_self_check', False ) )
 	deterministic_reasoning = bool( st.session_state.get( 'deterministic_reasoning', False ) )
-	coding_language = str(
-		st.session_state.get( 'coding_language', 'Python' ) or 'Python' ).strip( )
+	coding_language = str( st.session_state.get( 'coding_language', 'Python' ) or 'Python' ).strip( )
 	coding_task = str( st.session_state.get( 'coding_task', 'Generate' ) or 'Generate' ).strip( )
 	coding_include_comments = bool( st.session_state.get( 'coding_include_comments', True ) )
 	coding_editor_format = bool( st.session_state.get( 'coding_editor_format', True ) )
 	coding_fenced_output = bool( st.session_state.get( 'coding_fenced_output', True ) )
-	translation_target_language = (
-			str( st.session_state.get(
-				'translation_target_language', 'English' ) or 'English' ).strip( ))
-	
-	lines: List[ str ] = [ ]
-	lines.append( 'Task Preset:' )
-	lines.append( f'- Active Task: {task_preset}' )
-	lines.append( f'- Response Format: {response_format}' )
-	if task_preset == 'Reasoning':
-		lines.append( f'- Reasoning Depth: {reasoning_depth}' )
-		lines.append(
-			'- Use a careful analytical process internally and return a clear final answer.' )
-		
+	translation_source_language = str(
+		st.session_state.get( 'translation_source_language', 'Auto Detect' ) or 'Auto Detect' ).strip( )
+	translation_target_language = str(
+		st.session_state.get( 'translation_target_language', 'English' ) or 'English' ).strip( )
+	writing_task = str( st.session_state.get( 'writing_task', 'Draft' ) or 'Draft' ).strip( )
+	writing_tone = str( st.session_state.get( 'writing_tone', 'Professional' ) or 'Professional' ).strip( )
+	writing_audience = str( st.session_state.get( 'writing_audience', 'General' ) or 'General' ).strip( )
+	classification_type = str(
+		st.session_state.get( 'classification_type', 'Multi-Class' ) or 'Multi-Class' ).strip( )
+	classification_confidence = bool( st.session_state.get( 'classification_confidence', False ) )
+	classification_allow_unknown = bool( st.session_state.get( 'classification_allow_unknown', True ) )
+
+	lines: List[ str ] = [ 'Task Preset:', f'- Active Task: {task_preset}',
+		f'- Response Format: {response_format}', f'- Response Language: {response_language}' ]
+	if bool( st.session_state.get( 'is_grounded', False ) ):
+		lines.append( '- Ground claims in supplied context and state when the context is insufficient.' )
+
+	if task_preset in ( 'Analysis', 'Reasoning' ):
+		lines.append( f'- Analysis Depth: {reasoning_depth}' )
+		lines.append( '- Analyze the request carefully and return a clear, supported conclusion.' )
 		if answer_only:
 			lines.append( '- Return the final answer without extra prefatory narration.' )
 		if use_self_check:
-			lines.append( '- Verify the conclusion against the prompt before answering.' )
+			lines.append( '- Verify the conclusion against the supplied information before answering.' )
 		if deterministic_reasoning:
 			lines.append( '- Prefer stable, conservative reasoning over creative variation.' )
-	
 	elif task_preset == 'Coding':
 		lines.append( f'- Code Language: {coding_language}' )
 		lines.append( f'- Coding Task: {coding_task}' )
+		lines.append( '- Produce executable, editor-ready source code when code is requested.' )
 		if coding_include_comments:
-			lines.append(
-				'- Include documentation comments and useful inline comments when appropriate.' )
+			lines.append( '- Include useful documentation and inline comments when appropriate.' )
 		else:
 			lines.append( '- Minimize comments unless required for clarity.' )
 		if coding_editor_format:
-			lines.append(
-				'- Format the output as editor-ready source code, not as explanatory pseudo-code.'
-			)
+			lines.append( '- Format generated code as editor-ready source rather than pseudo-code.' )
 		if coding_fenced_output:
-			lines.append(
-				'- Return code inside fenced markdown code blocks when code is produced.' )
+			lines.append( '- Return generated code inside fenced Markdown code blocks.' )
 		else:
-			lines.append(
-				'- Return raw code without fenced markdown blocks when code is produced.' )
-	
+			lines.append( '- Return generated code without fenced Markdown blocks.' )
+	elif task_preset in ( 'Writing', 'Editing' ):
+		lines.append( f'- Writing Operation: {writing_task}' )
+		lines.append( f'- Tone: {writing_tone}' )
+		lines.append( f'- Audience: {writing_audience}' )
+		lines.append( '- Preserve the supplied facts and requested intent.' )
 	elif task_preset == 'Translation':
-		lines.append( f'- Translate the user content into {translation_target_language}.' )
-		lines.append( '- Preserve original meaning, tone, and structure where practical.' )
-	
+		lines.append( f'- Source Language: {translation_source_language}' )
+		lines.append( f'- Target Language: {translation_target_language}' )
+		lines.append( '- Preserve original meaning, tone, terminology, and structure where practical.' )
 	elif task_preset == 'Summarization':
-		lines.append( '- Summarize the user content clearly and faithfully.' )
-		lines.append( '- Preserve key facts, names, dates, and conclusions.' )
-	
+		lines.append( '- Summarize the supplied content clearly and faithfully.' )
+		lines.append( '- Preserve material facts, names, dates, and conclusions.' )
 	elif task_preset == 'Extraction':
-		lines.append( '- Extract the requested facts faithfully and do not invent missing values.' )
-		if response_format == 'JSON':
-			lines.append( '- Return valid JSON only.' )
-	
+		lines.append( '- Extract only requested facts supported by the supplied content.' )
+		lines.append( '- Do not invent values that are not present.' )
+	elif task_preset == 'Classification':
+		lines.append( f'- Classification Type: {classification_type}' )
+		lines.append( '- Classify only from the evidence supplied in the request.' )
+		if classification_confidence:
+			lines.append( '- Include a concise confidence assessment with the classification.' )
+		if classification_allow_unknown:
+			lines.append( '- Use Unknown when the supplied evidence does not support a reliable class.' )
+	elif task_preset == 'Comparison':
+		lines.append( '- Compare the supplied items using consistent criteria and identify material differences.' )
+	elif task_preset == 'Structured Output':
+		lines.append( '- Follow the requested output structure exactly and omit unrelated prose.' )
 	else:
 		lines.append( '- Respond as a general-purpose assistant.' )
-	
+
+	if response_format == 'JSON':
+		lines.append( '- Return one valid JSON object and no surrounding commentary.' )
+	elif response_format == 'XML':
+		lines.append( '- Return well-formed XML.' )
+	elif response_format == 'YAML':
+		lines.append( '- Return valid YAML.' )
+	elif response_format == 'CSV':
+		lines.append( '- Return valid CSV with a header row.' )
+	elif response_format == 'Markdown Table':
+		lines.append( '- Return the primary result as a Markdown table.' )
+	elif response_format == 'Bullet List':
+		lines.append( '- Return the primary result as a concise bullet list.' )
+	elif response_format == 'Numbered List':
+		lines.append( '- Return the primary result as a numbered list.' )
+
 	return '\n'.join( lines ).strip( )
 
 def build_effective_prompt_preview( user_input: str ) -> str:
-	"""Builds a readable preview of the system, task, and user prompt content that will be sent to the local model.
+	"""Builds a readable preview of the system, task, and user prompt content.
 
 	Purpose:
-		Builds a readable preview of the system, task, and user prompt content that will be
-		sent to the local model.
+		Shows the effective logical content sent through the Gemma 3 chat-template path without
+		exposing model-specific control tokens.
 
 	Args:
-		user_input: User request text.
+		user_input (str): User request text.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Human-readable prompt preview.
 	"""
 	system_instructions = get_effective_system_instructions( )
 	task_block = build_task_instruction_block( )
 	preview_parts: List[ str ] = [ ]
-	
 	if system_instructions:
-		preview_parts.append( '[System Instructions]' )
-		preview_parts.append( system_instructions )
-	
+		preview_parts.extend( [ '[System Instructions]', system_instructions ] )
 	if task_block:
-		preview_parts.append( '[Task Instructions]' )
-		preview_parts.append( task_block )
-	
-	preview_parts.append( '[User Input]' )
-	preview_parts.append( user_input or '' )
-	
+		preview_parts.extend( [ '[Task Instructions]', task_block ] )
+	preview_parts.extend( [ '[User Input]', user_input or '' ] )
 	return '\n\n'.join( preview_parts ).strip( )
 
 def get_runtime_llm( ) -> Llama:
-	"""Loads or retrieves the cached llama.
+	"""Loads or retrieves the cached llama.cpp runtime.
 
 	Purpose:
-		Loads or retrieves the cached llama.cpp runtime using context-window and CPU-thread
-		settings from session state.
+		Loads the configured GGUF model using current context-window and CPU-thread settings and fails
+		with a controlled error when the model cannot be initialized.
 
 	Returns:
 		Llama: Loaded llama.cpp model runtime.
 	"""
 	ctx_value = int( st.session_state.get( 'context_window', cfg.DEFAULT_CTX ) or cfg.DEFAULT_CTX )
 	thread_value = int( st.session_state.get( 'cpu_threads', cfg.CORES ) or cfg.CORES )
-	
+	repeat_window_value = int( st.session_state.get( 'repeat_window', 0 ) or 0 )
 	if ctx_value <= 0:
 		ctx_value = int( cfg.DEFAULT_CTX )
-	
 	if thread_value <= 0:
 		thread_value = int( cfg.CORES )
-	
-	return load_llm( ctx_value, thread_value )
+	if repeat_window_value <= 0:
+		repeat_window_value = 64
+	runtime_llm = load_llm( ctx_value, thread_value, repeat_window_value )
+	if runtime_llm is None:
+		raise RuntimeError( 'The configured Gemma 3 GGUF model could not be loaded.' )
+	return runtime_llm
 
-def build_prompt( user_input: str ) -> str:
-	"""Builds the llama.
+def build_chat_messages( user_input: str ) -> List[ Dict[ str, str ] ]:
+	"""Builds the chat-message sequence consumed by llama.cpp.
 
 	Purpose:
-		Builds the llama.cpp prompt from system instructions, task settings, semantic
-		context, document context, and chat history.
+		Combines system instructions, task controls, semantic context, document context, and prior chat
+		history without manually emitting model-specific special tokens or duplicating the current user
+		turn.
 
 	Args:
-		user_input: User request text.
+		user_input (str): Current user request text.
 
 	Returns:
-		str: Text produced by the operation.
+		List[Dict[str, str]]: Ordered chat messages for Gemma 3 chat-template serialization.
 	"""
-	global embedder
-	
+	throw_if( 'user_input', user_input )
 	system_instructions = get_effective_system_instructions( )
 	task_block = build_task_instruction_block( )
 	use_semantic = bool( st.session_state.get( 'use_semantic', False ) )
@@ -994,261 +1271,267 @@ def build_prompt( user_input: str ) -> str:
 	use_document_context = bool( st.session_state.get( 'use_document_context', False ) )
 	basic_docs = st.session_state.get( 'basic_docs', [ ] )
 	messages = st.session_state.get( 'messages', [ ] )
-	
 	top_k_value = int( st.session_state.get( 'top_k', 0 ) )
 	if top_k_value <= 0:
 		top_k_value = 4
-	
+
 	system_parts: List[ str ] = [ ]
 	if system_instructions:
 		system_parts.append( system_instructions )
 	if task_block:
 		system_parts.append( task_block )
-	
-	system_text = '\n\n'.join( [ p for p in system_parts if p ] ).strip( )
-	
-	prompt = ''
-	if system_text:
-		prompt += f'<|system|>\n{system_text}\n</s>\n'
-	
-	if use_semantic:
-		with sqlite3.connect( cfg.DB_PATH ) as conn:
-			rows = conn.execute( 'SELECT chunk, vector FROM embeddings' ).fetchall( )
-		
-		if rows:
-			q = embedder.encode( [ user_input ] )[ 0 ]
-			scored = [ (c, cosine_similarity( q, np.frombuffer( v, dtype=np.float32 ) )) for c, v in
-			           rows ]
-			for c, _ in sorted( scored, key=lambda x: x[ 1 ], reverse=True )[ :top_k_value ]:
-				prompt += f'<|system|>\nSemantic Context:\n{c}\n</s>\n'
-	
+
+	if use_semantic and embedder is not None:
+		try:
+			with sqlite3.connect( cfg.DB_PATH ) as conn:
+				rows = conn.execute( 'SELECT chunk, vector FROM embeddings' ).fetchall( )
+			if rows:
+				query_vector = np.asarray( embedder.encode( [ user_input ] )[ 0 ], dtype=np.float32 )
+				scored: List[ Tuple[ str, float ] ] = [ ]
+				for chunk, vector in rows:
+					if not vector:
+						continue
+					stored_vector = np.frombuffer( vector, dtype=np.float32 )
+					if stored_vector.size != query_vector.size:
+						continue
+					scored.append( (str( chunk or '' ), cosine_similarity( query_vector, stored_vector )) )
+				for chunk, _score in sorted( scored, key=lambda item: item[ 1 ], reverse=True )[ :top_k_value ]:
+					if chunk:
+						system_parts.append( f'Semantic Context:\n{chunk}' )
+		except Exception as e:
+			exception = Error( e )
+			exception.module = 'app'
+			exception.cause = 'build_chat_messages'
+			exception.method = 'build_chat_messages( user_input: str ) -> List[Dict[str, str]]'
+			Logger( ).write( exception )
+
 	if use_document_context and isinstance( basic_docs, list ):
-		for d in basic_docs[ :6 ]:
-			prompt += f'<|system|>\nDocument Context:\n{d}\n</s>\n'
-	
+		for document_text in basic_docs[ :6 ]:
+			if document_text:
+				system_parts.append( f'Document Context:\n{document_text}' )
+
+	chat_messages: List[ Dict[ str, str ] ] = [ ]
+	if system_parts:
+		chat_messages.append( { 'role': 'system', 'content': '\n\n'.join( system_parts ).strip( ) } )
+
 	if use_chat_history and isinstance( messages, list ):
-		for msg in messages:
+		history_messages: List[ Dict[ str, str ] ] = [ ]
+		for message_index, message in enumerate( messages ):
 			role = ''
 			content = ''
-			
-			if isinstance( msg, tuple ) or isinstance( msg, list ):
-				if len( msg ) == 2:
-					role = str( msg[ 0 ] or '' ).strip( )
-					content = str( msg[ 1 ] or '' )
-			elif isinstance( msg, dict ):
-				role = str( msg.get( 'role', '' ) or '' ).strip( )
-				content = str( msg.get( 'content', '' ) or '' )
-			
-			if role in ('user', 'assistant', 'system'):
-				prompt += f'<|{role}|>\n{content}\n</s>\n'
-	
-	prompt += f'<|user|>\n{user_input}\n</s>\n<|assistant|>\n'
-	return prompt
+			if isinstance( message, (tuple, list) ) and len( message ) == 2:
+				role = str( message[ 0 ] or '' ).strip( )
+				content = str( message[ 1 ] or '' )
+			elif isinstance( message, dict ):
+				role = str( message.get( 'role', '' ) or '' ).strip( )
+				content = str( message.get( 'content', '' ) or '' )
+			if role not in ( 'user', 'assistant' ) or not content:
+				continue
+			is_current_turn = (
+				role == 'user' and content == user_input and message_index == len( messages ) - 1 )
+			if not is_current_turn:
+				history_messages.append( { 'role': role, 'content': content } )
+
+		expected_role = 'user'
+		normalized_history: List[ Dict[ str, str ] ] = [ ]
+		for history_message in history_messages:
+			if history_message[ 'role' ] != expected_role:
+				continue
+			normalized_history.append( history_message )
+			expected_role = 'assistant' if expected_role == 'user' else 'user'
+		if normalized_history and normalized_history[ -1 ][ 'role' ] == 'user':
+			normalized_history.pop( )
+		chat_messages.extend( normalized_history )
+
+	chat_messages.append( { 'role': 'user', 'content': user_input } )
+	return chat_messages
+
+def build_prompt( user_input: str ) -> str:
+	"""Builds a readable compatibility prompt from the current chat-message sequence.
+
+	Purpose:
+		Preserves the legacy helper for diagnostics while model execution uses llama.cpp chat-template
+		serialization through create_chat_completion.
+
+	Args:
+		user_input (str): Current user request text.
+
+	Returns:
+		str: Readable role-separated prompt representation.
+	"""
+	messages = build_chat_messages( user_input )
+	parts: List[ str ] = [ ]
+	for message in messages:
+		parts.append( f'[{message[ "role" ].title( )}]\n{message[ "content" ]}' )
+	return '\n\n'.join( parts ).strip( )
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
 		max_tokens: int, stream: bool, output: Any = None ) -> str:
-	"""Executes one local-model generation turn and optionally streams token output into a Streamlit placeholder.
+	"""Executes one local-model generation turn through Gemma-compatible chat completion.
 
 	Purpose:
-		Executes one local-model generation turn and optionally streams token output into a
-		Streamlit placeholder.
+		Uses the GGUF chat template exposed through llama.cpp, connects all applicable inference
+		controls, handles streaming and non-streaming responses, and converts runtime failures into a
+		controlled Streamlit-visible error instead of an uncaught exception.
 
 	Args:
-		user_input: User request text.
-		temperature: temperature value used by this workflow.
-		top_p: top p value used by this workflow.
-		repeat_penalty: repeat penalty value used by this workflow.
-		max_tokens: max tokens value used by this workflow.
-		stream: stream value used by this workflow.
-		output: output value used by this workflow.
+		user_input (str): User request text.
+		temperature (float): Sampling temperature.
+		top_p (float): Nucleus-sampling probability.
+		repeat_penalty (float): Repeat penalty.
+		max_tokens (int): Maximum generated tokens.
+		stream (bool): True to stream output tokens.
+		output (Any): Optional Streamlit output placeholder.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Generated assistant response, or an empty string when generation fails.
 	"""
-	if user_input is None:
+	if user_input is None or not str( user_input ).strip( ):
 		return ''
-	
-	runtime_llm = get_runtime_llm( )
-	prompt = build_prompt( user_input )
-	max_token_value = int( max_tokens ) if int( max_tokens ) > 0 else 1024
-	temperature_value = float( temperature ) if temperature is not None else 0.0
-	top_p_value = float( top_p ) if top_p is not None else 0.95
-	repeat_penalty_value = float( repeat_penalty ) if repeat_penalty is not None else 1.1
-	if not stream:
-		resp = runtime_llm( prompt, stream=False, max_tokens=max_token_value,
-			temperature=temperature_value, top_p=top_p_value,
-			repeat_penalty=repeat_penalty_value, stop=[ '</s>' ] )
-		text = (resp.get( 'choices', [ { 'text': '' } ] )[ 0 ].get( 'text', '' ) or '')
-		return text.strip( )
-	
-	buf = ''
-	if output is None:
-		output = st.empty( )
-	
-	for chunk in runtime_llm( prompt, stream=True,
-			max_tokens=max_token_value, temperature=temperature_value,
-			top_p=top_p_value, repeat_penalty=repeat_penalty_value,
-			stop=[ '</s>' ] ):
-		buf += chunk[ 'choices' ][ 0 ][ 'text' ]
-		output.markdown( buf + '▌' )
-	
-	output.markdown( buf )
-	return buf.strip( )
 
-def get_prompt_categories( ) -> List[ str ]:
-	"""Returns the supported prompt categories used by Prompt Engineering controls.
+	try:
+		runtime_llm = get_runtime_llm( )
+		chat_messages = build_chat_messages( str( user_input ).strip( ) )
+		max_token_value = int( max_tokens ) if int( max_tokens ) > 0 else 1024
+		temperature_value = float( temperature )
+		top_p_value = float( top_p ) if float( top_p ) > 0 else 0.95
+		repeat_penalty_value = float( repeat_penalty ) if float( repeat_penalty ) > 0 else 1.1
+		top_k_value = int( st.session_state.get( 'top_k', 0 ) )
+		seed_value = int( st.session_state.get( 'random_seed', 0 ) )
+		frequency_penalty_value = float( st.session_state.get( 'frequency_penalty', 0.0 ) )
+		presence_penalty_value = float( st.session_state.get( 'presense_penalty', 0.0 ) )
+		response_format_value = str( st.session_state.get( 'response_format', 'Markdown' ) )
 
-	Purpose:
-		Returns the supported prompt categories used by Prompt Engineering controls.
+		generation_args: Dict[ str, Any ] = {
+			'messages': chat_messages,
+			'max_tokens': max_token_value,
+			'temperature': temperature_value,
+			'top_p': top_p_value,
+			'repeat_penalty': repeat_penalty_value,
+			'stream': stream
+		}
+		if top_k_value > 0:
+			generation_args[ 'top_k' ] = top_k_value
+		if seed_value > 0:
+			generation_args[ 'seed' ] = seed_value
+		if frequency_penalty_value > 0:
+			generation_args[ 'frequency_penalty' ] = frequency_penalty_value
+		if presence_penalty_value > 0:
+			generation_args[ 'presence_penalty' ] = presence_penalty_value
+		if response_format_value == 'JSON':
+			generation_args[ 'response_format' ] = { 'type': 'json_object' }
 
-	Returns:
-		List[str]: Result produced by the operation.
-	"""
-	return [ 'General Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization', 'Extraction',
-			'Document Extraction', 'OCR', 'JSON Output' ]
+		if not stream:
+			response = runtime_llm.create_chat_completion( **generation_args )
+			choices = response.get( 'choices', [ ] ) if isinstance( response, dict ) else [ ]
+			if not choices:
+				return ''
+			message = choices[ 0 ].get( 'message', { } )
+			return str( message.get( 'content', '' ) or '' ).strip( )
 
-def get_prompt_task_types( ) -> List[ str ]:
-	"""Returns the supported task types used by Prompt Engineering controls and Text Generation
-	presets.
+		buffer = ''
+		if output is None:
+			output = st.empty( )
+		for chunk in runtime_llm.create_chat_completion( **generation_args ):
+			if not isinstance( chunk, dict ):
+				continue
+			choices = chunk.get( 'choices', [ ] )
+			if not choices:
+				continue
+			delta = choices[ 0 ].get( 'delta', { } )
+			text = str( delta.get( 'content', '' ) or '' )
+			if text:
+				buffer += text
+				output.markdown( buffer + '▌' )
+		output.markdown( buffer )
+		return buffer.strip( )
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'run_llm_turn'
+		exception.method = 'run_llm_turn( user_input, temperature, top_p, repeat_penalty, max_tokens, stream, output ) -> str'
+		Logger( ).write( exception )
+		message = f'Generation failed: {e}'
+		if output is not None:
+			output.error( message )
+		else:
+			st.error( message )
+		return ''
 
-	Purpose:
-		Returns the supported task types used by Prompt Engineering controls and Text
-		Generation presets.
-
-	Returns:
-		List[str]: Result produced by the operation.
-	"""
-	return [ 'Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization', 'Extraction' ]
-
-def infer_prompt_category( prompt_row: Dict[ str, Any ] | None ) -> str:
-	"""Infers a prompt category from prompt caption, name, and text fields for prompt-management workflows.
-
-	Purpose:
-		Infers a prompt category from prompt caption, name, and text fields for prompt-
-		management workflows.
-
-	Args:
-		prompt_row: prompt row value used by this workflow.
-
-	Returns:
-		str: Text produced by the operation.
-	"""
-	if not isinstance( prompt_row, dict ):
-		return 'General Chat'
-	
-	caption = str( prompt_row.get( 'Caption', '' ) or '' ).lower( )
-	name = str( prompt_row.get( 'Name', '' ) or '' ).lower( )
-	text = str( prompt_row.get( 'Text', '' ) or '' ).lower( )
-	
-	blob = f'{caption} {name} {text}'
-	
-	if 'json' in blob:
-		return 'JSON Output'
-	if 'ocr' in blob:
-		return 'OCR'
-	if 'document' in blob and 'extract' in blob:
-		return 'Document Extraction'
-	if 'extract' in blob:
-		return 'Extraction'
-	if 'summar' in blob:
-		return 'Summarization'
-	if 'translat' in blob:
-		return 'Translation'
-	if 'coding' in blob or 'code' in blob or 'debug' in blob or 'refactor' in blob:
-		return 'Coding'
-	if 'reason' in blob or 'analysis' in blob:
-		return 'Reasoning'
-	
-	return 'General Chat'
 
 def build_starter_prompt_template( category: str, task_type: str, response_format: str,
 		language: str ) -> str:
 	"""Builds a starter system prompt from prompt metadata before optional local-model drafting.
 
 	Purpose:
-		Builds a starter system prompt from prompt metadata before optional local-model
-		drafting.
+		Builds a starter system prompt aligned to the persisted category taxonomy and bounded task,
+		format, and language controls.
 
 	Args:
-		category: category value used by this workflow.
-		task_type: task type value used by this workflow.
-		response_format: response format value used by this workflow.
-		language: language value used by this workflow.
+		category (str): Prompt category.
+		task_type (str): Task type.
+		response_format (str): Response format.
+		language (str): Preferred response language.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Starter system prompt.
 	"""
-	category_value = str( category or 'General Chat' ).strip( )
+	category_value = str( category or 'General Assistant' ).strip( )
 	task_value = str( task_type or 'Chat' ).strip( )
 	format_value = str( response_format or 'Markdown' ).strip( )
 	language_value = str( language or 'English' ).strip( )
-	lines: List[ str ] = [ ]
-	lines.append(
-		f'You are Bro, a local AI assistant operating in the category "{category_value}".' )
-	lines.append( f'Primary task type: {task_value}.' )
-	lines.append( f'Response format: {format_value}.' )
-	lines.append( f'Preferred language: {language_value}.' )
-	
-	if category_value == 'Reasoning':
-		lines.append(
-			'Provide careful, structured analytical answers grounded in the supplied information.' )
-	elif category_value == 'Coding':
-		lines.append(
-			'Produce editor-ready code and explain only what is necessary for correct implementation.' )
-	elif category_value == 'Translation':
-		lines.append( 'Translate faithfully while preserving meaning, tone, and structure.' )
-	elif category_value == 'Summarization':
-		lines.append( 'Summarize faithfully and preserve key facts, names, and dates.' )
-	elif category_value == 'Extraction':
-		lines.append( 'Extract only supported facts. Do not invent missing values.' )
-	elif category_value == 'Document Extraction':
-		lines.append(
-			'Use the document content as the evidence base and extract structured facts faithfully.' )
-	elif category_value == 'OCR':
-		lines.append(
-			'Extract visible text accurately and preserve structural cues where possible.' )
-	elif category_value == 'JSON Output':
-		lines.append( 'Return valid JSON only, matching the requested structure exactly.' )
-	else:
-		lines.append( 'Respond helpfully, accurately, and concisely.' )
-	
-	lines.append( 'If information is missing, state that clearly.' )
+	lines: List[ str ] = [
+		f'You are Bro, a local AI assistant operating in the category "{category_value}".',
+		f'Primary task type: {task_value}.', f'Response format: {format_value}.',
+		f'Preferred language: {language_value}.'
+	]
+	category_guidance = {
+		'Analysis & Reasoning': 'Provide careful, structured analytical answers grounded in supplied information.',
+		'Software Development': 'Produce correct, editor-ready software guidance and code when requested.',
+		'Writing & Editing': 'Draft or revise content while preserving supplied facts, purpose, and audience.',
+		'Summarization': 'Summarize faithfully and preserve material facts, names, dates, and conclusions.',
+		'Information Extraction': 'Extract only supported facts and do not invent missing values.',
+		'Classification': 'Classify from supplied evidence and use only the requested classification scheme.',
+		'Translation': 'Translate faithfully while preserving meaning, tone, terminology, and structure.',
+		'Structured Output': 'Follow the requested output structure exactly and omit unrelated prose.',
+		'Document Analysis': 'Use supplied document content as the evidence base for the requested analysis.',
+		'Federal / Administrative Analysis': 'Apply precise federal administrative and analytical reasoning to the supplied information.'
+	}
+	lines.append( category_guidance.get( category_value, 'Respond helpfully, accurately, and concisely.' ) )
+	lines.append( 'If required information is missing, state that clearly.' )
 	return '\n'.join( lines ).strip( )
 
 def generate_prompt_template_draft( goal: str, constraints: str, style: str,
 		category: str, task_type: str, response_format: str, language: str ) -> str:
-	"""Uses the local model to draft a system prompt from goal, constraint, style, and prompt metadata fields.
+	"""Uses the local model to draft a system prompt from bounded metadata controls.
 
 	Purpose:
-		Uses the local model to draft a system prompt from goal, constraint, style, and
-		prompt metadata fields.
+		Uses the shared Gemma chat-completion path to create an editable system-prompt draft from the
+		selected category, task, response format, language, goal, constraints, and style.
 
 	Args:
-		goal: goal value used by this workflow.
-		constraints: constraints value used by this workflow.
-		style: style value used by this workflow.
-		category: category value used by this workflow.
-		task_type: task type value used by this workflow.
-		response_format: response format value used by this workflow.
-		language: language value used by this workflow.
+		goal (str): Prompt-generation goal.
+		constraints (str): Prompt constraints.
+		style (str): Generator style.
+		category (str): Prompt category.
+		task_type (str): Task type.
+		response_format (str): Response format.
+		language (str): Preferred language.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Generated prompt-template draft.
 	"""
-	prompt = f"""
-	Create a strong system prompt for the Bro local AI application.
-	
-	Category: {category}
-	Task Type: {task_type}
-	Response Format: {response_format}
-	Language: {language}
-	Goal: {goal}
-	Constraints: {constraints}
-	Style: {style}
-	
-	Write only the system prompt text. Do not add explanation.
-	""".strip( )
-	
+	prompt = f'''Create a strong system prompt for the Bro local AI application.
+
+Category: {category}
+Task Type: {task_type}
+Response Format: {response_format}
+Language: {language}
+Goal: {goal}
+Constraints: {constraints}
+Style: {style}
+
+Write only the system prompt text. Do not add explanation.'''.strip( )
 	return run_llm_turn( user_input=prompt,
 		temperature=float( st.session_state.get( 'temperature', 0.2 ) ),
 		top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
@@ -1259,23 +1542,27 @@ def apply_prompt_to_text_generation( prompt_text: str ) -> None:
 	"""Copies selected prompt text into shared system instructions for Text Generation mode.
 
 	Purpose:
-		Copies selected prompt text into shared system instructions for Text Generation
-		mode.
+		Updates the shared system-instruction state consumed by Text Generation.
 
 	Args:
-		prompt_text: prompt text value used by this workflow.
+		prompt_text (str): Prompt text to apply.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
 
 def apply_prompt_to_document_qna( prompt_text: str ) -> None:
-	"""Copies selected prompt text into shared system instructions and enables grounded Document Q&A defaults.
+	"""Copies selected prompt text into shared system instructions for Document Q&A.
 
 	Purpose:
-		Copies selected prompt text into shared system instructions and enables grounded
-		Document Q&A defaults.
+		Updates shared system instructions and enables the existing grounded Document Q&A defaults.
 
 	Args:
-		prompt_text: prompt text value used by this workflow.
+		prompt_text (str): Prompt text to apply.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
 	st.session_state[ 'require_grounding' ] = True
@@ -1283,40 +1570,158 @@ def apply_prompt_to_document_qna( prompt_text: str ) -> None:
 
 def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
 		response_format: str, language: str ) -> None:
-	"""Applies selected prompt metadata to shared generation controls in Streamlit session state.
+	"""Applies selected prompt metadata to shared generation controls.
 
 	Purpose:
-		Applies selected prompt metadata to shared generation controls in Streamlit session
-		state.
+		Synchronizes selected Prompt Engineering metadata with Text Generation without overloading
+		database fields.
 
 	Args:
-		category: category value used by this workflow.
-		task_type: task type value used by this workflow.
-		response_format: response format value used by this workflow.
-		language: language value used by this workflow.
+		category (str): Prompt category.
+		task_type (str): Task type.
+		response_format (str): Response format.
+		language (str): Preferred language.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
+	st.session_state[ 'instruction_category' ] = str( category or 'General Assistant' )
 	st.session_state[ 'task_preset' ] = str( task_type or 'Chat' )
 	st.session_state[ 'response_format' ] = str( response_format or 'Markdown' )
+	st.session_state[ 'response_language' ] = str( language or 'English' )
 	st.session_state[ 'translation_target_language' ] = str( language or 'English' )
 
 def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
 	"""Copies a selected prompt record into the edit surface as a new prompt draft.
 
 	Purpose:
-		Copies a selected prompt record into the edit surface as a new prompt draft.
+		Clones mutable prompt fields while intentionally clearing the immutable database ID.
 
 	Args:
-		source_prompt: source prompt value used by this workflow.
+		source_prompt (Dict[str, Any] | None): Source prompt record.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
 	if not isinstance( source_prompt, dict ):
 		return
-	
 	st.session_state.pe_selected_id = None
 	st.session_state.pe_caption = f'{str( source_prompt.get( "Caption", "" ) )} Copy'.strip( )
 	st.session_state.pe_name = str( source_prompt.get( 'Name', '' ) or '' )
+	st.session_state.pe_category = str( source_prompt.get( 'Category', 'General Assistant' ) or 'General Assistant' )
 	st.session_state.pe_text = str( source_prompt.get( 'Text', '' ) or '' )
-	st.session_state.pe_version = str( source_prompt.get( 'Version', '' ) or '' )
-	st.session_state.pe_id = source_prompt.get( 'ID', 0 )
+
+def render_system_instructions_controls( include_preset: bool, include_preview: bool ) -> None:
+	"""Renders category-aware System Instructions controls.
+
+	Purpose:
+		Preserves the existing System Instructions edit, conversion, clear, preset, and preview
+		functionality while filtering templates by the authoritative Prompts.Category field and loading
+		templates by immutable prompt ID.
+
+	Args:
+		include_preset (bool): True to render the existing Apply Preset button.
+		include_preview (bool): True to render the existing Preview Prompt button and preview surface.
+
+	Returns:
+		None: This function renders Streamlit controls and updates session state.
+	"""
+	categories = fetch_prompt_categories( cfg.DB_PATH )
+	if st.session_state.get( 'instruction_category' ) not in categories:
+		st.session_state[ 'instruction_category' ] = categories[ 0 ] if categories else 'General Assistant'
+
+	def _on_category_change( ) -> None:
+		st.session_state[ 'instruction_prompt_id' ] = None
+		st.session_state[ 'active_prompt_caption' ] = ''
+
+	def _on_template_change( ) -> None:
+		prompt_id = st.session_state.get( 'instruction_prompt_id' )
+		if not prompt_id:
+			return
+		prompt_row = fetch_prompt_by_id( int( prompt_id ) )
+		if not prompt_row:
+			return
+		st.session_state[ 'system_instructions' ] = str( prompt_row.get( 'Text', '' ) or '' )
+		st.session_state[ 'active_prompt_caption' ] = str( prompt_row.get( 'Caption', '' ) or '' )
+		st.session_state[ 'instruction_category' ] = str(
+			prompt_row.get( 'Category', 'General Assistant' ) or 'General Assistant' )
+
+	def _on_clear( ) -> None:
+		st.session_state[ 'system_instructions' ] = ''
+		st.session_state[ 'instruction_prompt_id' ] = None
+		st.session_state[ 'active_prompt_caption' ] = ''
+
+	def _on_convert_system_instructions( ) -> None:
+		text = st.session_state.get( 'system_instructions', '' )
+		if not isinstance( text, str ) or not text.strip( ):
+			return
+		src = text.strip( )
+		if cfg.XML_BLOCK_PATTERN.search( src ):
+			st.session_state[ 'system_instructions' ] = convert_xml( src )
+		else:
+			st.session_state[ 'system_instructions' ] = convert_markdown( src )
+
+	def _on_apply_preset_template( ) -> None:
+		task_preset = str( st.session_state.get( 'task_preset', 'Chat' ) or 'Chat' ).strip( )
+		preset_map = {
+			'Chat': 'You are Bro, a helpful local assistant. Be accurate, practical, and concise.',
+			'Analysis': 'Analyze the supplied information carefully and provide a clear, supported conclusion.',
+			'Reasoning': 'Solve the task carefully and return a clear, supported answer.',
+			'Coding': 'Produce correct, editor-ready code and explain only as needed.',
+			'Writing': 'Draft clear, accurate writing for the selected audience and tone.',
+			'Editing': 'Revise the supplied writing while preserving facts and intended meaning.',
+			'Translation': 'Translate faithfully while preserving meaning, terminology, and tone.',
+			'Summarization': 'Summarize faithfully and preserve material facts.',
+			'Extraction': 'Extract only supported facts and do not invent missing values.',
+			'Classification': 'Classify from the supplied evidence using the requested classification scheme.',
+			'Comparison': 'Compare the supplied items consistently and identify material differences.',
+			'Structured Output': 'Follow the requested output structure exactly.'
+		}
+		st.session_state[ 'system_instructions' ] = preset_map.get( task_preset, preset_map[ 'Chat' ] )
+
+	in_left, in_right = st.columns( [ 0.8, 0.2 ] )
+	with in_left:
+		st.text_area( label='Enter Text', height=120, width='stretch',
+			help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
+	with in_right:
+		st.selectbox( label='Category', options=categories, key='instruction_category',
+			on_change=_on_category_change )
+		prompt_options = fetch_prompt_options(
+			cfg.DB_PATH, str( st.session_state.get( 'instruction_category', '' ) or '' ) )
+		prompt_ids = [ option[ 0 ] for option in prompt_options ]
+		prompt_labels = { option[ 0 ]: option[ 1 ] for option in prompt_options }
+		selected_prompt_id = st.session_state.get( 'instruction_prompt_id' )
+		if selected_prompt_id not in prompt_ids:
+			st.session_state[ 'instruction_prompt_id' ] = None
+		st.selectbox( label='Use Template', options=prompt_ids, index=None,
+			format_func=lambda prompt_id: prompt_labels.get( prompt_id, str( prompt_id ) ),
+			key='instruction_prompt_id', on_change=_on_template_change,
+			placeholder='No Templates Found' if not prompt_ids else 'Select Template' )
+
+	button_count = 2 + int( include_preset ) + int( include_preview )
+	weights = [ 1.0 / button_count ] * button_count
+	button_columns = st.columns( weights )
+	button_index = 0
+	with button_columns[ button_index ]:
+		st.button( label='Clear Instructions', width='stretch', on_click=_on_clear, icon='🧹' )
+	button_index += 1
+	with button_columns[ button_index ]:
+		st.button( label='XML ↔️ Markdown', width='stretch', on_click=_on_convert_system_instructions )
+	button_index += 1
+	if include_preset:
+		with button_columns[ button_index ]:
+			st.button( label='Apply Preset', width='stretch', on_click=_on_apply_preset_template )
+		button_index += 1
+	if include_preview:
+		with button_columns[ button_index ]:
+			if st.button( label='Preview Prompt', width='stretch' ):
+				st.session_state[ 'preview_effective_prompt' ] = not bool(
+					st.session_state.get( 'preview_effective_prompt', False ) )
+		if bool( st.session_state.get( 'preview_effective_prompt', False ) ):
+			st.text_area( label='Effective Prompt Preview',
+				value=build_effective_prompt_preview(
+					str( st.session_state.get( 'last_preview_input', '' ) or '' ) ),
+				height=220, disabled=True )
 
 # ----------- DATABASE UTILITIES -------------------------
 
@@ -1363,30 +1768,13 @@ def initialize_database( ) -> None:
 		conn.execute( """
                       CREATE TABLE IF NOT EXISTS Prompts
                       (
-                          PromptsId
-                          INTEGER
-                          NOT
-                          NULL
-                          PRIMARY
-                          KEY
-                          AUTOINCREMENT,
-                          Caption
-                          TEXT,
-                          Name
-                          TEXT
-                      (
-                          80
-                      ),
-                          Text TEXT,
-                          Version TEXT
-                      (
-                          80
-                      ),
-                          ID TEXT
-                      (
-                          80
+                          ID INTEGER NOT NULL UNIQUE,
+                          Caption TEXT(80),
+                          Name TEXT(80),
+                          Category TEXT(80),
+                          Text TEXT(2048),
+                          PRIMARY KEY(ID AUTOINCREMENT)
                       )
-                          )
 		              """ )
 		
 		conn.execute( """
@@ -1493,9 +1881,30 @@ def initialize_database( ) -> None:
 		
 		prompt_columns = [ row[ 1 ] for row in
 		                   conn.execute( 'PRAGMA table_info("Prompts");' ).fetchall( ) ]
+		target_prompt_columns = [ 'ID', 'Caption', 'Name', 'Category', 'Text' ]
 		
-		if 'Caption' not in prompt_columns:
-			conn.execute( 'ALTER TABLE "Prompts" ADD COLUMN "Caption" TEXT;' )
+		# ----------  Preserve legacy prompt records while upgrading to the authoritative schema
+		if prompt_columns != target_prompt_columns and 'PromptsId' in prompt_columns:
+			conn.execute( 'DROP TABLE IF EXISTS Prompts_Migration;' )
+			conn.execute( """
+                CREATE TABLE IF NOT EXISTS Prompts_Migration
+                (
+                    ID INTEGER NOT NULL UNIQUE,
+                    Caption TEXT(80),
+                    Name TEXT(80),
+                    Category TEXT(80),
+                    Text TEXT(2048),
+                    PRIMARY KEY(ID AUTOINCREMENT)
+                )
+			              """ )
+			conn.execute( """
+                INSERT INTO Prompts_Migration (ID, Caption, Name, Category, Text)
+                SELECT PromptsId, Caption, Name, 'General Assistant', Text
+                FROM Prompts
+                ORDER BY PromptsId
+			              """ )
+			conn.execute( 'DROP TABLE Prompts;' )
+			conn.execute( 'ALTER TABLE Prompts_Migration RENAME TO Prompts;' )
 		
 		conn.commit( )
 
@@ -2249,40 +2658,42 @@ def drop_column( table: str, column: str ):
 		
 		conn.commit( )
 
-def reset_selection( ):
+def reset_selection( ) -> None:
 	"""Clears the Prompt Engineering edit surface and selected prompt identifier in Streamlit session state.
 
 	Purpose:
-		Clears the Prompt Engineering edit surface and selected prompt identifier in
-		Streamlit session state.
+		Clears the authoritative prompt edit fields without referencing removed legacy schema columns.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
 	st.session_state.pe_selected_id = None
 	st.session_state.pe_caption = ''
 	st.session_state.pe_name = ''
+	st.session_state.pe_category = 'General Assistant'
 	st.session_state.pe_text = ''
-	st.session_state.pe_version = ''
-	st.session_state.pe_id = 0
 
 def load_prompt( pid: int ) -> None:
 	"""Loads a prompt record into the Prompt Engineering edit surface by primary key.
 
 	Purpose:
-		Loads a prompt record into the Prompt Engineering edit surface by primary key.
+		Loads ID, Caption, Name, Category, and Text from the authoritative Prompts schema.
 
 	Args:
-		pid: Prompt primary key.
+		pid (int): Prompt primary key.
+
+	Returns:
+		None: This function performs its work through Streamlit session state.
 	"""
-	with create_connection( ) as conn:
-		_select = f"SELECT Caption, Name, Text, Version, ID FROM {TABLE} WHERE PromptsId=?"
-		cur = conn.execute( _select, (pid,), )
-		row = cur.fetchone( )
-		if not row:
-			return
-		st.session_state.pe_caption = row[ 0 ]
-		st.session_state.pe_name = row[ 1 ]
-		st.session_state.pe_text = row[ 2 ]
-		st.session_state.pe_version = row[ 3 ]
-		st.session_state.pe_id = row[ 4 ]
+	prompt_row = fetch_prompt_by_id( pid )
+	if not prompt_row:
+		return
+	st.session_state.pe_selected_id = int( prompt_row[ 'ID' ] )
+	st.session_state.pe_caption = str( prompt_row.get( 'Caption', '' ) or '' )
+	st.session_state.pe_name = str( prompt_row.get( 'Name', '' ) or '' )
+	st.session_state.pe_category = str(
+		prompt_row.get( 'Category', 'General Assistant' ) or 'General Assistant' )
+	st.session_state.pe_text = str( prompt_row.get( 'Text', '' ) or '' )
 
 def get_ai_asset_tables( ) -> List[ str ]:
 	"""Returns the SQLite table names used for AI asset governance metadata.
@@ -2600,36 +3011,35 @@ def register_upload_images( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
 # -------------- LLM  UTILITIES -------------------
 
 @st.cache_resource
-def load_llm( ctx: int, threads: int ) -> Any | None:
-	"""Loads the configured local GGUF model through llama.
+def load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None:
+	"""Loads the configured local GGUF model through llama.cpp.
 
 	Purpose:
-		Loads the configured local GGUF model through llama.cpp using cached Streamlit
-		resource management.
+		Loads the configured Gemma 3 GGUF model through cached Streamlit resource management using the
+		selected context window, CPU thread count, and repeat-history window.
 
 	Args:
-		ctx: Context-window size.
-		threads: CPU thread count.
+		ctx (int): Context-window size.
+		threads (int): CPU thread count.
+		repeat_window (int): Number of recent tokens retained for repetition penalties.
 
 	Returns:
-		Any | None: Runtime object when available; otherwise None.
+		Any | None: Loaded llama.cpp runtime when available; otherwise None.
 	"""
 	try:
 		if not local_model_available( ):
 			return None
-		
 		from llama_cpp import Llama
-		
 		ctx_value = int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX )
 		thread_value = int( threads ) if int( threads ) > 0 else int( cfg.CORES )
-		
+		repeat_window_value = int( repeat_window ) if int( repeat_window ) > 0 else 64
 		return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx_value, n_threads=thread_value,
-			n_batch=512, verbose=False )
+			n_batch=512, last_n_tokens_size=repeat_window_value, verbose=False )
 	except Exception as e:
 		exception = Error( e )
 		exception.module = 'app'
 		exception.cause = 'load_llm'
-		exception.method = 'load_llm( ctx: int, threads: int ) -> Any | None'
+		exception.method = 'load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None'
 		Logger( ).write( exception )
 		return None
 
@@ -2685,7 +3095,25 @@ def create_docqna_instruction( action_name: str ) -> str:
 			'Extract Tables':
 				'Describe tabular information or structured fields present in the excerpts.',
 			'Compare Active Documents':
-				'Compare the active documents, noting agreements, differences, and gaps.'
+				'Compare the active documents, noting agreements, differences, and gaps.',
+			'Classify Document':
+				'Classify the active document using the requested or most appropriate supported categories.',
+			'Find Evidence':
+				'Identify the excerpts that directly support or contradict the requested proposition.',
+			'Generate Executive Summary':
+				'Generate a concise executive summary focused on material facts, conclusions, and decisions.',
+			'Extract Dates':
+				'Extract important dates and explain their associated events or obligations.',
+			'Extract Organizations':
+				'Extract named organizations and describe their roles when supported by the excerpts.',
+			'Extract Requirements':
+				'Extract explicit requirements, constraints, and acceptance criteria from the excerpts.',
+			'Extract Action Items':
+				'Extract explicit or clearly supported action items and responsible parties when available.',
+			'Identify Contradictions':
+				'Identify material contradictions or inconsistencies across the active document excerpts.',
+			'Identify Missing Information':
+				'Identify information required by the request that is absent from the retrieved evidence.'
 	}
 	
 	return action_map.get( action, action_map[ 'Answer Question' ] )
@@ -2745,11 +3173,11 @@ def extract_text_bytes( file_bytes: bytes, file_name: str = '' ) -> str:
 	if not file_bytes:
 		return ''
 	
-	if fitz is None:
-		st.warning( 'PyMuPDF is not installed. PDF text extraction is unavailable.' )
-	return ''
-	
 	file_name_value = str( file_name or '' ).lower( )
+	if (file_name_value.endswith( '.pdf' ) or file_name_value == '') and fitz is None:
+		st.warning( 'PyMuPDF is not installed. PDF text extraction is unavailable.' )
+		return ''
+	
 	include_page_markers = bool( st.session_state.get( 'include_page_markers', False ) )
 	prefer_native_pdf_text = bool( st.session_state.get( 'prefer_native_pdf_text', True ) )
 	try:
@@ -2857,16 +3285,17 @@ def extract_text( file_bytes: bytes, file_name: str = '' ) -> str:
 	"""Extracts document text using the configured byte-level parsing function.
 
 	Purpose:
-		Extracts document text using the configured byte-level parsing function.
+		Extracts document text through the byte-level parser without recursively invoking the public
+		helper.
 
 	Args:
-		file_bytes: Document bytes to parse.
-		file_name: Source file name used to infer parsing behavior.
+		file_bytes (bytes): Document bytes to parse.
+		file_name (str): Source file name used to infer parsing behavior.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Extracted document text.
 	"""
-	return extract_text( file_bytes=file_bytes, file_name=file_name )
+	return extract_text_bytes( file_bytes=file_bytes, file_name=file_name )
 
 def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	"""Attempts to load the sqlite-vec extension into an active SQLite connection.
@@ -2987,6 +3416,12 @@ def rebuild_index( embedder: Any | None ) -> None:
 	Args:
 		embedder: Sentence embedding model used to encode document chunks.
 	"""
+	if embedder is None:
+		st.session_state[ 'docqna_vec_ready' ] = False
+		st.session_state[ 'docqna_fallback_rows' ] = [ ]
+		st.session_state[ 'docqna_chunk_count' ] = 0
+		return
+
 	active_docs: List[ str ] = st.session_state.get( 'active_docs', [ ] )
 	doc_bytes: Dict[ str, bytes ] = st.session_state.get( 'doc_bytes', { } )
 	retrieval_chunk_size = int( st.session_state.get( 'retrieval_chunk_size', 1200 ) )
@@ -3103,14 +3538,25 @@ def retrieve_chunks( query: str, k: int = None ) -> List[ Tuple[ str, str, float
 	"""
 	if not query or not query.strip( ):
 		return [ ]
+	if embedder is None:
+		st.session_state[ 'docqna_vec_ready' ] = False
+		st.session_state[ 'docqna_fallback_rows' ] = [ ]
+		return [ ]
 	
-	rebuild_index( embedder )
-	k_value = int( k ) if k is not None else int( st.session_state.get( 'retrieval_k', 6 ) )
-	if k_value <= 0:
-		k_value = 6
-	
-	qv = embedder.encode( [ query ], show_progress_bar=False )
-	qv = np.asarray( qv, dtype=np.float32 )[ 0 ]
+	try:
+		rebuild_index( embedder )
+		k_value = int( k ) if k is not None else int( st.session_state.get( 'retrieval_k', 6 ) )
+		if k_value <= 0:
+			k_value = 6
+		qv = embedder.encode( [ query ], show_progress_bar=False )
+		qv = np.asarray( qv, dtype=np.float32 )[ 0 ]
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'retrieve_chunks'
+		exception.method = 'retrieve_chunks( query: str, k: int ) -> List[Tuple[str, str, float]]'
+		Logger( ).write( exception )
+		return [ ]
 	if bool( st.session_state.get( 'docqna_vec_ready', False ) ):
 		conn = create_connection( )
 		try:
@@ -3147,10 +3593,17 @@ def retrieve_chunks( query: str, k: int = None ) -> List[ Tuple[ str, str, float
 			continue
 		
 		v = np.frombuffer( vec_blob, dtype=np.float32 )
-		if v.size == 0:
+		if v.size == 0 or v.size != qv.size:
 			continue
-		
-		score = cosine_similarity( qv, v )
+		try:
+			score = cosine_similarity( qv, v )
+		except Exception as e:
+			exception = Error( e )
+			exception.module = 'app'
+			exception.cause = 'retrieve_chunks'
+			exception.method = 'retrieve_chunks( query: str, k: int ) -> List[Tuple[str, str, float]]'
+			Logger( ).write( exception )
+			continue
 		results.append( (doc_name, chunk_text_value, float( score )) )
 	
 	results.sort( key=lambda r: r[ 2 ], reverse=True )
@@ -3536,10 +3989,18 @@ if mode == 'Text Generation':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			if st.session_state.get( 'response_format' ) not in get_response_formats( ):
+				st.session_state[ 'response_format' ] = 'Markdown'
+			if st.session_state.get( 'response_language' ) not in get_spoken_languages( False ):
+				st.session_state[ 'response_language' ] = 'English'
+			if st.session_state.get( 'translation_source_language' ) not in get_spoken_languages( True ):
+				st.session_state[ 'translation_source_language' ] = 'Auto Detect'
+			if st.session_state.get( 'translation_target_language' ) not in get_spoken_languages( False ):
+				st.session_state[ 'translation_target_language' ] = 'English'
 			
 			with st.expander( label='Task Preset', icon='🧭', expanded=False ):
-				task_c1, task_c2, task_c3, task_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				task_c1, task_c2, task_c3, task_c4, task_c5 = st.columns(
+					[ 0.20, 0.20, 0.20, 0.20, 0.20 ], border=True, gap='medium' )
 				
 				with task_c1:
 					st.selectbox( label='Task Type',
@@ -3548,8 +4009,7 @@ if mode == 'Text Generation':
 				
 				with task_c2:
 					st.selectbox( label='Response Format',
-						options=[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-						key='response_format' )
+						options=get_response_formats( ), key='response_format' )
 				
 				with task_c3:
 					st.toggle( label='Use Conversation History',
@@ -3561,9 +4021,14 @@ if mode == 'Text Generation':
 						value=bool( st.session_state.get( 'use_document_context', False ) ),
 						key='use_document_context' )
 				
+				with task_c5:
+					st.selectbox( label='Response Language',
+						options=get_spoken_languages( include_auto_detect=False ),
+						key='response_language' )
+				
 				if st.button( label='Reset', key='task_preset_reset',
 						width='stretch', icon='🔄' ):
-					for key in [ 'task_preset', 'response_format',
+					for key in [ 'task_preset', 'response_format', 'response_language',
 					             'use_chat_history', 'use_document_context' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
@@ -3608,13 +4073,11 @@ if mode == 'Text Generation':
 				
 				with code_c1:
 					st.selectbox( label='Code Language',
-						options=[ 'Python', 'C#', 'SQL', 'VBA', 'JavaScript', 'Markdown' ],
-						key='coding_language' )
+						options=CODING_LANGUAGE_OPTIONS, key='coding_language' )
 				
 				with code_c2:
 					st.selectbox( label='Coding Task',
-						options=[ 'Generate', 'Refactor', 'Explain', 'Debug', 'Review' ],
-						key='coding_task' )
+						options=CODING_TASK_OPTIONS, key='coding_task' )
 				
 				with code_c3:
 					st.toggle( label='Include Comments',
@@ -3633,20 +4096,57 @@ if mode == 'Text Generation':
 				
 				translation_col_left, translation_col_right = st.columns( [ 0.5, 0.5 ] )
 				with translation_col_left:
-					st.text_input( label='Translation Target Language',
-						key='translation_target_language' )
+					st.selectbox( label='Translation Source Language',
+						options=get_spoken_languages( include_auto_detect=True ),
+						key='translation_source_language' )
 				
 				with translation_col_right:
-					st.markdown( '<br>', unsafe_allow_html=True )
-					if st.button( label='Reset', key='coding_controls_reset',
-							width='stretch', icon='🔄'  ):
-						for key in [ 'coding_language', 'coding_task', 'coding_include_comments',
-						             'coding_editor_format', 'coding_fenced_output',
-						             'translation_target_language' ]:
-							if key in st.session_state:
-								del st.session_state[ key ]
-						
-						st.rerun( )
+					st.selectbox( label='Translation Target Language',
+						options=get_spoken_languages( include_auto_detect=False ),
+						key='translation_target_language' )
+				
+				if st.button( label='Reset', key='coding_controls_reset',
+						width='stretch', icon='🔄'  ):
+					for key in [ 'coding_language', 'coding_task', 'coding_include_comments',
+					             'coding_editor_format', 'coding_fenced_output',
+					             'translation_source_language', 'translation_target_language' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Writing Controls', icon='✍️', expanded=False ):
+				write_c1, write_c2, write_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with write_c1:
+					st.selectbox( label='Writing Task', options=WRITING_TASK_OPTIONS, key='writing_task' )
+				with write_c2:
+					st.selectbox( label='Tone', options=WRITING_TONE_OPTIONS, key='writing_tone' )
+				with write_c3:
+					st.selectbox( label='Audience', options=WRITING_AUDIENCE_OPTIONS, key='writing_audience' )
+				if st.button( label='Reset', key='writing_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'writing_task', 'writing_tone', 'writing_audience' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Classification Controls', icon='🏷️', expanded=False ):
+				class_c1, class_c2, class_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with class_c1:
+					st.selectbox( label='Classification Type', options=CLASSIFICATION_TYPE_OPTIONS,
+						key='classification_type' )
+				with class_c2:
+					st.toggle( label='Return Confidence',
+						value=bool( st.session_state.get( 'classification_confidence', False ) ),
+						key='classification_confidence' )
+				with class_c3:
+					st.toggle( label='Allow Unknown',
+						value=bool( st.session_state.get( 'classification_allow_unknown', True ) ),
+						key='classification_allow_unknown' )
+				if st.button( label='Reset', key='classification_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'classification_type', 'classification_confidence',
+					             'classification_allow_unknown' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
 			
 			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
 				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns(
@@ -3722,7 +4222,7 @@ if mode == 'Text Generation':
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				
 				with ctx_c1:
-					st.slider( label='Context Window', min_value=0, max_value=8192,
+					st.slider( label='Context Window', min_value=0, max_value=131072,
 						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
 					context_window = st.session_state[ 'context_window' ]
 				
@@ -3732,7 +4232,7 @@ if mode == 'Text Generation':
 					cpu_threads = st.session_state[ 'cpu_threads' ]
 				
 				with ctx_c3:
-					st.slider( label='Max Tokens', min_value=0, max_value=4096,
+					st.slider( label='Max Tokens', min_value=0, max_value=8192,
 						step=128, key='max_tokens', help=cfg.MAX_TOKENS )
 					max_tokens = st.session_state[ 'max_tokens' ]
 				
@@ -3753,86 +4253,8 @@ if mode == 'Text Generation':
 		# ------------------------------------------------------------------
 		with st.expander( label='System Instructions', icon='🖥️', expanded=False,
 				width='stretch' ):
-			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
-			prompt_names = fetch_prompt_names( cfg.DB_PATH )
-			if not prompt_names:
-				prompt_names = [ '' ]
-			
-			with in_left:
-				st.text_area( label='Enter Text', height=120, width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
-			
-			def _on_template_change( ) -> None:
-				name = st.session_state.get( 'instructions' )
-				if name and name != 'No Templates Found':
-					text = fetch_prompt_text( cfg.DB_PATH, name )
-					if text is not None:
-						st.session_state[ 'system_instructions' ] = text
-						st.session_state[ 'active_prompt_caption' ] = name
-			
-			with in_right:
-				st.selectbox( label='Use Template', options=prompt_names, index=None,
-					key='instructions', on_change=_on_template_change )
-			
-			def _on_clear( ) -> None:
-				st.session_state[ 'system_instructions' ] = ''
-				st.session_state[ 'instructions' ] = ''
-				st.session_state[ 'active_prompt_caption' ] = ''
-			
-			def _on_convert_system_instructions( ) -> None:
-				text = st.session_state.get( 'system_instructions', '' )
-				if not isinstance( text, str ) or not text.strip( ):
-					return
-				
-				src = text.strip( )
-				
-				if cfg.XML_BLOCK_PATTERN.search( src ):
-					converted = convert_xml( src )
-				else:
-					converted = convert_markdown( src )
-				
-				st.session_state[ 'system_instructions' ] = converted
-			
-			def _on_apply_preset_template( ) -> None:
-				task_preset = str(
-					st.session_state.get( 'task_preset', 'Chat' ) or 'Chat' ).strip( )
-				
-				preset_map = {
-						'Chat': 'You are Bro, a helpful local assistant. Be accurate, practical, and concise.',
-						'Reasoning': 'Solve the task carefully, step by step internally, then provide a clear answer.',
-						'Coding': 'Produce correct, editor-ready code and explain only as needed.',
-						'Translation': 'Translate faithfully while preserving meaning and tone.',
-						'Summarization': 'Summarize faithfully and preserve key facts.',
-						'Extraction': 'Extract only supported facts and do not invent missing values.'
-				}
-				
-				st.session_state[ 'system_instructions' ] = preset_map.get( task_preset,
-					preset_map[ 'Chat' ] )
-			
-			user_preview_input = st.session_state.get( 'last_preview_input', '' )
-			btn_c1, btn_c2, btn_c3, btn_c4 = st.columns( [ 0.35, 0.2, 0.2, 0.25 ] )
-			with btn_c1:
-				st.button( label='Clear Instructions', width='stretch',
-					on_click=_on_clear, icon='🧹' )
-			
-			with btn_c2:
-				st.button( label='XML ↔️ Markdown', width='stretch',
-					on_click=_on_convert_system_instructions )
-			
-			with btn_c3:
-				st.button( label='Apply Preset', width='stretch',
-					on_click=_on_apply_preset_template )
-			
-			with btn_c4:
-				if st.button( label='Preview Prompt', width='stretch' ):
-					st.session_state[ 'preview_effective_prompt' ] = not bool( st.session_state.get(
-						'preview_effective_prompt', False ) )
-			
-			if bool( st.session_state.get( 'preview_effective_prompt', False ) ):
-				st.text_area( label='Effective Prompt Preview',
-					value=build_effective_prompt_preview( user_preview_input ), height=220,
-					disabled=True )
-		
+			render_system_instructions_controls( include_preset=True, include_preview=True )
+
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
 		for r, c in st.session_state.messages:
@@ -3953,7 +4375,12 @@ elif mode == 'Document Q&A':
 					                                        'Extract Key Points',
 					                                        'Generate Outline', 'Extract Entities',
 					                                        'Extract Tables',
-					                                        'Compare Active Documents' ],
+					                                        'Compare Active Documents',
+					                                        'Classify Document', 'Find Evidence',
+					                                        'Generate Executive Summary', 'Extract Dates',
+					                                        'Extract Organizations', 'Extract Requirements',
+					                                        'Extract Action Items', 'Identify Contradictions',
+					                                        'Identify Missing Information' ],
 						key='docqna_action' )
 				
 				with action_c2:
@@ -3964,19 +4391,21 @@ elif mode == 'Document Q&A':
 						                   'Answer Question' ).strip( )
 						
 						action_prompts = {
-								'Summarize Active Document': 'Summarize the active document set '
-								                             'clearly and faithfully.',
-								'Extract Key Points': 'Extract the key points from the active '
-								                      'document set.',
-								'Generate Outline': 'Generate an outline of the active document '
-								                    'set.',
-								'Extract Entities': 'Extract named entities, dates, organizations, '
-								                    'and references from the active document set.',
-								'Extract Tables': 'Describe the tabular or structured information '
-								                  'visible in the active document set.',
-								'Compare Active Documents': 'Compare the active documents and '
-								                            'explain major agreements, '
-								                            'differences, and gaps.' }
+								'Summarize Active Document': 'Summarize the active document set clearly and faithfully.',
+								'Extract Key Points': 'Extract the key points from the active document set.',
+								'Generate Outline': 'Generate an outline of the active document set.',
+								'Extract Entities': 'Extract named entities, dates, organizations, and references from the active document set.',
+								'Extract Tables': 'Describe the tabular or structured information visible in the active document set.',
+								'Compare Active Documents': 'Compare the active documents and explain major agreements, differences, and gaps.',
+								'Classify Document': 'Classify the active document set using supported evidence.',
+								'Find Evidence': 'Find excerpts that directly support or contradict the requested proposition.',
+								'Generate Executive Summary': 'Generate an executive summary of the active document set.',
+								'Extract Dates': 'Extract important dates and their associated events or obligations.',
+								'Extract Organizations': 'Extract named organizations and their supported roles.',
+								'Extract Requirements': 'Extract explicit requirements, constraints, and acceptance criteria.',
+								'Extract Action Items': 'Extract action items and responsible parties when supported.',
+								'Identify Contradictions': 'Identify material contradictions or inconsistencies across the active documents.',
+								'Identify Missing Information': 'Identify information required by the request that is absent from the active documents.' }
 						
 						if action_name != 'Answer Question':
 							action_prompt = action_prompts.get( action_name, 'Summarize the active '
@@ -4025,8 +4454,12 @@ elif mode == 'Document Q&A':
 					st.rerun( )
 			
 			with st.expander( label='Response Settings', icon='↔️', expanded=False ):
-				mind_c1, mind_c2, mind_c3 = st.columns( [ 0.33, 0.33, 0.33 ], border=True,
-					gap='medium' )
+				if st.session_state.get( 'response_format' ) not in get_response_formats( ):
+					st.session_state[ 'response_format' ] = 'Markdown'
+				if st.session_state.get( 'response_language' ) not in get_spoken_languages( False ):
+					st.session_state[ 'response_language' ] = 'English'
+				mind_c1, mind_c2, mind_c3, mind_c4, mind_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
 				
 				with mind_c1:
 					st.slider( label='Temperature', min_value=0.0, max_value=1.0, value=float(
@@ -4044,12 +4477,20 @@ elif mode == 'Document Q&A':
 						help=cfg.TOP_K )
 					top_k = st.session_state[ 'top_k' ]
 				
+				with mind_c4:
+					st.selectbox( label='Response Format', options=get_response_formats( ),
+						key='response_format' )
+				
+				with mind_c5:
+					st.selectbox( label='Response Language',
+						options=get_spoken_languages( include_auto_detect=False ), key='response_language' )
+				
 				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch',
 						icon='🔄' ):
-					for key in [ 'top_k', 'top_percent', 'temperature' ]:
+					for key in [ 'top_k', 'top_percent', 'temperature', 'response_format',
+					             'response_language' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
 			
 			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
@@ -4090,7 +4531,7 @@ elif mode == 'Document Q&A':
 					border=True, gap='medium' )
 				
 				with ctx_c1:
-					st.slider( label='Context Window', min_value=0, max_value=8192,
+					st.slider( label='Context Window', min_value=0, max_value=131072,
 						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
 					context_window = st.session_state[ 'context_window' ]
 				
@@ -4100,7 +4541,7 @@ elif mode == 'Document Q&A':
 					cpu_threads = st.session_state[ 'cpu_threads' ]
 				
 				with ctx_c3:
-					st.slider( label='Max Tokens', min_value=0, max_value=4096, step=128,
+					st.slider( label='Max Tokens', min_value=0, max_value=8192, step=128,
 						key='max_tokens', help=cfg.MAX_TOKENS )
 					max_tokens = st.session_state[ 'max_tokens' ]
 				
@@ -4120,54 +4561,8 @@ elif mode == 'Document Q&A':
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
 		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
-			in_left, in_right = st.columns( [ 0.8, 0.2 ] )
-			prompt_names = fetch_prompt_names( cfg.DB_PATH )
-			if not prompt_names:
-				prompt_names = [ '' ]
-			
-			with in_left:
-				st.text_area( label='Enter Text', height=120, width='stretch',
-					help=cfg.SYSTEM_INSTRUCTIONS, key='system_instructions' )
-			
-			def _on_doc_template_change( ) -> None:
-				name = st.session_state.get( 'instructions' )
-				if name and name != 'No Templates Found':
-					text = fetch_prompt_text( cfg.DB_PATH, name )
-					if text is not None:
-						st.session_state[ 'system_instructions' ] = text
-						st.session_state[ 'active_prompt_caption' ] = name
-			
-			with in_right:
-				st.selectbox( label='Use Template', options=prompt_names, index=None,
-					key='instructions', on_change=_on_doc_template_change )
-			
-			def _on_doc_clear( ) -> None:
-				st.session_state[ 'system_instructions' ] = ''
-				st.session_state[ 'instructions' ] = ''
-				st.session_state[ 'active_prompt_caption' ] = ''
-			
-			def _on_doc_convert_system_instructions( ) -> None:
-				text = st.session_state.get( 'system_instructions', '' )
-				if not isinstance( text, str ) or not text.strip( ):
-					return
-				
-				src = text.strip( )
-				if cfg.XML_BLOCK_PATTERN.search( src ):
-					converted = convert_xml( src )
-				else:
-					converted = convert_markdown( src )
-				
-				st.session_state[ 'system_instructions' ] = converted
-			
-			btn_c1, btn_c2 = st.columns( [ 0.8, 0.2 ] )
-			with btn_c1:
-				st.button( label='Clear Instructions', width='stretch',
-					on_click=_on_doc_clear, icon='🧹' )
-			
-			with btn_c2:
-				st.button( label='XML ↔️ Markdown', width='stretch',
-					on_click=_on_doc_convert_system_instructions )
-		
+			render_system_instructions_controls( include_preset=False, include_preview=False )
+
 		# ------------------------------------------------------------------
 		# Document Selection UI
 		# ------------------------------------------------------------------
@@ -4513,9 +4908,8 @@ elif mode == 'Semantic Search':
 # PROMPT ENGINEERING MODE
 # ==============================================================================
 elif mode == 'Prompt Engineering':
-	import sqlite3
 	import math
-	
+
 	TABLE = 'Prompts'
 	PAGE_SIZE = 10
 	st.session_state.setdefault( 'pe_cascade_enabled', False )
@@ -4532,73 +4926,95 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		st.session_state.setdefault( 'pe_page', 1 )
 		st.session_state.setdefault( 'pe_search', '' )
-		st.session_state.setdefault( 'pe_sort_col', 'PromptsId' )
+		st.session_state.setdefault( 'pe_sort_col', 'ID' )
 		st.session_state.setdefault( 'pe_sort_dir', 'ASC' )
 		st.session_state.setdefault( 'pe_selected_id', None )
 		st.session_state.setdefault( 'pe_caption', '' )
 		st.session_state.setdefault( 'pe_name', '' )
+		st.session_state.setdefault( 'pe_category', 'General Assistant' )
 		st.session_state.setdefault( 'pe_text', '' )
-		st.session_state.setdefault( 'pe_version', '' )
-		st.session_state.setdefault( 'pe_id', 0 )
+		st.session_state.setdefault( 'pe_language', 'English' )
+		st.session_state.setdefault( 'pe_language_edit', 'English' )
+		st.session_state.setdefault( 'pe_task_type_edit', 'Chat' )
 		
 		# ------------------------------------------------------------------
 		# DB helpers
 		# ------------------------------------------------------------------
-		def get_conn( ):
+		def get_conn( ) -> sqlite3.Connection:
+			"""Creates the Prompt Engineering SQLite connection.
+
+			Purpose:
+				Provides the existing local helper used by Prompt Engineering query and paging workflows.
+
+			Returns:
+				sqlite3.Connection: SQLite connection to the configured application database.
+			"""
 			return sqlite3.connect( cfg.DB_PATH )
 		
-		def reset_selection( ):
+		def reset_prompt_selection( ) -> None:
+			"""Clears the Prompt Engineering edit surface.
+
+			Purpose:
+				Clears selected-record state while preserving Prompt Engineering filters and generator controls.
+
+			Returns:
+				None: This function performs its work through Streamlit session state.
+			"""
 			st.session_state.pe_selected_id = None
 			st.session_state.pe_caption = ''
 			st.session_state.pe_name = ''
+			st.session_state.pe_category = 'General Assistant'
 			st.session_state.pe_text = ''
-			st.session_state.pe_version = ''
-			st.session_state.pe_id = 0
 		
-		def load_prompt( pid: int ) -> None:
-			with get_conn( ) as conn:
-				_select = f'''
-					SELECT PromptsId, Caption, Name, Text, Version, ID
-					FROM {TABLE}
-					WHERE PromptsId=?
-				'''
-				cur = conn.execute( _select, (pid,) )
-				row = cur.fetchone( )
-				if not row:
-					return
-				
-				st.session_state.pe_selected_id = row[ 0 ]
-				st.session_state.pe_caption = row[ 1 ]
-				st.session_state.pe_name = row[ 2 ]
-				st.session_state.pe_text = row[ 3 ]
-				st.session_state.pe_version = row[ 4 ]
-				st.session_state.pe_id = row[ 5 ]
-				
-				prompt_row = {
-						'PromptsId': row[ 0 ],
-						'Caption': row[ 1 ],
-						'Name': row[ 2 ],
-						'Text': row[ 3 ],
-						'Version': row[ 4 ],
-						'ID': row[ 5 ]
-				}
-				
-				st.session_state[ 'prompt_category' ] = infer_prompt_category( prompt_row )
+		def load_prompt_for_edit( pid: int ) -> None:
+			"""Loads a prompt record into the Prompt Engineering edit surface.
+
+			Purpose:
+				Loads the authoritative five-field prompt record by immutable primary key.
+
+			Args:
+				pid (int): Prompt primary key.
+
+			Returns:
+				None: This function performs its work through Streamlit session state.
+			"""
+			prompt_row = fetch_prompt_by_id( pid )
+			if not prompt_row:
+				return
+			st.session_state.pe_selected_id = int( prompt_row[ 'ID' ] )
+			st.session_state.pe_caption = str( prompt_row.get( 'Caption', '' ) or '' )
+			st.session_state.pe_name = str( prompt_row.get( 'Name', '' ) or '' )
+			st.session_state.pe_category = str(
+				prompt_row.get( 'Category', 'General Assistant' ) or 'General Assistant' )
+			st.session_state.pe_text = str( prompt_row.get( 'Text', '' ) or '' )
+			st.session_state[ 'prompt_category' ] = st.session_state.pe_category
 		
 		# ------------------------------------------------------------------
 		# Filters
 		# ------------------------------------------------------------------
 		c1, c2, c3, c4, c5 = st.columns( [ 3, 2, 2, 2, 3 ], border=True )
+		available_categories = fetch_prompt_categories( cfg.DB_PATH )
+		if st.session_state.get( 'prompt_category_selection' ) not in [ 'All Categories' ] + available_categories:
+			st.session_state[ 'prompt_category_selection' ] = 'All Categories'
+		if st.session_state.get( 'pe_category' ) not in available_categories:
+			st.session_state[ 'pe_category' ] = 'General Assistant'
+		if st.session_state.get( 'prompt_response_format' ) not in get_response_formats( ):
+			st.session_state[ 'prompt_response_format' ] = 'Markdown'
+		if st.session_state.get( 'pe_language' ) not in get_spoken_languages( False ):
+			st.session_state[ 'pe_language' ] = 'English'
+		if st.session_state.get( 'pe_language_edit' ) not in get_spoken_languages( False ):
+			st.session_state[ 'pe_language_edit' ] = 'English'
 		
 		with c1:
 			st.text_input( 'Search (Caption / Name / Text)', key='pe_search' )
 		
 		with c2:
-			st.selectbox( 'Category', get_prompt_categories( ), key='prompt_category_selection' )
+			st.selectbox( 'Category', [ 'All Categories' ] + available_categories,
+				key='prompt_category_selection' )
 		
 		with c3:
-			st.selectbox( 'Sort by',
-				[ 'PromptsId', 'Caption', 'Name', 'Text', 'Version', 'ID' ], key='pe_sort_col' )
+			st.selectbox( 'Sort by', [ 'ID', 'Caption', 'Name', 'Category', 'Text' ],
+				key='pe_sort_col' )
 		
 		with c4:
 			st.selectbox( 'Direction', [ 'ASC', 'DESC' ], key='pe_sort_dir' )
@@ -4607,109 +5023,80 @@ elif mode == 'Prompt Engineering':
 			st.markdown(
 				"<div style='font-size:0.95rem;font-weight:600;margin-bottom:0.25rem;'>Go to ID</div>",
 				unsafe_allow_html=True )
-			
 			a1, a2, a3 = st.columns( [ 2, 1, 1 ] )
 			with a1:
 				jump_id = st.number_input( 'Go to ID', min_value=1, step=1,
 					label_visibility='collapsed' )
-			
 			with a2:
 				if st.button( 'Go' ):
-					st.session_state.pe_selected_id = int( jump_id )
-					load_prompt( int( jump_id ) )
-			
+					load_prompt_for_edit( int( jump_id ) )
 			with a3:
-				st.button( 'Clear', on_click=reset_selection )
+				st.button( 'Clear', on_click=reset_prompt_selection )
 		
 		# ------------------------------------------------------------------
 		# Load prompt table
 		# ------------------------------------------------------------------
 		where_clauses: List[ str ] = [ ]
 		params: List[ Any ] = [ ]
-		
 		if st.session_state.pe_search:
 			where_clauses.append( '(Caption LIKE ? OR Name LIKE ? OR Text LIKE ?)' )
-			s = f"%{st.session_state.pe_search}%"
-			params.extend( [ s, s, s ] )
-		
-		where = ''
-		if len( where_clauses ) > 0:
-			where = 'WHERE ' + ' AND '.join( where_clauses )
-		
-		offset = (st.session_state.pe_page - 1) * PAGE_SIZE
-		
-		query = f"""
-	        SELECT PromptsId, Caption, Name, Text, Version, ID
-	        FROM {TABLE}
-	        {where}
-	        ORDER BY {st.session_state.pe_sort_col} {st.session_state.pe_sort_dir}
-	        LIMIT {PAGE_SIZE} OFFSET {offset}
-	    """
-		
-		count_query = f"SELECT COUNT(*) FROM {TABLE} {where}"
-		
+			search_text = f"%{st.session_state.pe_search}%"
+			params.extend( [ search_text, search_text, search_text ] )
+		selected_category = str(
+			st.session_state.get( 'prompt_category_selection', 'All Categories' ) or 'All Categories' )
+		if selected_category != 'All Categories':
+			where_clauses.append( 'Category = ?' )
+			params.append( selected_category )
+		where = 'WHERE ' + ' AND '.join( where_clauses ) if where_clauses else ''
+		offset = (int( st.session_state.pe_page ) - 1) * PAGE_SIZE
+		query = f'''SELECT ID, Caption, Name, Category, Text
+			FROM {TABLE}
+			{where}
+			ORDER BY {st.session_state.pe_sort_col} {st.session_state.pe_sort_dir}
+			LIMIT {PAGE_SIZE} OFFSET {offset}'''
+		count_query = f'SELECT COUNT(*) FROM {TABLE} {where}'
 		with get_conn( ) as conn:
 			rows = conn.execute( query, params ).fetchall( )
-			total_rows = conn.execute( count_query, params ).fetchone( )[ 0 ]
-		
+			total_rows = int( conn.execute( count_query, params ).fetchone( )[ 0 ] )
 		total_pages = max( 1, math.ceil( total_rows / PAGE_SIZE ) )
+		if st.session_state.pe_page > total_pages:
+			st.session_state.pe_page = total_pages
 		
 		# ------------------------------------------------------------------
 		# Prompt table
 		# ------------------------------------------------------------------
 		table_rows: List[ Dict[ str, Any ] ] = [ ]
-		selected_category = str(
-			st.session_state.get( 'prompt_category_table', 'General Chat' ) or 'General Chat' )
-		
-		for r in rows:
-			prompt_row = {
-					'PromptsId': r[ 0 ],
-					'Caption': r[ 1 ],
-					'Name': r[ 2 ],
-					'Text': r[ 3 ],
-					'Version': r[ 4 ],
-					'ID': r[ 5 ]
-			}
-			
-			inferred_category = infer_prompt_category( prompt_row )
-			if selected_category and inferred_category != selected_category:
-				continue
-			
+		for row in rows:
 			table_rows.append( {
-					'Selected': r[ 0 ] == st.session_state.pe_selected_id,
-					'PromptsId': r[ 0 ],
-					'Category': inferred_category,
-					'Caption': r[ 1 ],
-					'Name': r[ 2 ],
-					'Text': r[ 3 ],
-					'Version': r[ 4 ],
-					'ID': r[ 5 ]
+				'Selected': int( row[ 0 ] ) == st.session_state.pe_selected_id,
+				'ID': int( row[ 0 ] ),
+				'Category': str( row[ 3 ] or '' ),
+				'Caption': str( row[ 1 ] or '' ),
+				'Name': str( row[ 2 ] or '' ),
+				'Text': str( row[ 4 ] or '' )
 			} )
-		
-		edited = st.data_editor( table_rows, hide_index=True, use_container_width=True,
-			key='prompt_table' )
+		df_prompt_table = pd.DataFrame(
+			table_rows, columns=[ 'Selected', 'ID', 'Category', 'Caption', 'Name', 'Text' ] )
+		df_edited_prompts = st.data_editor( df_prompt_table, hide_index=True,
+			use_container_width=True, key='prompt_table' )
 		
 		# ------------------------------------------------------------------
 		# Selection processing
 		# ------------------------------------------------------------------
-		selected = [ r for r in edited if isinstance( r, dict ) and r.get( 'Selected' ) ]
-		if len( selected ) == 1:
-			pid = int( selected[ 0 ][ 'PromptsId' ] )
+		selected_rows = df_edited_prompts.loc[ df_edited_prompts[ 'Selected' ] == True ].to_dict(
+			orient='records' ) if not df_edited_prompts.empty else [ ]
+		if len( selected_rows ) == 1:
+			pid = int( selected_rows[ 0 ][ 'ID' ] )
 			if pid != st.session_state.pe_selected_id:
-				load_prompt( pid )
+				load_prompt_for_edit( pid )
 				if bool( st.session_state.get( 'pe_cascade_enabled', False ) ):
 					apply_prompt_to_text_generation( st.session_state.pe_text )
 					apply_prompt_metadata_to_shared_state(
-						category=selected[ 0 ].get( 'Category', 'General Chat' ),
+						category=st.session_state.pe_category,
 						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format',
-							'Markdown' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' ) )
-		
-		elif len( selected ) == 0:
-			pass
-		
-		elif len( selected ) > 1:
+		elif len( selected_rows ) > 1:
 			st.warning( 'Select exactly one prompt row.' )
 		
 		# ------------------------------------------------------------------
@@ -4719,13 +5106,13 @@ elif mode == 'Prompt Engineering':
 		with p1:
 			if st.button( '◀ Prev' ) and st.session_state.pe_page > 1:
 				st.session_state.pe_page -= 1
-		
+				st.rerun( )
 		with p2:
 			st.markdown( f'Page **{st.session_state.pe_page}** of **{total_pages}**' )
-		
 		with p3:
 			if st.button( 'Next ▶' ) and st.session_state.pe_page < total_pages:
 				st.session_state.pe_page += 1
+				st.rerun( )
 		
 		st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 		
@@ -4734,92 +5121,77 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		with st.expander( '⚙️ Prompt Actions', expanded=False ):
 			act_c1, act_c2, act_c3, act_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
-			
 			with act_c1:
 				if st.button( 'Apply to Text Generation', width='stretch' ):
 					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'prompt_category_apply', 'General Chat' ),
-						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format',
-							'Markdown' ),
-						language=st.session_state.get( 'pe_language', 'English' ) )
+						category=st.session_state.get( 'pe_category', 'General Assistant' ),
+						task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language_edit', 'English' ) )
 					st.success( 'Applied to shared Text Generation settings.' )
-			
 			with act_c2:
 				if st.button( 'Apply to Document Q&A', width='stretch' ):
 					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'prompt_category_meta', 'General Chat' ),
-						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format',
-							'Markdown' ),
-						language=st.session_state.get( 'pe_language', 'English' ) )
+						category=st.session_state.get( 'pe_category', 'General Assistant' ),
+						task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language_edit', 'English' ) )
 					st.success( 'Applied to shared Document Q&A settings.' )
-			
 			with act_c3:
 				if st.button( 'Clone as New Template', width='stretch' ):
 					source_prompt = {
-							'PromptsId': st.session_state.get( 'pe_selected_id' ),
-							'Caption': st.session_state.get( 'pe_caption', '' ),
-							'Name': st.session_state.get( 'pe_name', '' ),
-							'Text': st.session_state.get( 'pe_text', '' ),
-							'Version': st.session_state.get( 'pe_version', '' ),
-							'ID': st.session_state.get( 'pe_id', 0 )
+						'ID': st.session_state.get( 'pe_selected_id' ),
+						'Caption': st.session_state.get( 'pe_caption', '' ),
+						'Name': st.session_state.get( 'pe_name', '' ),
+						'Category': st.session_state.get( 'pe_category', 'General Assistant' ),
+						'Text': st.session_state.get( 'pe_text', '' )
 					}
 					clone_prompt_record( source_prompt )
 					st.success( 'Prompt cloned into a new editable draft.' )
-			
 			with act_c4:
 				if st.button( 'Generate Starter Prompt', width='stretch' ):
 					st.session_state.pe_text = build_starter_prompt_template(
-						category=st.session_state.get( 'prompt_category', 'General Chat' ),
-						task_type=st.session_state.get( 'prompt_task', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format',
-							'Markdown' ),
-						language=st.session_state.get( 'pe_language', 'English' ) )
+						category=st.session_state.get( 'pe_category', 'General Assistant' ),
+						task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
+						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+						language=st.session_state.get( 'pe_language_edit', 'English' ) )
 					st.success( 'Starter prompt generated into the edit surface.' )
 		
 		# ------------------------------------------------------------------
 		# Prompt generator
 		# ------------------------------------------------------------------
 		with st.expander( '🧪 Prompt Generator', expanded=False ):
-			gen_c1, gen_c2, gen_c3, gen_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ], border=True )
-			
+			gen_c1, gen_c2, gen_c3, gen_c4, gen_c5 = st.columns(
+				[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True )
 			with gen_c1:
-				st.selectbox( 'Task Type', get_prompt_task_types( ), key='prompt_task_generator' )
-			
+				st.selectbox( 'Category', available_categories, key='prompt_category_draft' )
 			with gen_c2:
-				st.selectbox( 'Response Format',
-					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='prompt_format' )
-			
+				st.selectbox( 'Task Type', get_prompt_task_types( ), key='prompt_task_generator' )
 			with gen_c3:
-				st.text_input( 'Language', key='pe_language' )
-			
+				st.selectbox( 'Response Format', get_response_formats( ), key='prompt_format' )
 			with gen_c4:
+				st.selectbox( 'Language', get_spoken_languages( include_auto_detect=False ),
+					key='pe_language' )
+			with gen_c5:
 				st.selectbox( 'Generator Style', [ 'Practical', 'Formal', 'Analytical', 'Concise' ],
 					key='pe_generator_style' )
-			
 			st.text_input( 'Goal', key='pe_generator_goal' )
-			
 			st.text_area( 'Constraints', height=120, key='pe_generator_constraints' )
-			
 			if st.button( 'Generate Template Draft', width='stretch' ):
 				draft = generate_prompt_template_draft(
 					goal=st.session_state.get( 'pe_generator_goal', '' ),
 					constraints=st.session_state.get( 'pe_generator_constraints', '' ),
 					style=st.session_state.get( 'pe_generator_style', 'Practical' ),
-					category=st.session_state.get( 'prompt_category_draft', 'General Chat' ),
-					task_type=st.session_state.get( 'prompt_task', 'Chat' ),
-					response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+					category=st.session_state.get( 'prompt_category_draft', 'General Assistant' ),
+					task_type=st.session_state.get( 'prompt_task_generator', 'Chat' ),
+					response_format=st.session_state.get( 'prompt_format', 'Markdown' ),
 					language=st.session_state.get( 'pe_language', 'English' ) )
 				st.session_state[ 'pe_generated_template' ] = draft
 				st.session_state.pe_text = draft
-			
 			if st.session_state.get( 'pe_generated_template', '' ):
-				st.text_area( 'Generated Draft',
-					value=st.session_state.get( 'pe_generated_template', '' ),
+				st.text_area( 'Generated Draft', value=st.session_state.get( 'pe_generated_template', '' ),
 					height=180, disabled=True )
 		
 		# ------------------------------------------------------------------
@@ -4827,71 +5199,42 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		with st.expander( '🖊️ Edit Prompt', expanded=False ):
 			meta_c1, meta_c2, meta_c3, meta_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
-			
 			with meta_c1:
-				st.text_input( 'PromptsId', value=st.session_state.pe_selected_id or '',
-					disabled=True )
-			
+				st.text_input( 'ID', value=st.session_state.pe_selected_id or '', disabled=True )
 			with meta_c2:
-				st.selectbox( 'Category', get_prompt_categories( ),
-					key='prompt_category_edit' )
-			
+				st.selectbox( 'Category', available_categories, key='pe_category' )
 			with meta_c3:
-				st.selectbox( 'Task Type', get_prompt_task_types( ),
-					key='pe_task_type_edit' )
-			
+				st.selectbox( 'Task Type', get_prompt_task_types( ), key='pe_task_type_edit' )
 			with meta_c4:
-				st.selectbox( 'Response Format',
-					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='prompt_response_format' )
-			
+				st.selectbox( 'Response Format', get_response_formats( ), key='prompt_response_format' )
 			st.text_input( 'Caption', key='pe_caption' )
 			st.text_input( 'Name', key='pe_name' )
-			st.text_input( 'Language', key='pe_language_edit' )
+			st.selectbox( 'Language', get_spoken_languages( include_auto_detect=False ),
+				key='pe_language_edit' )
 			st.text_area( 'Text', key='pe_text', height=260 )
-			st.text_input( 'Version', key='pe_version' )
 			
 			c1, c2, c3 = st.columns( 3 )
 			with c1:
 				save_label = '💾 Save Changes' if st.session_state.pe_selected_id else '➕ Create Prompt'
 				if st.button( save_label ):
-					with get_conn( ) as conn:
-						if st.session_state.pe_selected_id:
-							conn.execute( f"""
-	                            UPDATE {TABLE}
-	                            SET Caption=?, Name=?, Text=?, Version=?, ID=?
-	                            WHERE PromptsId=?
-	                            """,
-								(st.session_state.pe_caption, st.session_state.pe_name,
-								 st.session_state.pe_text, st.session_state.pe_version,
-								 st.session_state.pe_id, st.session_state.pe_selected_id) )
-						else:
-							conn.execute( f"""
-	                            INSERT INTO {TABLE} (Caption, Name, Text, Version, ID)
-	                            VALUES (?, ?, ?, ?, ?)
-	                            """, (st.session_state.pe_caption,
-							          st.session_state.pe_name,
-							          st.session_state.pe_text,
-							          st.session_state.pe_version,
-							          st.session_state.pe_id) )
-						conn.commit( )
-					
+					prompt_data = {
+						'Caption': st.session_state.pe_caption,
+						'Name': st.session_state.pe_name,
+						'Category': st.session_state.pe_category,
+						'Text': st.session_state.pe_text
+					}
+					if st.session_state.pe_selected_id:
+						update_prompt( int( st.session_state.pe_selected_id ), prompt_data )
+					else:
+						st.session_state.pe_selected_id = insert_prompt( prompt_data )
 					st.success( 'Saved.' )
-			
 			with c2:
 				if st.session_state.pe_selected_id and st.button( 'Delete' ):
-					with get_conn( ) as conn:
-						conn.execute(
-							f'DELETE FROM {TABLE} WHERE PromptsId=?',
-							(st.session_state.pe_selected_id,)
-						)
-						conn.commit( )
-					
-					reset_selection( )
+					delete_prompt( int( st.session_state.pe_selected_id ) )
+					reset_prompt_selection( )
 					st.success( 'Deleted.' )
-			
 			with c3:
-				st.button( '🧹 Clear Selection', on_click=reset_selection )
+				st.button( '🧹 Clear Selection', on_click=reset_prompt_selection )
 
 # ==============================================================================
 # DATA MANAGEMENT MODE
