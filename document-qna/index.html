@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Bro, a local-first Streamlit application for text generation, document Q&A, semantic search, prompt engineering, and data management.">
+        <meta name="description" content="Local-first Gemma 3 text, vision, retrieval, prompt-engineering, semantic-search, and SQLite data-management application.">
       
       
         <meta name="author" content="Terry D. Eppler">
@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://is-leeroy-jenkins.github.io/Bro/document-qna/">
       
       
-        <link rel="prev" href="../text-generation/">
+        <link rel="prev" href="../image-to-text/">
       
       
         <link rel="next" href="../semantic-search/">
@@ -24,12 +24,12 @@
         
       
       
-      <link rel="icon" href="../img/favicon.ico">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Document Q&A - Bro Documentation</title>
+        <title>Document Q&A - Bro</title>
       
     
     
@@ -75,7 +75,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -96,13 +96,12 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Bro Documentation" class="md-header__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-header__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +112,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Bro Documentation
+            Bro
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -132,7 +131,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
     
   
 </form>
@@ -195,7 +194,7 @@
         <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -205,8 +204,14 @@
     
   </nav>
   
+</header>
     
+    <div class="md-container" data-md-component="container">
       
+      
+        
+          
+            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -282,7 +287,7 @@
           
   
   
-  User Guide
+  Application Modes
 
         </a>
       </li>
@@ -332,13 +337,7 @@
     </ul>
   </div>
 </nav>
-    
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -357,19 +356,20 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Bro Documentation" class="md-nav__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-nav__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Bro Documentation
+    Bro
   </label>
   
     <div class="md-nav__source">
       <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -495,7 +495,7 @@
   <span class="md-ellipsis">
     
   
-    User Guide
+    Application Modes
   
 
     
@@ -511,7 +511,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    User Guide
+    Application Modes
   
 
           </label>
@@ -532,6 +532,34 @@
     
   
     Text Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../image-to-text/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image to Text
   
 
     
@@ -612,10 +640,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Workflow
       
     </span>
   </a>
@@ -623,10 +651,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow-position" class="md-nav__link">
+  <a href="#retrieval-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 Workflow Position
+        🧲 Retrieval Controls
       
     </span>
   </a>
@@ -634,10 +662,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#document-intake" class="md-nav__link">
+  <a href="#grounding-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📥 Document Intake
+        🛡️ Grounding Controls
       
     </span>
   </a>
@@ -645,43 +673,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#text-extraction" class="md-nav__link">
+  <a href="#retrieval-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧾 Text Extraction
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#chunking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧩 Chunking
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retrieval-backends" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔎 Retrieval Backends
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grounded-prompt-construction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧠 Grounded Prompt Construction
+        🧮 Retrieval Backend
       
     </span>
   </a>
@@ -692,7 +687,7 @@
   <a href="#document-actions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧪 Document Actions
+        🗂️ Document Actions
       
     </span>
   </a>
@@ -700,10 +695,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-sequence" class="md-nav__link">
+  <a href="#document-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Recommended Sequence
+        📄 Document Parsing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📄 Document Parsing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vision-assisted-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vision-assisted OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔎 Diagnostics
       
     </span>
   </a>
@@ -711,10 +734,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#practical-notes" class="md-nav__link">
+  <a href="#response-inference-context-and-runtime-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚠️ Practical Notes
+        Response, inference, context, and runtime controls
       
     </span>
   </a>
@@ -722,21 +745,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#failure-handling" class="md-nav__link">
+  <a href="#retrieved-chunks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧯 Failure Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Retrieved chunks
       
     </span>
   </a>
@@ -939,7 +951,7 @@
   <span class="md-ellipsis">
     
   
-    Application
+    App
   
 
     
@@ -1070,10 +1082,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Workflow
       
     </span>
   </a>
@@ -1081,10 +1093,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow-position" class="md-nav__link">
+  <a href="#retrieval-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 Workflow Position
+        🧲 Retrieval Controls
       
     </span>
   </a>
@@ -1092,10 +1104,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#document-intake" class="md-nav__link">
+  <a href="#grounding-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📥 Document Intake
+        🛡️ Grounding Controls
       
     </span>
   </a>
@@ -1103,43 +1115,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#text-extraction" class="md-nav__link">
+  <a href="#retrieval-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧾 Text Extraction
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#chunking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧩 Chunking
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retrieval-backends" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔎 Retrieval Backends
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grounded-prompt-construction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧠 Grounded Prompt Construction
+        🧮 Retrieval Backend
       
     </span>
   </a>
@@ -1150,7 +1129,7 @@
   <a href="#document-actions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧪 Document Actions
+        🗂️ Document Actions
       
     </span>
   </a>
@@ -1158,10 +1137,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-sequence" class="md-nav__link">
+  <a href="#document-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Recommended Sequence
+        📄 Document Parsing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📄 Document Parsing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vision-assisted-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vision-assisted OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔎 Diagnostics
       
     </span>
   </a>
@@ -1169,10 +1176,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#practical-notes" class="md-nav__link">
+  <a href="#response-inference-context-and-runtime-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚠️ Practical Notes
+        Response, inference, context, and runtime controls
       
     </span>
   </a>
@@ -1180,21 +1187,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#failure-handling" class="md-nav__link">
+  <a href="#retrieved-chunks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧯 Failure Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Retrieved chunks
       
     </span>
   </a>
@@ -1247,7 +1243,7 @@
         <a href="../text-generation/" class="md-path__link">
           
   <span class="md-ellipsis">
-    User Guide
+    Application Modes
   </span>
 
         </a>
@@ -1266,247 +1262,101 @@
 
 
   
-    <a href="https://github.com/is-leeroy-jenkins/Bro/edit/main/docs/document-qna.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
-    </a>
-  
-  
-    
-      
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro/raw/main/docs/document-qna.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
   
 
 
 <h1 id="document-qa">Document Q&amp;A<a class="headerlink" href="#document-qa" title="Permanent link">&para;</a></h1>
-<p>Document Q&amp;A provides retrieval-augmented answering over uploaded documents. It extracts text, chunks the content, builds or refreshes a retrieval index, retrieves relevant excerpts, and sends a grounded prompt to the local model.</p>
-<h2 id="purpose">🧭 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
-<p>This mode is used when answers must be grounded in uploaded source material. It is appropriate for document review, policy analysis, technical-documentation review, contract review, research notes, and structured extraction from local files.</p>
-<h2 id="workflow-position">🧱 Workflow Position<a class="headerlink" href="#workflow-position" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Upload documents
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  ▼
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Select active documents
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  ▼
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Extract text
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  ▼
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Chunk text
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  ▼
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Embed chunks
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  ▼
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>Retrieve top-k excerpts
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  ▼
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>Build grounded prompt
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  ▼
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>Generate local answer
+<p>Document Q&amp;A provides local retrieval-augmented analysis over uploaded PDF, TXT, and DOCX files.</p>
+<h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>load documents
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    -&gt; extract/OCR text
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    -&gt; chunk
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    -&gt; embed
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    -&gt; retrieve
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    -&gt; apply grounding policy
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    -&gt; build Gemma request
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    -&gt; create_chat_completion()
 </span></code></pre></div>
-<h2 id="document-intake">📥 Document Intake<a class="headerlink" href="#document-intake" title="Permanent link">&para;</a></h2>
-<p>Bro supports local upload workflows. The application stores file bytes in session state and tracks active document names. The document inventory can display size, extracted text length, chunk count, and load status.</p>
-<table>
-<thead>
-<tr>
-<th>Intake Element</th>
-<th>Role</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Uploaded files</td>
-<td>Source files provided through the Streamlit interface.</td>
-</tr>
-<tr>
-<td>Active documents</td>
-<td>User-selected files included in the current Q&amp;A workflow.</td>
-</tr>
-<tr>
-<td>Document bytes</td>
-<td>Runtime byte cache used for extraction and fingerprinting.</td>
-</tr>
-<tr>
-<td>Fingerprint</td>
-<td>Stable hash used to detect changes in selected document content.</td>
-</tr>
-<tr>
-<td>Inventory rows</td>
-<td>Diagnostic summary of loaded documents and chunk counts.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="text-extraction">🧾 Text Extraction<a class="headerlink" href="#text-extraction" title="Permanent link">&para;</a></h2>
-<p>Document Q&amp;A uses native PDF text extraction when available and falls back to decoded text when appropriate.</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Prefer native PDF text</td>
-<td>Uses PyMuPDF extraction for PDF files when available.</td>
-</tr>
-<tr>
-<td>Include page markers</td>
-<td>Adds page markers to extracted text when enabled.</td>
-</tr>
-<tr>
-<td>OCR enabled</td>
-<td>Reserved for workflows where OCR is explicitly configured.</td>
-</tr>
-<tr>
-<td>Show diagnostics</td>
-<td>Displays document-processing details for troubleshooting.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="chunking">🧩 Chunking<a class="headerlink" href="#chunking" title="Permanent link">&para;</a></h2>
-<p>Chunks are built from extracted text and controlled by retrieval settings.</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Retrieval chunk size</td>
-<td>Maximum character length for each chunk.</td>
-</tr>
-<tr>
-<td>Retrieval chunk overlap</td>
-<td>Overlap between adjacent chunks to preserve context.</td>
-</tr>
-<tr>
-<td>Retrieval k</td>
-<td>Number of chunks retrieved for the question.</td>
-</tr>
-</tbody>
-</table>
-<p>A larger chunk size provides more local context per retrieved result. A smaller chunk size can improve targeted retrieval but may split related facts across chunks.</p>
-<h2 id="retrieval-backends">🔎 Retrieval Backends<a class="headerlink" href="#retrieval-backends" title="Permanent link">&para;</a></h2>
-<p>Bro supports two retrieval paths.</p>
-<table>
-<thead>
-<tr>
-<th>Backend</th>
-<th>Use</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sqlite-vec</code></td>
-<td>Preferred vector search path when the SQLite extension is available.</td>
-</tr>
-<tr>
-<td>Cosine fallback</td>
-<td>In-memory fallback over stored vector blobs when <code>sqlite-vec</code> is unavailable or disabled.</td>
-</tr>
-</tbody>
-</table>
-<p>The fallback path is important because local development environments may not always have the SQLite vector extension available.</p>
-<h2 id="grounded-prompt-construction">🧠 Grounded Prompt Construction<a class="headerlink" href="#grounded-prompt-construction" title="Permanent link">&para;</a></h2>
-<p>The document prompt combines instructions, active document names, retrieved excerpts, optional semantic context, and the user request.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Document Q&amp;A Instructions
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  + Active document list
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  + Retrieved excerpts
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  + Optional semantic context
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  + User request
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  + Answer instruction
-</span></code></pre></div>
-<h2 id="document-actions">🧪 Document Actions<a class="headerlink" href="#document-actions" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Action</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Answer Question</td>
-<td>Answers the user's question using retrieved excerpts.</td>
-</tr>
-<tr>
-<td>Summarize Active Document</td>
-<td>Produces a structured summary of active documents.</td>
-</tr>
-<tr>
-<td>Extract Key Points</td>
-<td>Extracts the most important points from the evidence.</td>
-</tr>
-<tr>
-<td>Generate Outline</td>
-<td>Builds an outline from retrieved document content.</td>
-</tr>
-<tr>
-<td>Extract Entities</td>
-<td>Identifies names, organizations, dates, and references.</td>
-</tr>
-<tr>
-<td>Extract Tables</td>
-<td>Describes or extracts structured tabular content visible in excerpts.</td>
-</tr>
-<tr>
-<td>Compare Active Documents</td>
-<td>Compares active documents for alignment, differences, and gaps.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="recommended-sequence">✅ Recommended Sequence<a class="headerlink" href="#recommended-sequence" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Upload documents.</li>
-<li>Confirm active documents.</li>
-<li>Review inventory and text extraction status.</li>
-<li>Set chunk size and overlap.</li>
-<li>Set retrieval count.</li>
-<li>Enable grounding and answer-from-excerpts behavior.</li>
-<li>Ask the question or select a document action.</li>
-<li>Review retrieved chunks when diagnostics are needed.</li>
-</ol>
-<h2 id="practical-notes">⚠️ Practical Notes<a class="headerlink" href="#practical-notes" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Issue</th>
-<th>Resolution</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Empty answer</td>
-<td>Confirm text was extracted and active documents are selected.</td>
-</tr>
-<tr>
-<td>Weak retrieval</td>
-<td>Increase retrieval count or adjust chunk size.</td>
-</tr>
-<tr>
-<td>Missing PDF text</td>
-<td>Confirm PyMuPDF is installed and the PDF contains selectable text.</td>
-</tr>
-<tr>
-<td>Slow indexing</td>
-<td>Reduce active document set or use larger chunks.</td>
-</tr>
-<tr>
-<td>Hallucinated answer</td>
-<td>Enable answer-from-excerpts-only and require grounding.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="failure-handling">🧯 Failure Handling<a class="headerlink" href="#failure-handling" title="Permanent link">&para;</a></h2>
-<p>Document processing should preserve safe fallback behavior. Extraction, vector loading, indexing, and retrieval failures should be logged through the project logger while allowing the UI to report unavailable text, unavailable vector search, or empty retrieval results.</p>
-<h2 id="related-pages">🔗 Related Pages<a class="headerlink" href="#related-pages" title="Permanent link">&para;</a></h2>
+<h2 id="retrieval-controls">🧲 Retrieval Controls<a class="headerlink" href="#retrieval-controls" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../text-generation/">Text Generation</a></li>
-<li><a href="../semantic-search/">Semantic Search</a></li>
-<li><a href="../data-management/">Data Management</a></li>
+<li>Chunks to Retrieve</li>
+<li>Chunk Size</li>
+<li>Chunk Overlap</li>
+<li>Show Retrieved Chunks</li>
 </ul>
+<p>These values govern retrieval, not grounding policy or response presentation.</p>
+<h2 id="grounding-controls">🛡️ Grounding Controls<a class="headerlink" href="#grounding-controls" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Require Grounding</li>
+<li>Answer From Excerpts Only</li>
+<li>Insufficient-Evidence Behavior</li>
+</ul>
+<p>Supported insufficient-evidence behaviors include:</p>
+<ul>
+<li>State Insufficient Information</li>
+<li>Return Retrieved Excerpts</li>
+<li>Best Supported Answer</li>
+</ul>
+<h2 id="retrieval-backend">🧮 Retrieval Backend<a class="headerlink" href="#retrieval-backend" title="Permanent link">&para;</a></h2>
+<p>Bro can use:</p>
+<ul>
+<li>Automatic</li>
+<li>sqlite-vec</li>
+<li>Cosine Similarity</li>
+</ul>
+<p>Additional controls govern cosine fallback and whether the index is rebuilt for a query.</p>
+<h2 id="document-actions">🗂️ Document Actions<a class="headerlink" href="#document-actions" title="Permanent link">&para;</a></h2>
+<p>The bounded action selector includes:</p>
+<ul>
+<li>Answer Question</li>
+<li>Summarize Active Document</li>
+<li>Extract Key Points</li>
+<li>Generate Outline</li>
+<li>Extract Entities</li>
+<li>Extract Tables</li>
+<li>Compare Active Documents</li>
+<li>Classify Document</li>
+<li>Find Evidence</li>
+<li>Generate Executive Summary</li>
+<li>Extract Dates</li>
+<li>Extract Organizations</li>
+<li>Extract Requirements</li>
+<li>Extract Action Items</li>
+<li>Identify Contradictions</li>
+<li>Identify Missing Information</li>
+</ul>
+<h2 id="document-parsing">📄 Document Parsing<a class="headerlink" href="#document-parsing" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Enable OCR</li>
+<li>Prefer Native PDF Text</li>
+<li>Include Page Markers</li>
+<li>OCR Page Limit</li>
+</ul>
+<p>OCR Page Limit is bounded rather than manually entered.</p>
+<h3 id="vision-assisted-ocr">Vision-assisted OCR<a class="headerlink" href="#vision-assisted-ocr" title="Permanent link">&para;</a></h3>
+<p>When native PDF text is unavailable and OCR is enabled, Bro can render eligible PDF pages as images
+and route them through the Gemma multimodal runtime.</p>
+<p>The OCR path therefore requires the same compatible <code>mmproj</code> configuration as
+<a href="../image-to-text/">Image to Text</a>.</p>
+<h2 id="diagnostics">🔎 Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
+<p>Diagnostics are separated from parsing controls:</p>
+<ul>
+<li>Show Diagnostics</li>
+<li>Show OCR Status</li>
+<li>Show Runtime Metadata</li>
+</ul>
+<h2 id="response-inference-context-and-runtime-controls">Response, inference, context, and runtime controls<a class="headerlink" href="#response-inference-context-and-runtime-controls" title="Permanent link">&para;</a></h2>
+<p>Document Q&amp;A uses the same conceptual ownership as Text Generation:</p>
+<ul>
+<li>Response Controls describe output;</li>
+<li>Inference Settings feed generation;</li>
+<li>Context Controls govern context assembly;</li>
+<li>Runtime Settings govern llama.cpp initialization.</li>
+</ul>
+<p>This keeps the same session-state parameter from having different semantic homes in different modes.</p>
+<h2 id="retrieved-chunks">Retrieved chunks<a class="headerlink" href="#retrieved-chunks" title="Permanent link">&para;</a></h2>
+<p>When enabled, Bro renders retrieved chunks with source information and score/distance metadata so the
+user can inspect the evidence base used by the answer.</p>
 
 
 
@@ -1524,6 +1374,8 @@
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -1537,26 +1389,54 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../image-to-text/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Image to Text">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Image to Text
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../semantic-search/" class="md-footer__link md-footer__link--next" aria-label="Next: Semantic Search">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Semantic Search
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-    <div class="md-copyright__highlight">
-      Copyright &copy; 2026 Terry D. Eppler
-    </div>
   
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro" target="_blank" rel="noopener" title="Lil Bro" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
     </a>
   
 </div>
@@ -1570,13 +1450,11 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
-    
     
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.select", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>

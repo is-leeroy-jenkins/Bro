@@ -2,54 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/architecture/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/data-management/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/development/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/document-qna/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
+    </url>
+    <url>
+         <loc>https://is-leeroy-jenkins.github.io/Bro/image-to-text/</loc>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/local-model/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/prompt-engineering/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/semantic-search/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/text-generation/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/api/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/api/app/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/api/boogr/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
     <url>
          <loc>https://is-leeroy-jenkins.github.io/Bro/api/config/</loc>
-         <lastmod>2026-06-16</lastmod>
+         <lastmod>2026-08-29</lastmod>
     </url>
 </urlset>

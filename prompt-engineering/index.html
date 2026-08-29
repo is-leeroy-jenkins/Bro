@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Bro, a local-first Streamlit application for text generation, document Q&A, semantic search, prompt engineering, and data management.">
+        <meta name="description" content="Local-first Gemma 3 text, vision, retrieval, prompt-engineering, semantic-search, and SQLite data-management application.">
       
       
         <meta name="author" content="Terry D. Eppler">
@@ -24,12 +24,12 @@
         
       
       
-      <link rel="icon" href="../img/favicon.ico">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Prompt Engineering - Bro Documentation</title>
+        <title>Prompt Engineering - Bro</title>
       
     
     
@@ -75,7 +75,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -96,13 +96,12 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Bro Documentation" class="md-header__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-header__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +112,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Bro Documentation
+            Bro
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -132,7 +131,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
     
   
 </form>
@@ -195,7 +194,7 @@
         <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -205,8 +204,14 @@
     
   </nav>
   
+</header>
     
+    <div class="md-container" data-md-component="container">
       
+      
+        
+          
+            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -282,7 +287,7 @@
           
   
   
-  User Guide
+  Application Modes
 
         </a>
       </li>
@@ -332,13 +337,7 @@
     </ul>
   </div>
 </nav>
-    
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -357,19 +356,20 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Bro Documentation" class="md-nav__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-nav__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Bro Documentation
+    Bro
   </label>
   
     <div class="md-nav__source">
       <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -495,7 +495,7 @@
   <span class="md-ellipsis">
     
   
-    User Guide
+    Application Modes
   
 
     
@@ -511,7 +511,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    User Guide
+    Application Modes
   
 
           </label>
@@ -532,6 +532,34 @@
     
   
     Text Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../image-to-text/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image to Text
   
 
     
@@ -668,10 +696,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#authoritative-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Authoritative schema
       
     </span>
   </a>
@@ -679,10 +707,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow-position" class="md-nav__link">
+  <a href="#categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 Workflow Position
+        Categories
       
     </span>
   </a>
@@ -690,10 +718,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-table" class="md-nav__link">
+  <a href="#capability-filtered-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🗃 Prompt Table
+        Capability-filtered categories
       
     </span>
   </a>
@@ -701,10 +729,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#search-and-browse" class="md-nav__link">
+  <a href="#category-aware-system-instructions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔎 Search and Browse
+        Category-aware System Instructions
       
     </span>
   </a>
@@ -712,10 +740,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-categories" class="md-nav__link">
+  <a href="#prompt-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧠 Prompt Categories
+        Prompt management
       
     </span>
   </a>
@@ -723,10 +751,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-actions" class="md-nav__link">
+  <a href="#edit-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧰 Prompt Actions
+        Edit surface
       
     </span>
   </a>
@@ -734,10 +762,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-workflow" class="md-nav__link">
+  <a href="#language-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧪 Example Workflow
+        Language controls
       
     </span>
   </a>
@@ -745,32 +773,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-design-guidance" class="md-nav__link">
+  <a href="#legacy-migration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧷 Prompt Design Guidance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#failure-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧯 Failure Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Legacy migration
       
     </span>
   </a>
@@ -917,7 +923,7 @@
   <span class="md-ellipsis">
     
   
-    Application
+    App
   
 
     
@@ -1048,10 +1054,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#authoritative-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Authoritative schema
       
     </span>
   </a>
@@ -1059,10 +1065,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow-position" class="md-nav__link">
+  <a href="#categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 Workflow Position
+        Categories
       
     </span>
   </a>
@@ -1070,10 +1076,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-table" class="md-nav__link">
+  <a href="#capability-filtered-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🗃 Prompt Table
+        Capability-filtered categories
       
     </span>
   </a>
@@ -1081,10 +1087,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#search-and-browse" class="md-nav__link">
+  <a href="#category-aware-system-instructions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔎 Search and Browse
+        Category-aware System Instructions
       
     </span>
   </a>
@@ -1092,10 +1098,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-categories" class="md-nav__link">
+  <a href="#prompt-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧠 Prompt Categories
+        Prompt management
       
     </span>
   </a>
@@ -1103,10 +1109,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-actions" class="md-nav__link">
+  <a href="#edit-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧰 Prompt Actions
+        Edit surface
       
     </span>
   </a>
@@ -1114,10 +1120,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-workflow" class="md-nav__link">
+  <a href="#language-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧪 Example Workflow
+        Language controls
       
     </span>
   </a>
@@ -1125,32 +1131,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prompt-design-guidance" class="md-nav__link">
+  <a href="#legacy-migration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧷 Prompt Design Guidance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#failure-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧯 Failure Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Legacy migration
       
     </span>
   </a>
@@ -1203,7 +1187,7 @@
         <a href="../text-generation/" class="md-path__link">
           
   <span class="md-ellipsis">
-    User Guide
+    Application Modes
   </span>
 
         </a>
@@ -1222,249 +1206,152 @@
 
 
   
-    <a href="https://github.com/is-leeroy-jenkins/Bro/edit/main/docs/prompt-engineering.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
-    </a>
-  
-  
-    
-      
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro/raw/main/docs/prompt-engineering.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
   
 
 
 <h1 id="prompt-engineering">Prompt Engineering<a class="headerlink" href="#prompt-engineering" title="Permanent link">&para;</a></h1>
-<p>Prompt Engineering manages reusable prompt templates stored in the local SQLite database. It supports searching, editing, cloning, generating, applying, and cascading prompt metadata into other application modes.</p>
-<h2 id="purpose">🧭 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
-<p>This mode turns prompt design into a governed local asset. Analysts can store reusable system instructions, categorize prompt templates, apply them to Text Generation or Document Q&amp;A, and generate starter templates from structured metadata.</p>
-<h2 id="workflow-position">🧱 Workflow Position<a class="headerlink" href="#workflow-position" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Prompt metadata
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  ▼
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Prompt table
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  ▼
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Search, edit, clone, generate, apply
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  ▼
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Shared system instructions
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  ▼
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Text Generation or Document Q&amp;A
+<p>Prompt Engineering manages reusable system/prompt templates stored in SQLite.</p>
+<h2 id="authoritative-schema">Authoritative schema<a class="headerlink" href="#authoritative-schema" title="Permanent link">&para;</a></h2>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">Prompts</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">(</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">ID</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">Caption</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">(</span><span class="mi">80</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">(</span><span class="mi">80</span><span class="p">),</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">Category</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">(</span><span class="mi">80</span><span class="p">),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nb">Text</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">(</span><span class="mi">2048</span><span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">(</span><span class="n">ID</span><span class="w"> </span><span class="n">AUTOINCREMENT</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">);</span>
 </span></code></pre></div>
-<h2 id="prompt-table">🗃 Prompt Table<a class="headerlink" href="#prompt-table" title="Permanent link">&para;</a></h2>
-<p>Prompt templates are stored in the local <code>Prompts</code> table.</p>
+<p><code>ID</code> is the database identity. <code>Category</code> is persisted metadata and is no longer inferred from prompt
+text during normal operation.</p>
+<h2 id="categories">Categories<a class="headerlink" href="#categories" title="Permanent link">&para;</a></h2>
+<p>Bro's supported category vocabulary includes:</p>
+<ul>
+<li>General Assistant</li>
+<li>Analysis &amp; Reasoning</li>
+<li>Software Development</li>
+<li>Writing &amp; Editing</li>
+<li>Summarization</li>
+<li>Information Extraction</li>
+<li>Classification</li>
+<li>Translation</li>
+<li>Structured Output</li>
+<li>Document Analysis</li>
+<li>Vision &amp; Image Analysis</li>
+<li>Federal / Administrative Analysis</li>
+</ul>
+<h2 id="capability-filtered-categories">Capability-filtered categories<a class="headerlink" href="#capability-filtered-categories" title="Permanent link">&para;</a></h2>
+<p>The SQLite database may retain legacy prompt categories from earlier provider or model iterations.
+Those records are preserved, but they are not automatically valid for the currently loaded model.</p>
+<p>Model-facing selectors apply this contract:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>persisted Prompts.Category values
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>        ∩
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>supported Gemma 3 categories
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        ∩
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>effective runtime capabilities
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        =
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>categories exposed in the UI
+</span></code></pre></div>
+<p>For the current Gemma 3 4B IT runtime:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Use</th>
+<th>Category / capability</th>
+<th>UI treatment</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>PromptsId</code></td>
-<td>Primary key for prompt records.</td>
+<td>Speech API</td>
+<td>Excluded</td>
 </tr>
 <tr>
-<td><code>Caption</code></td>
-<td>User-facing prompt label.</td>
+<td>Transcription API</td>
+<td>Excluded</td>
 </tr>
 <tr>
-<td><code>Name</code></td>
-<td>Internal or descriptive prompt name.</td>
+<td>Text-to-Speech</td>
+<td>Excluded</td>
 </tr>
 <tr>
-<td><code>Text</code></td>
-<td>Prompt body or system instruction text.</td>
+<td>Audio Generation</td>
+<td>Excluded</td>
 </tr>
 <tr>
-<td><code>Version</code></td>
-<td>Version label for template tracking.</td>
+<td>Image Generation</td>
+<td>Excluded</td>
 </tr>
 <tr>
-<td><code>ID</code></td>
-<td>Optional external or user-defined identifier.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="search-and-browse">🔎 Search and Browse<a class="headerlink" href="#search-and-browse" title="Permanent link">&para;</a></h2>
-<p>Prompt Engineering supports prompt discovery by searching prompt metadata and content. Pagination and direct ID navigation help maintain large local prompt libraries.</p>
-<table>
-<thead>
-<tr>
-<th>Capability</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Search</td>
-<td>Searches captions, names, and prompt text.</td>
-</tr>
-<tr>
-<td>Sort</td>
-<td>Orders prompt records for review.</td>
-</tr>
-<tr>
-<td>Pagination</td>
-<td>Displays manageable slices of the prompt table.</td>
-</tr>
-<tr>
-<td>Go to ID</td>
-<td>Opens a known prompt by primary key.</td>
-</tr>
-<tr>
-<td>Category inference</td>
-<td>Infers prompt category from caption, name, and text content.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="prompt-categories">🧠 Prompt Categories<a class="headerlink" href="#prompt-categories" title="Permanent link">&para;</a></h2>
-<p>Bro can classify prompt templates into practical task categories.</p>
-<table>
-<thead>
-<tr>
-<th>Category</th>
-<th>Typical Use</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>General Chat</td>
-<td>General assistant behavior.</td>
-</tr>
-<tr>
-<td>Reasoning</td>
-<td>Structured analysis and careful conclusion generation.</td>
-</tr>
-<tr>
-<td>Coding</td>
-<td>Code generation, refactoring, debugging, or review.</td>
+<td>Vision &amp; Image Analysis</td>
+<td>Included only when the multimodal projector runtime is available</td>
 </tr>
 <tr>
 <td>Translation</td>
-<td>Language conversion.</td>
+<td>Included</td>
 </tr>
 <tr>
-<td>Summarization</td>
-<td>Concise condensation of longer content.</td>
+<td>Structured Output</td>
+<td>Included</td>
 </tr>
 <tr>
-<td>Extraction</td>
-<td>Pulling facts from text.</td>
+<td>Software Development</td>
+<td>Included</td>
 </tr>
 <tr>
-<td>Document Extraction</td>
-<td>Evidence-based extraction from uploaded material.</td>
-</tr>
-<tr>
-<td>OCR</td>
-<td>Text extraction or cleanup workflows.</td>
-</tr>
-<tr>
-<td>JSON Output</td>
-<td>Machine-readable responses.</td>
+<td>Document Analysis</td>
+<td>Included</td>
 </tr>
 </tbody>
 </table>
-<h2 id="prompt-actions">🧰 Prompt Actions<a class="headerlink" href="#prompt-actions" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Action</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Apply to Text Generation</td>
-<td>Copies prompt text into shared system instructions for Text Generation.</td>
-</tr>
-<tr>
-<td>Apply to Document Q&amp;A</td>
-<td>Copies prompt text into shared system instructions and enables grounded-answer settings.</td>
-</tr>
-<tr>
-<td>Clone</td>
-<td>Creates a new editable prompt draft based on an existing record.</td>
-</tr>
-<tr>
-<td>Generate starter prompt</td>
-<td>Uses metadata such as task type, format, language, goal, constraints, and style to draft a template.</td>
-</tr>
-<tr>
-<td>Create</td>
-<td>Inserts a new prompt record.</td>
-</tr>
-<tr>
-<td>Update</td>
-<td>Saves changes to an existing prompt record.</td>
-</tr>
-<tr>
-<td>Delete</td>
-<td>Removes a prompt record.</td>
-</tr>
-<tr>
-<td>Clear</td>
-<td>Resets the edit surface.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="example-workflow">🧪 Example Workflow<a class="headerlink" href="#example-workflow" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Open <strong>Prompt Engineering</strong>.</li>
-<li>Search for an existing template.</li>
-<li>Select a prompt record.</li>
-<li>Review category, task type, response format, and language.</li>
-<li>Apply the prompt to Text Generation or Document Q&amp;A.</li>
-<li>Adjust mode-specific settings.</li>
-<li>Run the target workflow.</li>
-</ol>
-<h2 id="prompt-design-guidance">🧷 Prompt Design Guidance<a class="headerlink" href="#prompt-design-guidance" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Pattern</th>
-<th>Recommendation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>System instructions</td>
-<td>State role, task, constraints, and output format clearly.</td>
-</tr>
-<tr>
-<td>Extraction prompts</td>
-<td>Define fields and missing-value behavior.</td>
-</tr>
-<tr>
-<td>Coding prompts</td>
-<td>Specify language, target framework, formatting, and validation expectations.</td>
-</tr>
-<tr>
-<td>Document prompts</td>
-<td>Require grounding in retrieved excerpts.</td>
-</tr>
-<tr>
-<td>JSON prompts</td>
-<td>Require valid JSON only and specify the schema.</td>
-</tr>
-<tr>
-<td>Reusable templates</td>
-<td>Keep project-specific assumptions explicit.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="failure-handling">🧯 Failure Handling<a class="headerlink" href="#failure-handling" title="Permanent link">&para;</a></h2>
-<p>Prompt database operations should preserve the local SQLite workflow. Lookup failures should return safe defaults where the UI expects optional records, while write failures should be logged with stable method signatures and without persisting prompt text inside the method field.</p>
-<h2 id="related-pages">🔗 Related Pages<a class="headerlink" href="#related-pages" title="Permanent link">&para;</a></h2>
+<p>This prevents a stale SQLite category from advertising functionality the current model/runtime cannot
+execute.</p>
+<p>Persisted database categories are filtered against the supported Gemma 3 category vocabulary
+and the effective runtime capabilities before being exposed in model-facing selectors.</p>
+<h2 id="category-aware-system-instructions">Category-aware System Instructions<a class="headerlink" href="#category-aware-system-instructions" title="Permanent link">&para;</a></h2>
+<p>System-instruction template selection follows:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Category
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>   -&gt; prompts in Category
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>   -&gt; selected Prompts.ID
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>   -&gt; Text
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>   -&gt; system_instructions
+</span></code></pre></div>
+<p>Caption is a display label, not the database key.</p>
+<h2 id="prompt-management">Prompt management<a class="headerlink" href="#prompt-management" title="Permanent link">&para;</a></h2>
+<p>Prompt Engineering preserves:</p>
 <ul>
-<li><a href="../text-generation/">Text Generation</a></li>
-<li><a href="../document-qna/">Document Q&amp;A</a></li>
-<li><a href="../data-management/">Data Management</a></li>
+<li>search;</li>
+<li>category filter;</li>
+<li>sort;</li>
+<li>pagination;</li>
+<li>Go to ID;</li>
+<li>table selection;</li>
+<li>apply to Text Generation;</li>
+<li>apply to Document Q&A;</li>
+<li>clone as new template;</li>
+<li>starter-prompt generation;</li>
+<li>prompt generator;</li>
+<li>create;</li>
+<li>update;</li>
+<li>delete;</li>
+<li>clear/reset.</li>
 </ul>
+<h2 id="edit-surface">Edit surface<a class="headerlink" href="#edit-surface" title="Permanent link">&para;</a></h2>
+<p>The database edit surface corresponds to persisted fields:</p>
+<ul>
+<li>ID</li>
+<li>Category</li>
+<li>Caption</li>
+<li>Name</li>
+<li>Text</li>
+</ul>
+<p>Task Type, Response Format, and Response Language are application/cascade settings rather than fake
+database columns.</p>
+<h2 id="language-controls">Language controls<a class="headerlink" href="#language-controls" title="Permanent link">&para;</a></h2>
+<p>Human-language values are bounded selectbox options. A generic response-language selection does not
+silently overwrite the separate Translation Target Language setting.</p>
+<h2 id="legacy-migration">Legacy migration<a class="headerlink" href="#legacy-migration" title="Permanent link">&para;</a></h2>
+<p>Bro can migrate the previous prompt schema into the current five-column contract while preserving
+existing prompt records.</p>
 
 
 
@@ -1482,6 +1369,8 @@
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -1495,26 +1384,54 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../semantic-search/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Semantic Search">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Semantic Search
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../data-management/" class="md-footer__link md-footer__link--next" aria-label="Next: Data Management">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Data Management
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-    <div class="md-copyright__highlight">
-      Copyright &copy; 2026 Terry D. Eppler
-    </div>
   
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro" target="_blank" rel="noopener" title="Lil Bro" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
     </a>
   
 </div>
@@ -1528,13 +1445,11 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
-    
     
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.select", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>

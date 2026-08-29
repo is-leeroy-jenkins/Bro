@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Bro, a local-first Streamlit application for text generation, document Q&A, semantic search, prompt engineering, and data management.">
+        <meta name="description" content="Local-first Gemma 3 text, vision, retrieval, prompt-engineering, semantic-search, and SQLite data-management application.">
       
       
         <meta name="author" content="Terry D. Eppler">
@@ -24,12 +24,12 @@
         
       
       
-      <link rel="icon" href="../img/favicon.ico">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Local Model - Bro Documentation</title>
+        <title>Local Model - Bro</title>
       
     
     
@@ -75,7 +75,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#local-llm" class="md-skip">
+        <a href="#local-model" class="md-skip">
           Skip to content
         </a>
       
@@ -96,13 +96,12 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Bro Documentation" class="md-header__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-header__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +112,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Bro Documentation
+            Bro
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -132,7 +131,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
     
   
 </form>
@@ -195,7 +194,7 @@
         <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -205,8 +204,14 @@
     
   </nav>
   
+</header>
     
+    <div class="md-container" data-md-component="container">
       
+      
+        
+          
+            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -282,7 +287,7 @@
           
   
   
-  User Guide
+  Application Modes
 
         </a>
       </li>
@@ -332,13 +337,7 @@
     </ul>
   </div>
 </nav>
-    
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -357,19 +356,20 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Bro Documentation" class="md-nav__button md-logo" aria-label="Bro Documentation" data-md-component="logo">
+    <a href=".." title="Bro" class="md-nav__button md-logo" aria-label="Bro" data-md-component="logo">
       
-  <img src="../img/favicon.ico" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Bro Documentation
+    Bro
   </label>
   
     <div class="md-nav__source">
       <a href="https://github.com/is-leeroy-jenkins/Bro" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
     is-leeroy-jenkins/Bro
@@ -500,10 +500,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#text-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Text model
       
     </span>
   </a>
@@ -511,10 +511,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#custom-llm" class="md-nav__link">
+  <a href="#chat-serialization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧠 Custom LLM
+        Chat serialization
       
     </span>
   </a>
@@ -522,10 +522,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#llm-runtime-structure" class="md-nav__link">
+  <a href="#gemma-3-modalities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 LLM Runtime Structure
+        Gemma 3 modalities
       
     </span>
   </a>
@@ -533,21 +533,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#llm-capabilities" class="md-nav__link">
+  <a href="#multimodal-projector" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚙️ LLM Capabilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-runtime-inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧩 Supported Runtime Inputs
+        Multimodal projector
       
     </span>
   </a>
@@ -558,7 +547,7 @@
   <a href="#runtime-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎛️ Runtime Controls
+        Runtime controls
       
     </span>
   </a>
@@ -566,10 +555,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-hardware" class="md-nav__link">
+  <a href="#context-and-output-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💻 Recommended Hardware
+        Context and output limits
       
     </span>
   </a>
@@ -577,10 +566,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#model-format" class="md-nav__link">
+  <a href="#optional-embedding-runtime" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Model Format
+        Optional embedding runtime
       
     </span>
   </a>
@@ -588,342 +577,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-model-selection" class="md-nav__link">
+  <a href="#prompt-category-capability-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Recommended Model Selection
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧪 Installation Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#windows-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🪟 Windows Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🪟 Windows Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-open-powershell-in-the-bro-repository" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Open PowerShell in the Bro Repository
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-create-a-virtual-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Create a Virtual Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-activate-the-virtual-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Activate the Virtual Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-upgrade-packaging-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Upgrade Packaging Tools
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-install-core-runtime-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Install Core Runtime Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-install-llama-cpp-python-for-cpu" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Install llama-cpp-python for CPU
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-verify-llama-cpp-python-imports-correctly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. Verify llama-cpp-python Imports Correctly
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#optional-gpu-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Optional GPU Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🚀 Optional GPU Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#nvidia-cuda-wheel-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        NVIDIA CUDA Wheel Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#vulkan-wheel-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Vulkan Wheel Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reinstall-after-a-failed-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reinstall After a Failed Build
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#downloading-a-gguf-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📥 Downloading a GGUF Model
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📥 Downloading a GGUF Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-a-download-from-the-hugging-face-website" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option A: Download from the Hugging Face Website
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-b-download-with-the-hugging-face-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option B: Download with the Hugging Face CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recommended-model-directory-layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🗂️ Recommended Model Directory Layout
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configure-bro-to-use-the-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔧 Configure Bro to Use the Model
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🔧 Configure Bro to Use the Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-a-environment-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option A: Environment Variable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-b-direct-configpy-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option B: Direct config.py Path
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-the-model-file-exists" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ✅ Verify the Model File Exists
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-bro" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ▶️ Run Bro
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#llm-smoke-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧪 LLM Smoke Test
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🛠️ Troubleshooting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#model-selection-guidance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ⚖️ Model Selection Guidance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-first-operating-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔐 Local-First Operating Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recommended-setup-sequence" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧭 Recommended Setup Sequence
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Prompt-category capability boundary
       
     </span>
   </a>
@@ -970,7 +627,7 @@
   <span class="md-ellipsis">
     
   
-    User Guide
+    Application Modes
   
 
     
@@ -986,7 +643,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    User Guide
+    Application Modes
   
 
           </label>
@@ -1007,6 +664,34 @@
     
   
     Text Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../image-to-text/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image to Text
   
 
     
@@ -1235,7 +920,7 @@
   <span class="md-ellipsis">
     
   
-    Application
+    App
   
 
     
@@ -1366,10 +1051,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
+  <a href="#text-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Purpose
+        Text model
       
     </span>
   </a>
@@ -1377,10 +1062,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#custom-llm" class="md-nav__link">
+  <a href="#chat-serialization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧠 Custom LLM
+        Chat serialization
       
     </span>
   </a>
@@ -1388,10 +1073,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#llm-runtime-structure" class="md-nav__link">
+  <a href="#gemma-3-modalities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧱 LLM Runtime Structure
+        Gemma 3 modalities
       
     </span>
   </a>
@@ -1399,21 +1084,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#llm-capabilities" class="md-nav__link">
+  <a href="#multimodal-projector" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚙️ LLM Capabilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-runtime-inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧩 Supported Runtime Inputs
+        Multimodal projector
       
     </span>
   </a>
@@ -1424,7 +1098,7 @@
   <a href="#runtime-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎛️ Runtime Controls
+        Runtime controls
       
     </span>
   </a>
@@ -1432,10 +1106,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-hardware" class="md-nav__link">
+  <a href="#context-and-output-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💻 Recommended Hardware
+        Context and output limits
       
     </span>
   </a>
@@ -1443,10 +1117,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#model-format" class="md-nav__link">
+  <a href="#optional-embedding-runtime" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Model Format
+        Optional embedding runtime
       
     </span>
   </a>
@@ -1454,342 +1128,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-model-selection" class="md-nav__link">
+  <a href="#prompt-category-capability-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Recommended Model Selection
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧪 Installation Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#windows-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🪟 Windows Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🪟 Windows Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-open-powershell-in-the-bro-repository" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Open PowerShell in the Bro Repository
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-create-a-virtual-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Create a Virtual Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-activate-the-virtual-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Activate the Virtual Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-upgrade-packaging-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Upgrade Packaging Tools
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-install-core-runtime-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Install Core Runtime Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-install-llama-cpp-python-for-cpu" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Install llama-cpp-python for CPU
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-verify-llama-cpp-python-imports-correctly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. Verify llama-cpp-python Imports Correctly
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#optional-gpu-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🚀 Optional GPU Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🚀 Optional GPU Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#nvidia-cuda-wheel-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        NVIDIA CUDA Wheel Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#vulkan-wheel-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Vulkan Wheel Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reinstall-after-a-failed-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reinstall After a Failed Build
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#downloading-a-gguf-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📥 Downloading a GGUF Model
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📥 Downloading a GGUF Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-a-download-from-the-hugging-face-website" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option A: Download from the Hugging Face Website
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-b-download-with-the-hugging-face-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option B: Download with the Hugging Face CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recommended-model-directory-layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🗂️ Recommended Model Directory Layout
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configure-bro-to-use-the-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔧 Configure Bro to Use the Model
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🔧 Configure Bro to Use the Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-a-environment-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option A: Environment Variable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-b-direct-configpy-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option B: Direct config.py Path
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-the-model-file-exists" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ✅ Verify the Model File Exists
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-bro" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ▶️ Run Bro
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#llm-smoke-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧪 LLM Smoke Test
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🛠️ Troubleshooting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#model-selection-guidance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ⚖️ Model Selection Guidance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-first-operating-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔐 Local-First Operating Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#recommended-setup-sequence" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🧭 Recommended Setup Sequence
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-pages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔗 Related Pages
+        Prompt-category capability boundary
       
     </span>
   </a>
@@ -1821,653 +1163,112 @@
 
 
   
-    <a href="https://github.com/is-leeroy-jenkins/Bro/edit/main/docs/local-model.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
-    </a>
-  
-  
-    
-      
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro/raw/main/docs/local-model.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
   
 
 
-<h1 id="local-llm">Local LLM<a class="headerlink" href="#local-llm" title="Permanent link">&para;</a></h1>
-<h2 id="purpose">🧭 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
-<p>Bro uses a local GGUF large language model to provide private, offline-capable text generation,
-reasoning, coding assistance, summarization, extraction, translation, document Q&amp;A, and
-semantic-context-assisted responses.</p>
-<h2 id="custom-llm">🧠 Custom LLM<a class="headerlink" href="#custom-llm" title="Permanent link">&para;</a></h2>
-<p><a href="https://huggingface.co/leeroy-jankins/bro"><img alt="" src="https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg" /></a></p>
+<h1 id="local-model">Local Model<a class="headerlink" href="#local-model" title="Permanent link">&para;</a></h1>
+<p>Bro's current local inference target is <strong>Gemma 3 4B IT in GGUF format</strong>, executed through
+<code>llama-cpp-python</code>.</p>
+<h2 id="text-model">Text model<a class="headerlink" href="#text-model" title="Permanent link">&para;</a></h2>
+<p>The configured model is read from:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">cfg</span><span class="o">.</span><span class="n">MODEL_PATH</span>
+</span></code></pre></div>
+<p>Bro checks that this file exists before loading the llama.cpp runtime.</p>
+<p>A typical environment-driven configuration may resolve from:</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">$env:BRO_LLM_PATH</span><span class="p">=</span><span class="s2">&quot;C:\models\gemma-3-4b-it-Q4_K_M.gguf&quot;</span>
+</span></code></pre></div>
+<h2 id="chat-serialization">Chat serialization<a class="headerlink" href="#chat-serialization" title="Permanent link">&para;</a></h2>
+<p>Bro uses <code>Llama.create_chat_completion()</code> rather than manually assembling foreign role tokens.
+The GGUF/runtime chat template therefore owns the model-specific serialization contract.</p>
+<h2 id="gemma-3-modalities">Gemma 3 modalities<a class="headerlink" href="#gemma-3-modalities" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Modality</th>
+<th style="text-align: right;">Supported by Gemma 3 4B IT</th>
+<th>Bro exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text input</td>
+<td style="text-align: right;">Yes</td>
+<td>Text Generation, Document Q&amp;A</td>
+</tr>
+<tr>
+<td>Image input</td>
+<td style="text-align: right;">Yes</td>
+<td>Image to Text, PDF vision OCR</td>
+</tr>
+<tr>
+<td>Text output</td>
+<td style="text-align: right;">Yes</td>
+<td>All model-facing modes</td>
+</tr>
+<tr>
+<td>Image output</td>
+<td style="text-align: right;">No</td>
+<td>Not exposed</td>
+</tr>
+<tr>
+<td>Audio input</td>
+<td style="text-align: right;">No</td>
+<td>Not exposed</td>
+</tr>
+<tr>
+<td>Audio output</td>
+<td style="text-align: right;">No</td>
+<td>Not exposed</td>
+</tr>
+<tr>
+<td>Native transcription</td>
+<td style="text-align: right;">No</td>
+<td>Not exposed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="multimodal-projector">Multimodal projector<a class="headerlink" href="#multimodal-projector" title="Permanent link">&para;</a></h2>
+<p>Image understanding requires a <strong>matching Gemma 3 multimodal projector GGUF</strong>.</p>
+<p>Bro resolves the projector from:</p>
+<ol>
+<li><code>cfg.MMPROJ_PATH</code>;</li>
+<li><code>cfg.MM_PROJ_PATH</code>;</li>
+<li><code>BRO_MMPROJ_PATH</code>;</li>
+<li><code>GEMMA_MMPROJ_PATH</code>;</li>
+<li>an <code>mmproj*.gguf</code> file beside <code>cfg.MODEL_PATH</code>.</li>
+</ol>
+<p>Example:</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">$env:BRO_MMPROJ_PATH</span><span class="p">=</span><span class="s2">&quot;C:\models\mmproj-gemma-3-4b-it-f16.gguf&quot;</span>
+</span></code></pre></div>
+<p>When the projector cannot be resolved, text generation remains available while Image to Text reports
+the missing multimodal dependency.</p>
+<h2 id="runtime-controls">Runtime controls<a class="headerlink" href="#runtime-controls" title="Permanent link">&para;</a></h2>
+<p>Text Generation exposes:</p>
 <ul>
-<li>Fine-tuned</li>
-<li>Post-trained</li>
+<li>CPU Threads;</li>
+<li>Batch Size;</li>
+<li>Micro Batch Size.</li>
 </ul>
-<h2 id="llm-runtime-structure">🧱 LLM Runtime Structure<a class="headerlink" href="#llm-runtime-structure" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Area</th>
-<th>Runtime Focus</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Model File</td>
-<td>GGUF model stored on disk</td>
-<td>Provides the local language model weights used by llama.cpp.</td>
-</tr>
-<tr>
-<td>Model Path</td>
-<td><code>cfg.MODEL_PATH</code></td>
-<td>Points Bro to the GGUF model file that should be loaded at runtime.</td>
-</tr>
-<tr>
-<td>Runtime Engine</td>
-<td><code>llama-cpp-python</code></td>
-<td>Loads and executes the local GGUF model from Python.</td>
-</tr>
-<tr>
-<td>Streamlit Cache</td>
-<td><code>@st.cache_resource</code></td>
-<td>Keeps the loaded model available across app interactions without reloading on every request.</td>
-</tr>
-<tr>
-<td>Prompt Builder</td>
-<td>Local prompt-construction functions</td>
-<td>Combines system instructions, task presets, chat history, document context, semantic context, and user input.</td>
-</tr>
-<tr>
-<td>Inference Controls</td>
-<td>Streamlit session-state settings</td>
-<td>Controls context window, CPU threads, max tokens, temperature, top-p, top-k, and repetition behavior.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="llm-capabilities">⚙️ LLM Capabilities<a class="headerlink" href="#llm-capabilities" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Capability</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Local Text Generation</td>
-<td>Generates assistant responses from user prompts without requiring a hosted model API.</td>
-</tr>
-<tr>
-<td>Reasoning Support</td>
-<td>Applies structured task instructions for analytical, deterministic, or self-checked responses.</td>
-</tr>
-<tr>
-<td>Coding Assistance</td>
-<td>Generates, reviews, debugs, explains, and refactors Python, C#, SQL, VBA, JavaScript, and Markdown.</td>
-</tr>
-<tr>
-<td>Summarization</td>
-<td>Condenses user-provided or document-derived content while preserving key facts.</td>
-</tr>
-<tr>
-<td>Extraction</td>
-<td>Extracts requested facts, entities, fields, and structured values from supplied context.</td>
-</tr>
-<tr>
-<td>Translation</td>
-<td>Translates content into the selected target language while preserving meaning and tone.</td>
-</tr>
-<tr>
-<td>Document Q&amp;A</td>
-<td>Answers questions from uploaded documents using retrieved excerpts and grounding controls.</td>
-</tr>
-<tr>
-<td>Semantic Context Reuse</td>
-<td>Uses selected semantic-search chunks as context for later text-generation or document-Q&amp;A workflows.</td>
-</tr>
-<tr>
-<td>Prompt Template Execution</td>
-<td>Applies saved system prompts and task templates from the local prompt-management workflow.</td>
-</tr>
-<tr>
-<td>Offline Operation</td>
-<td>Runs locally after the model file and Python dependencies are installed.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="supported-runtime-inputs">🧩 Supported Runtime Inputs<a class="headerlink" href="#supported-runtime-inputs" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Input</th>
-<th>Used By</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>User Prompt</td>
-<td>Text Generation</td>
-<td>Main request submitted to the local model.</td>
-</tr>
-<tr>
-<td>System Instructions</td>
-<td>Prompt Builder</td>
-<td>Defines the assistant role, constraints, response style, and task behavior.</td>
-</tr>
-<tr>
-<td>Task Preset</td>
-<td>Prompt Builder</td>
-<td>Selects chat, reasoning, coding, translation, summarization, or extraction behavior.</td>
-</tr>
-<tr>
-<td>Chat History</td>
-<td>Prompt Builder</td>
-<td>Supplies previous conversation turns when conversation history is enabled.</td>
-</tr>
-<tr>
-<td>Document Context</td>
-<td>Prompt Builder</td>
-<td>Adds uploaded document excerpts or selected chunks to the model prompt.</td>
-</tr>
-<tr>
-<td>Semantic Context</td>
-<td>Prompt Builder</td>
-<td>Adds similarity-ranked chunks from semantic search to the prompt.</td>
-</tr>
-<tr>
-<td>Inference Settings</td>
-<td>llama.cpp Runtime</td>
-<td>Controls sampling behavior, context size, output length, and CPU utilization.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="runtime-controls">🎛️ Runtime Controls<a class="headerlink" href="#runtime-controls" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Control</th>
-<th>Purpose</th>
-<th>Typical Starting Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Context Window</td>
-<td>Controls the maximum prompt context passed to the model.</td>
-<td><code>4096</code> or <code>8192</code></td>
-</tr>
-<tr>
-<td>CPU Threads</td>
-<td>Controls how many CPU threads llama.cpp uses.</td>
-<td>Physical core count or slightly below</td>
-</tr>
-<tr>
-<td>Max Tokens</td>
-<td>Controls the maximum generated response length.</td>
-<td><code>1024</code></td>
-</tr>
-<tr>
-<td>Temperature</td>
-<td>Controls output randomness.</td>
-<td><code>0.0</code> to <code>0.3</code></td>
-</tr>
-<tr>
-<td>Top-P</td>
-<td>Controls nucleus sampling.</td>
-<td><code>0.90</code> to <code>0.95</code></td>
-</tr>
-<tr>
-<td>Top-K</td>
-<td>Limits token candidate selection.</td>
-<td><code>40</code> or <code>50</code></td>
-</tr>
-<tr>
-<td>Repeat Window</td>
-<td>Defines the token window used for repetition control.</td>
-<td><code>256</code> to <code>512</code></td>
-</tr>
-<tr>
-<td>Repeat Penalty</td>
-<td>Penalizes repeated text.</td>
-<td><code>1.05</code> to <code>1.15</code></td>
-</tr>
-<tr>
-<td>Presence Penalty</td>
-<td>Encourages new topics or terms.</td>
-<td><code>0.0</code> to <code>0.3</code></td>
-</tr>
-<tr>
-<td>Frequency Penalty</td>
-<td>Reduces repeated token frequency.</td>
-<td><code>0.0</code> to <code>0.3</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="recommended-hardware">💻 Recommended Hardware<a class="headerlink" href="#recommended-hardware" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Hardware Tier</th>
-<th>Recommended Model Size</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Low-memory CPU laptop</td>
-<td>1B to 3B GGUF</td>
-<td>Best for basic chat, coding help, summaries, and extraction.</td>
-</tr>
-<tr>
-<td>16 GB RAM CPU laptop</td>
-<td>1B to 7B GGUF</td>
-<td>Practical for local-first use with moderate context windows.</td>
-</tr>
-<tr>
-<td>32 GB RAM workstation</td>
-<td>7B to 13B GGUF</td>
-<td>Better reasoning, coding, and document workflows.</td>
-</tr>
-<tr>
-<td>NVIDIA GPU workstation</td>
-<td>7B+ GGUF with CUDA build</td>
-<td>Faster generation when CUDA-enabled llama.cpp wheels are installed.</td>
-</tr>
-<tr>
-<td>AMD GPU workstation</td>
-<td>Vulkan or HIP build</td>
-<td>Hardware acceleration depends on driver and backend support.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="model-format">📦 Model Format<a class="headerlink" href="#model-format" title="Permanent link">&para;</a></h2>
-<p>Bro expects a local GGUF model file.</p>
-<table>
-<thead>
-<tr>
-<th>Format</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>.gguf</code></td>
-<td>Quantized llama.cpp-compatible model format.</td>
-</tr>
-<tr>
-<td><code>Q4_K_M</code></td>
-<td>Common balanced quantization for size and quality.</td>
-</tr>
-<tr>
-<td><code>Q5_K_M</code></td>
-<td>Higher quality with more memory use.</td>
-</tr>
-<tr>
-<td><code>Q8_0</code></td>
-<td>Higher precision and larger file size.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="recommended-model-selection">✅ Recommended Model Selection<a class="headerlink" href="#recommended-model-selection" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Use Case</th>
-<th>Recommended Model Type</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Fast local chat</td>
-<td>1B to 3B instruct GGUF</td>
-</tr>
-<tr>
-<td>Better general assistance</td>
-<td>7B instruct GGUF</td>
-</tr>
-<tr>
-<td>Coding-heavy workflows</td>
-<td>Code-focused instruct GGUF</td>
-</tr>
-<tr>
-<td>Document Q&amp;A</td>
-<td>Instruct model with strong summarization and extraction behavior</td>
-</tr>
-<tr>
-<td>CPU-only Windows laptop</td>
-<td>Small or medium quantized GGUF, preferably <code>Q4_K_M</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="installation-overview">🧪 Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link">&para;</a></h2>
-<p>The LLM setup has four parts:</p>
-<ol>
-<li>Create and activate the Python virtual environment.</li>
-<li>Install Bro’s Python dependencies.</li>
-<li>Download a GGUF model file.</li>
-<li>Point Bro’s configuration to the downloaded model file.</li>
-</ol>
-<h2 id="windows-installation">🪟 Windows Installation<a class="headerlink" href="#windows-installation" title="Permanent link">&para;</a></h2>
-<h3 id="1-open-powershell-in-the-bro-repository">1. Open PowerShell in the Bro Repository<a class="headerlink" href="#1-open-powershell-in-the-bro-repository" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">terry</span><span class="p">\</span><span class="n">source</span><span class="p">\</span><span class="n">repos</span><span class="p">\</span><span class="n">Bro</span>
+<p>Image to Text additionally exposes:</p>
+<ul>
+<li>Context Window;</li>
+<li>Projector Device (<code>CPU</code> or <code>GPU</code>).</li>
+</ul>
+<p>The selected values are used by model/runtime initialization rather than being cosmetic UI state.</p>
+<h2 id="context-and-output-limits">Context and output limits<a class="headerlink" href="#context-and-output-limits" title="Permanent link">&para;</a></h2>
+<p>Bro exposes a context control up to <strong>131,072 tokens</strong> and a maximum-generation control up to
+<strong>8,192 tokens</strong>. These are upper UI/model limits; practical capacity depends on quantization,
+available RAM/VRAM, the llama.cpp build, and the selected context size.</p>
+<h2 id="optional-embedding-runtime">Optional embedding runtime<a class="headerlink" href="#optional-embedding-runtime" title="Permanent link">&para;</a></h2>
+<p>Document Q&amp;A and Semantic Search use a separate local embedding model:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>all-MiniLM-L6-v2
 </span></code></pre></div>
-<h3 id="2-create-a-virtual-environment">2. Create a Virtual Environment<a class="headerlink" href="#2-create-a-virtual-environment" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">python</span> <span class="n">-m</span> <span class="n">venv</span> <span class="p">.</span><span class="n">venv</span>
-</span></code></pre></div>
-<h3 id="3-activate-the-virtual-environment">3. Activate the Virtual Environment<a class="headerlink" href="#3-activate-the-virtual-environment" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">.\.</span><span class="n">venv</span><span class="p">\</span><span class="n">Scripts</span><span class="p">\</span><span class="n">Activate</span><span class="p">.</span><span class="n">ps1</span>
-</span></code></pre></div>
-<h3 id="4-upgrade-packaging-tools">4. Upgrade Packaging Tools<a class="headerlink" href="#4-upgrade-packaging-tools" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="p">-</span><span class="n">-upgrade</span> <span class="n">pip</span> <span class="n">setuptools</span> <span class="n">wheel</span>
-</span></code></pre></div>
-<h3 id="5-install-core-runtime-dependencies">5. Install Core Runtime Dependencies<a class="headerlink" href="#5-install-core-runtime-dependencies" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">streamlit</span> <span class="n">pandas</span> <span class="n">numpy</span> <span class="n">plotly</span> <span class="n">pymupdf</span> <span class="n">sentence-transformers</span> <span class="n">huggingface_hub</span>
-</span></code></pre></div>
-<h3 id="6-install-llama-cpp-python-for-cpu">6. Install llama-cpp-python for CPU<a class="headerlink" href="#6-install-llama-cpp-python-for-cpu" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">llama-cpp-python</span>
-</span></code></pre></div>
-<h3 id="7-verify-llama-cpp-python-imports-correctly">7. Verify llama-cpp-python Imports Correctly<a class="headerlink" href="#7-verify-llama-cpp-python-imports-correctly" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">python</span> <span class="n">-c</span> <span class="s2">&quot;from llama_cpp import Llama; print(&#39;llama-cpp-python ok&#39;)&quot;</span>
-</span></code></pre></div>
-<h2 id="optional-gpu-installation">🚀 Optional GPU Installation<a class="headerlink" href="#optional-gpu-installation" title="Permanent link">&para;</a></h2>
-<h3 id="nvidia-cuda-wheel-example">NVIDIA CUDA Wheel Example<a class="headerlink" href="#nvidia-cuda-wheel-example" title="Permanent link">&para;</a></h3>
-<p>Use a CUDA wheel only when the installed NVIDIA driver and CUDA runtime match the wheel target.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">llama-cpp-python</span> <span class="p">-</span><span class="n">-extra-index-url</span> <span class="n">https</span><span class="p">://</span><span class="n">abetlen</span><span class="p">.</span><span class="n">github</span><span class="p">.</span><span class="n">io</span><span class="p">/</span><span class="n">llama-cpp-python</span><span class="p">/</span><span class="n">whl</span><span class="p">/</span><span class="n">cu121</span>
-</span></code></pre></div>
-<h3 id="vulkan-wheel-example">Vulkan Wheel Example<a class="headerlink" href="#vulkan-wheel-example" title="Permanent link">&para;</a></h3>
-<p>Use Vulkan when CUDA is not available and the graphics driver supports Vulkan acceleration.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">llama-cpp-python</span> <span class="p">-</span><span class="n">-extra-index-url</span> <span class="n">https</span><span class="p">://</span><span class="n">abetlen</span><span class="p">.</span><span class="n">github</span><span class="p">.</span><span class="n">io</span><span class="p">/</span><span class="n">llama-cpp-python</span><span class="p">/</span><span class="n">whl</span><span class="p">/</span><span class="n">vulkan</span>
-</span></code></pre></div>
-<h3 id="reinstall-after-a-failed-build">Reinstall After a Failed Build<a class="headerlink" href="#reinstall-after-a-failed-build" title="Permanent link">&para;</a></h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">pip</span> <span class="n">uninstall</span> <span class="n">llama-cpp-python</span> <span class="n">-y</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">pip</span> <span class="n">cache</span> <span class="n">purge</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">llama-cpp-python</span>
-</span></code></pre></div>
-<h2 id="downloading-a-gguf-model">📥 Downloading a GGUF Model<a class="headerlink" href="#downloading-a-gguf-model" title="Permanent link">&para;</a></h2>
-<h3 id="option-a-download-from-the-hugging-face-website">Option A: Download from the Hugging Face Website<a class="headerlink" href="#option-a-download-from-the-hugging-face-website" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Open the Hugging Face model repository for the GGUF model.</li>
-<li>Select the <code>Files and versions</code> tab.</li>
-<li>Choose a <code>.gguf</code> file.</li>
-<li>Download the file locally.</li>
-<li>Place the file under a local model directory.</li>
-</ol>
-<p>Recommended local directory:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>C:\Users\terry\source\models\bro\
-</span></code></pre></div>
-<p>Example final path:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>C:\Users\terry\source\models\bro\bro-model.Q4_K_M.gguf
-</span></code></pre></div>
-<h3 id="option-b-download-with-the-hugging-face-cli">Option B: Download with the Hugging Face CLI<a class="headerlink" href="#option-b-download-with-the-hugging-face-cli" title="Permanent link">&para;</a></h3>
-<p>Install the Hugging Face Hub client if it is not already installed.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">huggingface_hub</span>
-</span></code></pre></div>
-<p>Download a specific GGUF file.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">hf</span> <span class="n">download</span> <span class="p">&lt;</span><span class="n">model-repository</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="n">model</span><span class="o">-file</span><span class="p">.</span><span class="n">gguf</span><span class="p">&gt;</span> <span class="p">-</span><span class="n">-local-dir</span> <span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">terry</span><span class="p">\</span><span class="n">source</span><span class="p">\</span><span class="n">models</span><span class="p">\</span><span class="n">bro</span>
-</span></code></pre></div>
-<p>Example pattern:</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">hf</span> <span class="n">download</span> <span class="n">TheBloke</span><span class="p">/</span><span class="n">Mistral</span><span class="p">-</span><span class="n">7B-Instruct-v0</span><span class="p">.</span><span class="n">2-GGUF</span> <span class="n">mistral</span><span class="p">-</span><span class="n">7b-instruct-v0</span><span class="p">.</span><span class="n">2</span><span class="p">.</span><span class="n">Q4_K_M</span><span class="p">.</span><span class="n">gguf</span> <span class="p">-</span><span class="n">-local-dir</span> <span class="n">C</span><span class="p">:\</span><span class="n">Users</span><span class="p">\</span><span class="n">terry</span><span class="p">\</span><span class="n">source</span><span class="p">\</span><span class="n">models</span><span class="p">\</span><span class="n">bro</span>
-</span></code></pre></div>
-<p>Use the actual repository name and GGUF filename selected for Bro.</p>
-<h2 id="recommended-model-directory-layout">🗂️ Recommended Model Directory Layout<a class="headerlink" href="#recommended-model-directory-layout" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>C:\Users\terry\source\models\
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>└── bro\
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    └── bro-model.Q4_K_M.gguf
-</span></code></pre></div>
-<h2 id="configure-bro-to-use-the-model">🔧 Configure Bro to Use the Model<a class="headerlink" href="#configure-bro-to-use-the-model" title="Permanent link">&para;</a></h2>
-<p>Bro loads the local model from the path configured in <code>config.py</code>.</p>
-<h3 id="option-a-environment-variable">Option A: Environment Variable<a class="headerlink" href="#option-a-environment-variable" title="Permanent link">&para;</a></h3>
-<p>Set a persistent Windows user environment variable.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  <span class="s2">&quot;BRO_LLM_PATH&quot;</span><span class="p">,</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  <span class="s2">&quot;C:\Users\terry\source\models\bro\bro-model.Q4_K_M.gguf&quot;</span><span class="p">,</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  <span class="s2">&quot;User&quot;</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">)</span>
-</span></code></pre></div>
-<p>Close and reopen PowerShell after setting the variable.</p>
-<p>Verify the value.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nb">echo </span><span class="nv">$env:BRO_LLM_PATH</span>
-</span></code></pre></div>
-<h3 id="option-b-direct-configpy-path">Option B: Direct config.py Path<a class="headerlink" href="#option-b-direct-configpy-path" title="Permanent link">&para;</a></h3>
-<p>Use this pattern in <code>config.py</code> when the project is configured to read from the environment first
-and fall back to a default value.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">MODEL_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="s2">&quot;BRO_LLM_PATH&quot;</span><span class="p">,</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="sa">r</span><span class="s2">&quot;C:\Users\terry\source\models\bro\bro-model.Q4_K_M.gguf&quot;</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="verify-the-model-file-exists">✅ Verify the Model File Exists<a class="headerlink" href="#verify-the-model-file-exists" title="Permanent link">&para;</a></h2>
-<p>Run this from the Bro repository.</p>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">python</span> <span class="n">-c</span> <span class="s2">&quot;from pathlib import Path; import config as cfg; print(cfg.MODEL_PATH); print(Path(cfg.MODEL_PATH).exists())&quot;</span>
-</span></code></pre></div>
-<p>Expected result:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>C:\Users\terry\source\models\bro\bro-model.Q4_K_M.gguf
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>True
-</span></code></pre></div>
-<p>If the result is <code>False</code>, the configured path does not match the downloaded model location.</p>
-<h2 id="run-bro">▶️ Run Bro<a class="headerlink" href="#run-bro" title="Permanent link">&para;</a></h2>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">streamlit</span> <span class="n">run</span> <span class="n">app</span><span class="p">.</span><span class="n">py</span>
-</span></code></pre></div>
-<p>Open the local Streamlit URL shown in the terminal.</p>
-<p>Typical local URL:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>http://localhost:8501
-</span></code></pre></div>
-<h2 id="llm-smoke-test">🧪 LLM Smoke Test<a class="headerlink" href="#llm-smoke-test" title="Permanent link">&para;</a></h2>
-<p>Use Text Generation mode and submit:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Respond with one sentence confirming the local Bro model is running.
-</span></code></pre></div>
-<p>Expected behavior:</p>
-<table>
-<thead>
-<tr>
-<th>Result</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Response appears</td>
-<td>The model loaded and generated successfully.</td>
-</tr>
-<tr>
-<td>No response</td>
-<td>Check terminal errors and model path.</td>
-</tr>
-<tr>
-<td>Import error</td>
-<td>Reinstall <code>llama-cpp-python</code>.</td>
-</tr>
-<tr>
-<td>Model path warning</td>
-<td>Confirm <code>BRO_LLM_PATH</code> or <code>MODEL_PATH</code>.</td>
-</tr>
-<tr>
-<td>Very slow response</td>
-<td>Reduce model size, reduce context window, or lower max tokens.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="troubleshooting">🛠️ Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Problem</th>
-<th>Likely Cause</th>
-<th>Fix</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ModuleNotFoundError: llama_cpp</code></td>
-<td><code>llama-cpp-python</code> is not installed in the active environment.</td>
-<td>Activate <code>.venv</code> and run <code>pip install llama-cpp-python</code>.</td>
-</tr>
-<tr>
-<td>Model does not load</td>
-<td><code>MODEL_PATH</code> points to a missing file.</td>
-<td>Verify the <code>.gguf</code> path and environment variable.</td>
-</tr>
-<tr>
-<td>App starts but generation fails</td>
-<td>Model file is incompatible, corrupted, or too large for memory.</td>
-<td>Try a smaller quantized GGUF file.</td>
-</tr>
-<tr>
-<td>Very slow generation</td>
-<td>CPU-only inference with a large model.</td>
-<td>Use a smaller model, reduce context size, or install GPU acceleration.</td>
-</tr>
-<tr>
-<td>Out-of-memory error</td>
-<td>Model size or context window exceeds available RAM.</td>
-<td>Use <code>Q4_K_M</code>, reduce context window, or select a smaller model.</td>
-</tr>
-<tr>
-<td>PDF Q&amp;A works poorly</td>
-<td>Extracted text is incomplete or the model context is too small.</td>
-<td>Enable native PDF text extraction, reduce chunk size, or increase retrieval count.</td>
-</tr>
-<tr>
-<td>Semantic search unavailable</td>
-<td>Sentence-transformer dependency failed or embeddings were not built.</td>
-<td>Reinstall <code>sentence-transformers</code> and rebuild the semantic index.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="model-selection-guidance">⚖️ Model Selection Guidance<a class="headerlink" href="#model-selection-guidance" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Priority</th>
-<th>Recommended Choice</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Maximum speed</td>
-<td>Small instruct model, 1B to 3B, <code>Q4_K_M</code>.</td>
-</tr>
-<tr>
-<td>Balanced quality</td>
-<td>7B instruct model, <code>Q4_K_M</code> or <code>Q5_K_M</code>.</td>
-</tr>
-<tr>
-<td>Better coding</td>
-<td>Code-specialized instruct GGUF.</td>
-</tr>
-<tr>
-<td>Better summaries</td>
-<td>General instruct model with strong summarization performance.</td>
-</tr>
-<tr>
-<td>Lower memory use</td>
-<td>Smaller parameter count and lower quantization size.</td>
-</tr>
-<tr>
-<td>Higher answer quality</td>
-<td>Larger model, higher quantization, and larger context window.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="local-first-operating-notes">🔐 Local-First Operating Notes<a class="headerlink" href="#local-first-operating-notes" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Area</th>
-<th>Behavior</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Model Execution</td>
-<td>Runs locally through llama.cpp after installation.</td>
-</tr>
-<tr>
-<td>Model File</td>
-<td>Remains on the local filesystem.</td>
-</tr>
-<tr>
-<td>Chat History</td>
-<td>Stored locally in SQLite when chat persistence is enabled.</td>
-</tr>
-<tr>
-<td>Prompt Templates</td>
-<td>Stored locally in SQLite.</td>
-</tr>
-<tr>
-<td>Document Context</td>
-<td>Extracted and processed locally.</td>
-</tr>
-<tr>
-<td>Semantic Index</td>
-<td>Stored locally through SQLite-backed embedding tables.</td>
-</tr>
-<tr>
-<td>Network Requirement</td>
-<td>Not required after dependencies and the GGUF model are installed.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="recommended-setup-sequence">🧭 Recommended Setup Sequence<a class="headerlink" href="#recommended-setup-sequence" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Install Python and create the <code>.venv</code>.</li>
-<li>Install Bro dependencies.</li>
-<li>Install <code>llama-cpp-python</code>.</li>
-<li>Download a small GGUF model first.</li>
-<li>Set <code>BRO_LLM_PATH</code>.</li>
-<li>Verify the configured model path returns <code>True</code>.</li>
-<li>Start Bro with <code>streamlit run app.py</code>.</li>
-<li>Run a short Text Generation smoke test.</li>
-<li>Increase model size or context window only after the small model runs reliably.</li>
-<li>Document the selected model name, quantization, file path, and hardware assumptions in the
-    project README.</li>
-</ol>
-<h2 id="related-pages">🔗 Related Pages<a class="headerlink" href="#related-pages" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Page</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../architecture/">Architecture</a></td>
-<td>Application layers, runtime flow, and module relationships.</td>
-</tr>
-<tr>
-<td><a href="../text-generation/">Text Generation</a></td>
-<td>Prompt construction, inference controls, and local response generation.</td>
-</tr>
-<tr>
-<td><a href="../document-qna/">Document Q&amp;A</a></td>
-<td>Grounded document workflows and retrieval behavior.</td>
-</tr>
-<tr>
-<td><a href="../semantic-search/">Semantic Search</a></td>
-<td>Embedding-backed search and semantic context reuse.</td>
-</tr>
-<tr>
-<td><a href="../prompt-engineering/">Prompt Engineering</a></td>
-<td>Prompt templates, metadata, and workflow routing.</td>
-</tr>
-<tr>
-<td><a href="../data-management/">Data Management</a></td>
-<td>SQLite inspection, profiling, and administration workflows.</td>
-</tr>
-<tr>
-<td><a href="../development/">Development</a></td>
-<td>Local setup, validation, documentation builds, and maintenance checks.</td>
-</tr>
-</tbody>
-</table>
+<p>This is independent of Gemma generation and is loaded through <code>sentence-transformers</code>.</p>
+<h2 id="prompt-category-capability-boundary">Prompt-category capability boundary<a class="headerlink" href="#prompt-category-capability-boundary" title="Permanent link">&para;</a></h2>
+<p>Model-facing prompt categories must reflect the capabilities of the loaded Gemma/runtime combination.
+Legacy categories stored in SQLite are not automatically surfaced. Audio/transcription and image-
+generation categories are excluded for Gemma 3 4B IT, while vision categories are exposed only when
+the multimodal projector runtime is usable.</p>
 
 
 
@@ -2485,6 +1286,8 @@ and fall back to a default value.</p>
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -2498,26 +1301,54 @@ and fall back to a default value.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Architecture
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../text-generation/" class="md-footer__link md-footer__link--next" aria-label="Next: Text Generation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Text Generation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-    <div class="md-copyright__highlight">
-      Copyright &copy; 2026 Terry D. Eppler
-    </div>
   
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-    <a href="https://github.com/is-leeroy-jenkins/Bro" target="_blank" rel="noopener" title="Lil Bro" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
     </a>
   
 </div>
@@ -2531,13 +1362,11 @@ and fall back to a default value.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
-    
     
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.select", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
