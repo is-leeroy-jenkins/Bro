@@ -4760,6 +4760,7 @@ elif mode == 'Image to Text':
 				'an mmproj*.gguf file beside the model GGUF.' )
 
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			
 			with st.expander( label='Vision Controls', icon='👁️', expanded=False ):
 				vis_c1, vis_c2, vis_c3, vis_c4, vis_c5, vis_c6 = st.columns(
 					[ 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6 ], border=True, gap='medium' )
@@ -4904,6 +4905,7 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			
 			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
 				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
@@ -5042,7 +5044,6 @@ elif mode == 'Document Q&A':
 							del st.session_state[ key ]
 					st.session_state[ 'docqna_ocr_cache' ] = { }
 					st.rerun( )
-
 
 			with st.expander( label='Diagnostics', icon='🔎', expanded=False ):
 				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
