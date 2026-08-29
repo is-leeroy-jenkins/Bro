@@ -45,22 +45,28 @@ ___
 
 <table>
 <tr>
-<td align="center" width="190" height="1" >
+<th align="center"><img width="190" height="1" alt=""><br>🧊 Azure</th>
+<th align="center"><img width="190" height="1" alt=""><br>🧠 GPT</th>
+<th align="center"><img width="190" height="1" alt=""><br>🔥 Streamlit</th>
+<th align="center"><img width="190" height="1" alt=""><br>🧱 Databricks</th>
+</tr>
+<tr>
+<td align="center">
 <a href="https://bro.gentlebush-abcd8721.eastus.azurecontainerapps.io">
 <img src="https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white" alt="Docker App">
 </a>
 </td>
-<td align="center" width="190" height="1" >
+<td align="center">
 <a href="https://chatgpt.com/g/g-6759fe553bd481919d3cebfb4c875830-bro">
 <img src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white" alt="OpenAI GPT">
 </a>
 </td>
-<td align="center" width="190" height="1" >
+<td align="center">
 <a href="https://bro-py.streamlit.app/">
 <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App">
 </a>
 </td>
-<td align="center" width="190" height="1" >
+<td align="center">
 <a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/3169291152440505?o=7474645703081351">
 <img src="https://img.shields.io/badge/Databricks-Bro-FF3621?logo=databricks&logoColor=white" alt="Databricks Bro">
 </a>
@@ -113,14 +119,14 @@ The project model repository remains available here:
 Bro exposes six functional modes. `Image to Text` is appended to the configured mode list by
 `app.py` when it is not already present in `cfg.MODES`.
 
-| Mode                   | Purpose                                                                              | Major Controls / Outputs |
-|------------------------|--------------------------------------------------------------------------------------| --- |
+| Mode                   | Purpose                                                                              | Major Controls / Outputs                                                                                                                                                                       |
+|------------------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Text Generation**    | Primary Gemma 3 text-generation and chat interface.                                  | Task presets; reasoning, coding, writing, translation, classification, response, inference, context, and runtime controls; category-aware system instructions; prompt preview; streaming chat. |
-| **Image to Text**      | Gemma 3 multimodal image understanding and visible-text extraction.                  | Vision task, image detail, response format/language, layout/text preservation, inference controls, runtime controls, image upload, optional user request, streaming vision response. |
-| **Document Q&A**       | Retrieval-augmented analysis over uploaded documents with optional Gemma vision OCR. | Retrieval, grounding, backend, document-action, parsing/OCR, diagnostics, response, inference, context, and runtime controls; document inventory; retrieved chunks. |
-| **Semantic Search**    | Build and query a reusable local semantic chunk index.                               | Index builder, diagnostics, Top-K, minimum similarity, group-by-document, selectable results, context-routing actions, maintenance controls. |
-| **Prompt Engineering** | Manage reusable prompt templates and application metadata.                           | Search/filter/sort/page, Go-to-ID, prompt actions, prompt generator, application settings, create/edit/delete/clone, cascade to Text Generation or Document Q&A. |
-| **Data Management**    | Manage local SQLite tables and AI asset metadata.                                    | Excel import, browse, CRUD, explore, filter, aggregate, visualize, schema administration, index creation, asset governance, guarded SQL. |
+| **Image to Text**      | Gemma 3 multimodal image understanding and visible-text extraction.                  | Vision task, image detail, response format/language, layout/text preservation, inference controls, runtime controls, image upload, optional user request, streaming vision response.           |
+| **Document Q&A**       | Retrieval-augmented analysis over uploaded documents with optional Gemma vision OCR. | Retrieval, grounding, backend, document-action, parsing/OCR, diagnostics, response, inference, context, and runtime controls; document inventory; retrieved chunks.                            |
+| **Semantic Search**    | Build and query a reusable local semantic chunk index.                               | Index builder, diagnostics, Top-K, minimum similarity, group-by-document, selectable results, context-routing actions, maintenance controls.                                                   |
+| **Prompt Engineering** | Manage reusable prompt templates and application metadata.                           | Search/filter/sort/page, Go-to-ID, prompt actions, prompt generator, application settings, create/edit/delete/clone, cascade to Text Generation or Document Q&A.                               |
+| **Data Management**    | Manage local SQLite tables and AI asset metadata.                                    | Excel import, browse, CRUD, explore, filter, aggregate, visualize, schema administration, index creation, asset governance, guarded SQL.                                                       |
 
 ## 🏛 Architecture
 
@@ -814,27 +820,27 @@ tokens, context window, CPU threads, semantic state, and shared document count.
 Use `requirements.txt` as the version-pinning source of truth. The current application functionality
 depends on the following packages or standard-library modules.
 
-| Requirement | Package / Import | Purpose | Used By |
-| --- | --- | --- | --- |
-| Python | `python>=3.10` | Runtime and modern typing syntax. | Entire application |
-| Streamlit | `streamlit` | UI, chat, uploaders, expanders, controls, tables, session state. | All modes |
-| llama-cpp-python | `llama_cpp` | Local GGUF text and multimodal inference. | Text Generation, Image to Text, Document Q&A |
-| MTMD chat handler | `llama_cpp.llama_chat_format.MTMDChatHandler` | Connects the Gemma 3 GGUF to the matching multimodal projector. | Image to Text, vision OCR |
-| NumPy | `numpy` | Vector math and embedding-array handling. | Document Q&A, Semantic Search |
-| Pandas | `pandas` | Dataframes, SQL results, prompt tables, imports, inventories. | Prompt Engineering, Data Management, retrieval views |
-| Plotly Express | `plotly.express` | Interactive database visualizations. | Data Management |
-| SQLite | `sqlite3` | Local persistence. | All persistent workflows |
-| sqlite-vec | `sqlite_vec` | Optional vector-search backend. | Document Q&A |
-| sentence-transformers | `sentence_transformers` | Local `all-MiniLM-L6-v2` embeddings. | Document Q&A, Semantic Search |
-| PyMuPDF | `fitz` / `pymupdf` | Native PDF text extraction and PDF-page rendering for vision OCR. | Document Q&A |
-| OpenPyXL | `openpyxl` | Excel workbook support through pandas. | Data Management |
-| python-docx | `python-docx` | DOCX parsing when available in the document extraction path. | Document Q&A |
-| Pillow | `pillow` | Supporting image handling. | Image workflows / metadata |
-| boogr | `Error`, `Logger` | Application error logging. | Guarded execution paths |
-| pathlib | Standard library | Model/projector/filesystem handling. | Runtime/configuration |
-| base64 | Standard library | Image data-URI and UI image support. | Image to Text / utilities |
-| hashlib | Standard library | Stable document/image fingerprints. | Retrieval / governance |
-| re | Standard library | Prompt conversion, text normalization, identifier/query guards. | Utilities / data management |
+| Requirement           | Package / Import                              | Purpose                                                           | Used By                                              |
+|-----------------------|-----------------------------------------------|-------------------------------------------------------------------|------------------------------------------------------|
+| Python                | `python>=3.10`                                | Runtime and modern typing syntax.                                 | Entire application                                   |
+| Streamlit             | `streamlit`                                   | UI, chat, uploaders, expanders, controls, tables, session state.  | All modes                                            |
+| llama-cpp-python      | `llama_cpp`                                   | Local GGUF text and multimodal inference.                         | Text Generation, Image to Text, Document Q&A         |
+| MTMD chat handler     | `llama_cpp.llama_chat_format.MTMDChatHandler` | Connects the Gemma 3 GGUF to the matching multimodal projector.   | Image to Text, vision OCR                            |
+| NumPy                 | `numpy`                                       | Vector math and embedding-array handling.                         | Document Q&A, Semantic Search                        |
+| Pandas                | `pandas`                                      | Dataframes, SQL results, prompt tables, imports, inventories.     | Prompt Engineering, Data Management, retrieval views |
+| Plotly Express        | `plotly.express`                              | Interactive database visualizations.                              | Data Management                                      |
+| SQLite                | `sqlite3`                                     | Local persistence.                                                | All persistent workflows                             |
+| sqlite-vec            | `sqlite_vec`                                  | Optional vector-search backend.                                   | Document Q&A                                         |
+| sentence-transformers | `sentence_transformers`                       | Local `all-MiniLM-L6-v2` embeddings.                              | Document Q&A, Semantic Search                        |
+| PyMuPDF               | `fitz` / `pymupdf`                            | Native PDF text extraction and PDF-page rendering for vision OCR. | Document Q&A                                         |
+| OpenPyXL              | `openpyxl`                                    | Excel workbook support through pandas.                            | Data Management                                      |
+| python-docx           | `python-docx`                                 | DOCX parsing when available in the document extraction path.      | Document Q&A                                         |
+| Pillow                | `pillow`                                      | Supporting image handling.                                        | Image workflows / metadata                           |
+| boogr                 | `Error`, `Logger`                             | Application error logging.                                        | Guarded execution paths                              |
+| pathlib               | Standard library                              | Model/projector/filesystem handling.                              | Runtime/configuration                                |
+| base64                | Standard library                              | Image data-URI and UI image support.                              | Image to Text / utilities                            |
+| hashlib               | Standard library                              | Stable document/image fingerprints.                               | Retrieval / governance                               |
+| re                    | Standard library                              | Prompt conversion, text normalization, identifier/query guards.   | Utilities / data management                          |
 
 A recent `llama-cpp-python` build with Gemma 3 multimodal/MTMD support is required for the
 Image-to-Text path.

@@ -874,7 +874,6 @@ OCR_PAGE_LIMIT_OPTIONS: List[ str ] = [ '1 Page', '2 Pages', '5 Pages', '10 Page
 
 DOC_CONTEXT_ORDER_OPTIONS: List[ str ] = [ 'Retrieved First', 'Semantic First' ]
 
-
 def throw_if( name: str, value: object ) -> None:
 	"""Input guard.
 
@@ -893,7 +892,6 @@ def throw_if( name: str, value: object ) -> None:
 	if value is None or value == '':
 		raise ValueError( f'Argument "{name}" cannot be empty!' )
 
-
 def get_prompt_categories( ) -> List[ str ]:
 	"""Returns the supported prompt categories used by Prompt Engineering controls.
 
@@ -905,7 +903,6 @@ def get_prompt_categories( ) -> List[ str ]:
 		List[str]: Supported prompt category values.
 	"""
 	return PROMPT_CATEGORY_OPTIONS.copy( )
-
 
 def get_prompt_task_types( ) -> List[ str ]:
 	"""Returns the supported task types used by Prompt Engineering controls and Text Generation presets.
@@ -919,7 +916,6 @@ def get_prompt_task_types( ) -> List[ str ]:
 	"""
 	return PROMPT_TASK_OPTIONS.copy( )
 
-
 def get_response_formats( ) -> List[ str ]:
 	"""Returns supported response-format values.
 
@@ -931,7 +927,6 @@ def get_response_formats( ) -> List[ str ]:
 		List[str]: Supported response-format values.
 	"""
 	return RESPONSE_FORMAT_OPTIONS.copy( )
-
 
 def get_spoken_languages( include_auto_detect: bool = True ) -> List[ str ]:
 	"""Returns supported human-language values for language selectboxes.
@@ -950,27 +945,27 @@ def get_spoken_languages( include_auto_detect: bool = True ) -> List[ str ]:
 		return SPOKEN_LANGUAGE_OPTIONS.copy( )
 	return [ language for language in SPOKEN_LANGUAGE_OPTIONS if language != 'Auto Detect' ]
 
-
 def fetch_prompt_categories( db_path: str ) -> List[ str ]:
 	"""Retrieves distinct prompt categories from the Prompts table.
 
 	Purpose:
-		Returns persisted categories from the authoritative Prompts.Category column for category-aware
-		template selection while retaining supported categories that do not yet have saved templates.
+		Returns persisted categories from the authoritative Prompts.Category column for Prompt
+		Engineering and database-management workflows. Legacy categories are intentionally retained
+		here so existing prompt records remain inspectable and manageable.
 
 	Args:
 		db_path (str): SQLite database path.
 
 	Returns:
-		List[str]: Sorted category values available to the application.
+		List[str]: Sorted persisted and supported category values available for prompt management.
 	"""
 	try:
 		throw_if( 'db_path', db_path )
 		with sqlite3.connect( db_path ) as conn:
 			rows = conn.execute(
-				'''SELECT DISTINCT Category FROM Prompts
+				"""SELECT DISTINCT Category FROM Prompts
 				   WHERE Category IS NOT NULL AND TRIM(Category) <> ''
-				   ORDER BY Category;'''
+				   ORDER BY Category;"""
 			).fetchall( )
 		db_categories = [ str( row[ 0 ] ) for row in rows if row and row[ 0 ] ]
 		return sorted( set( get_prompt_categories( ) + db_categories ) )
@@ -982,6 +977,83 @@ def fetch_prompt_categories( db_path: str ) -> List[ str ]:
 		Logger( ).write( exception )
 		return get_prompt_categories( )
 
+def get_model_prompt_categories( ) -> List[ str ]:
+	"""Returns prompt categories compatible with the active Gemma runtime.
+
+	Purpose:
+		Provides the capability-filtered category vocabulary used by model-facing System Instructions
+		selectors. Text-compatible Gemma 3 categories are always available, while Vision & Image
+		Analysis is exposed only when the multimodal model/projector runtime is available.
+
+	Returns:
+		List[str]: Prompt categories that the active model/runtime can execute.
+	"""
+	categories = [
+		category for category in get_prompt_categories( )
+		if category != 'Vision & Image Analysis'
+	]
+	if vision_runtime_available( ):
+		categories.append( 'Vision & Image Analysis' )
+	return categories
+
+def fetch_model_prompt_categories( db_path: str ) -> List[ str ]:
+	"""Retrieves model-compatible categories for System Instructions controls.
+
+	Purpose:
+		Filters model-facing prompt categories through the active Gemma 3 runtime capability set.
+		Legacy categories remain stored in SQLite for Prompt Engineering and database administration,
+		but cannot be selected by Text Generation or Document Q&A System Instructions controls.
+
+	Args:
+		db_path (str): SQLite database path.
+
+	Returns:
+		List[str]: Capability-filtered category values safe to expose to the active model.
+	"""
+	try:
+		throw_if( 'db_path', db_path )
+		supported_categories = get_model_prompt_categories( )
+		with sqlite3.connect( db_path ) as conn:
+			rows = conn.execute(
+				"""SELECT DISTINCT Category FROM Prompts
+				   WHERE Category IS NOT NULL AND TRIM(Category) <> ''
+				   ORDER BY Category;"""
+			).fetchall( )
+		persisted_categories = {
+			str( row[ 0 ] ) for row in rows if row and row[ 0 ]
+		}
+		available_categories = [
+			category for category in supported_categories
+			if category in persisted_categories
+		]
+		for category in supported_categories:
+			if category not in available_categories:
+				available_categories.append( category )
+		return available_categories
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'fetch_model_prompt_categories'
+		exception.method = 'fetch_model_prompt_categories( db_path: str ) -> List[str]'
+		Logger( ).write( exception )
+		return get_model_prompt_categories( )
+
+def is_model_prompt_category_supported( category: str ) -> bool:
+	"""Determines whether a prompt category is supported by the active model/runtime.
+
+	Purpose:
+		Prevents legacy SQLite prompt categories from being applied to Gemma execution paths when the
+		loaded model/runtime cannot perform the associated capability.
+
+	Args:
+		category (str): Persisted or selected prompt category.
+
+	Returns:
+		bool: True when the category is supported by the active model/runtime.
+	"""
+	if not category:
+		return False
+	return str( category ).strip( ) in get_model_prompt_categories( )
 
 def fetch_prompt_names( db_path: str, category: str = '' ) -> List[ str ]:
 	"""Retrieves sorted prompt captions from the local Prompts table.
@@ -1021,7 +1093,6 @@ def fetch_prompt_names( db_path: str, category: str = '' ) -> List[ str ]:
 		Logger( ).write( exception )
 		return [ ]
 
-
 def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str ] ]:
 	"""Retrieves prompt identifiers and captions for a selected category.
 
@@ -1039,6 +1110,8 @@ def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str
 	try:
 		throw_if( 'db_path', db_path )
 		throw_if( 'category', category )
+		if not is_model_prompt_category_supported( category ):
+			return [ ]
 		with sqlite3.connect( db_path ) as conn:
 			rows = conn.execute(
 				'''SELECT ID, Caption FROM Prompts
@@ -1054,7 +1127,6 @@ def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str
 		exception.method = 'fetch_prompt_options( db_path: str, category: str ) -> List[Tuple[int, str]]'
 		Logger( ).write( exception )
 		return [ ]
-
 
 def fetch_prompt_text( db_path: str, name: str ) -> str | None:
 	"""Retrieves prompt template text for a selected caption.
@@ -1087,7 +1159,6 @@ def fetch_prompt_text( db_path: str, name: str ) -> str | None:
 		Logger( ).write( exception )
 		return None
 
-
 def fetch_prompts_df( ) -> pd.DataFrame:
 	"""Builds a prompt-management DataFrame from the Prompts table.
 
@@ -1103,7 +1174,6 @@ def fetch_prompts_df( ) -> pd.DataFrame:
 			'SELECT ID, Caption, Name, Category, Text FROM Prompts ORDER BY ID DESC;', conn )
 	df_prompts.insert( 0, 'Selected', False )
 	return df_prompts
-
 
 def fetch_prompt_by_id( pid: int ) -> Dict[ str, Any ] | None:
 	"""Retrieves one prompt record by primary key.
@@ -1133,7 +1203,6 @@ def fetch_prompt_by_id( pid: int ) -> Dict[ str, Any ] | None:
 		exception.method = 'fetch_prompt_by_id( pid: int ) -> Dict[str, Any] | None'
 		Logger( ).write( exception )
 		return None
-
 
 def fetch_prompt_by_name( name: str ) -> Dict[ str, Any ] | None:
 	"""Retrieves one prompt record by caption.
@@ -1166,7 +1235,6 @@ def fetch_prompt_by_name( name: str ) -> Dict[ str, Any ] | None:
 		Logger( ).write( exception )
 		return None
 
-
 def insert_prompt( data: Dict[ str, Any ] ) -> int:
 	"""Inserts a prompt-template record into the local Prompts table.
 
@@ -1187,7 +1255,6 @@ def insert_prompt( data: Dict[ str, Any ] ) -> int:
 		)
 		conn.commit( )
 		return int( cur.lastrowid )
-
 
 def update_prompt( pid: int, data: Dict[ str, Any ] ) -> None:
 	"""Updates an existing prompt-template record by primary key.
@@ -1212,7 +1279,6 @@ def update_prompt( pid: int, data: Dict[ str, Any ] ) -> None:
 		)
 		conn.commit( )
 
-
 def delete_prompt( pid: int ) -> None:
 	"""Deletes a prompt-template record from the local Prompts table by primary key.
 
@@ -1230,7 +1296,6 @@ def delete_prompt( pid: int ) -> None:
 		conn.execute( 'DELETE FROM Prompts WHERE ID = ?;', (pid,) )
 		conn.commit( )
 
-
 def get_effective_system_instructions( ) -> str:
 	"""Returns the active system-instruction text from Streamlit session state.
 
@@ -1242,7 +1307,6 @@ def get_effective_system_instructions( ) -> str:
 	"""
 	text = st.session_state.get( 'system_instructions', '' )
 	return str( text ).strip( ) if text is not None else ''
-
 
 def build_task_instruction_block( ) -> str:
 	"""Builds task-specific instruction text from Text Generation controls.
@@ -1370,7 +1434,6 @@ def build_task_instruction_block( ) -> str:
 
 	return '\n'.join( lines ).strip( )
 
-
 def build_effective_prompt_preview( user_input: str ) -> str:
 	"""Builds a readable preview of the system, task, and user prompt content.
 
@@ -1393,7 +1456,6 @@ def build_effective_prompt_preview( user_input: str ) -> str:
 		preview_parts.extend( [ '[Task Instructions]', task_block ] )
 	preview_parts.extend( [ '[User Input]', user_input or '' ] )
 	return '\n\n'.join( preview_parts ).strip( )
-
 
 def get_runtime_llm( ) -> Llama:
 	"""Loads or retrieves the cached llama.cpp runtime.
@@ -1421,7 +1483,6 @@ def get_runtime_llm( ) -> Llama:
 	if runtime_llm is None:
 		raise RuntimeError( 'The configured Gemma 3 GGUF model could not be loaded.' )
 	return runtime_llm
-
 
 def build_chat_messages( user_input: str ) -> List[ Dict[ str, str ] ]:
 	"""Builds the chat-message sequence consumed by llama.cpp.
@@ -1520,7 +1581,6 @@ def build_chat_messages( user_input: str ) -> List[ Dict[ str, str ] ]:
 	chat_messages.append( { 'role': 'user', 'content': user_input } )
 	return chat_messages
 
-
 def build_prompt( user_input: str ) -> str:
 	"""Builds a readable compatibility prompt from the current chat-message sequence.
 
@@ -1539,7 +1599,6 @@ def build_prompt( user_input: str ) -> str:
 	for message in messages:
 		parts.append( f'[{message[ "role" ].title( )}]\n{message[ "content" ]}' )
 	return '\n\n'.join( parts ).strip( )
-
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
 		max_tokens: int, stream: bool, output: Any = None ) -> str:
@@ -1634,7 +1693,6 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 			st.error( message )
 		return ''
 
-
 def vision_runtime_available( ) -> bool:
 	"""Determines whether Image-to-Text runtime assets are available.
 
@@ -1646,7 +1704,6 @@ def vision_runtime_available( ) -> bool:
 		bool: True when model and projector files are available.
 	"""
 	return local_model_available( ) and MMPROJ_PATH_OBJ is not None and MMPROJ_PATH_OBJ.exists( )
-
 
 @st.cache_resource
 def load_vision_llm( ctx: int, threads: int, repeat_window: int, batch_size: int,
@@ -1696,7 +1753,6 @@ def load_vision_llm( ctx: int, threads: int, repeat_window: int, batch_size: int
 		Logger( ).write( exception )
 		return None
 
-
 def get_vision_runtime_llm( ) -> Any:
 	"""Loads or retrieves the cached Image-to-Text runtime.
 
@@ -1721,7 +1777,6 @@ def get_vision_runtime_llm( ) -> Any:
 		raise RuntimeError( 'The Gemma 3 multimodal runtime could not be initialized.' )
 	return runtime_llm
 
-
 def image_bytes_to_data_uri( image_bytes: bytes, mime_type: str ) -> str:
 	"""Converts local image bytes to a data URI.
 
@@ -1740,7 +1795,6 @@ def image_bytes_to_data_uri( image_bytes: bytes, mime_type: str ) -> str:
 	mime_value = str( mime_type or 'image/png' ).strip( )
 	encoded = base64.b64encode( image_bytes ).decode( 'utf-8' )
 	return f'data:{mime_value};base64,{encoded}'
-
 
 def build_vision_instruction( user_input: str ) -> str:
 	"""Builds the Image-to-Text task instruction.
@@ -1782,7 +1836,6 @@ def build_vision_instruction( user_input: str ) -> str:
 		lines.append( f'User Request: {str( user_input ).strip( )}' )
 	return '\n'.join( lines ).strip( )
 
-
 def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str = '',
 		stream: bool = False, output: Any = None, show_errors: bool = True,
 		instruction_override: str = '', response_format_override: str = '' ) -> str:
@@ -1809,17 +1862,20 @@ def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str =
 		return ''
 	try:
 		runtime_llm = get_vision_runtime_llm( )
-		instruction_text = (
-			str( instruction_override ).strip( ) if instruction_override else
+		instruction_text = (str( instruction_override ).strip( ) if instruction_override else
 			build_vision_instruction( user_input ))
-		content_parts: List[ Dict[ str, Any ] ] = [ { 'type': 'text', 'text': instruction_text } ]
+		content_parts: List[ Dict[ str, Any ] ] = [
+			{ 'type': 'text', 'text': instruction_text }
+		]
 		for payload in image_payloads:
 			image_bytes = payload.get( 'bytes', b'' )
 			mime_type = str( payload.get( 'mime_type', 'image/png' ) or 'image/png' )
 			if not image_bytes:
 				continue
-			content_parts.append( { 'type': 'image_url',
-					'image_url': { 'url': image_bytes_to_data_uri( image_bytes, mime_type ) } } )
+			content_parts.append( {
+				'type': 'image_url',
+				'image_url': { 'url': image_bytes_to_data_uri( image_bytes, mime_type ) }
+			} )
 		if len( content_parts ) == 1:
 			return ''
 		messages: List[ Dict[ str, Any ] ] = [ ]
@@ -1827,24 +1883,24 @@ def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str =
 		if system_instructions:
 			messages.append( { 'role': 'system', 'content': system_instructions } )
 		messages.append( { 'role': 'user', 'content': content_parts } )
-		generation_args: Dict[ str, Any ] = { 'messages': messages,
-				'max_tokens': int( st.session_state.get( 'max_tokens', 1024 ) or 1024 ),
-				'temperature': float( st.session_state.get( 'temperature', 0.0 ) ),
-				'top_p': float( st.session_state.get( 'top_percent', 0.95 ) or 0.95 ),
-				'repeat_penalty': float( st.session_state.get( 'repeat_penalty', 1.1 ) or 1.1 ),
-				'stream': bool( stream ) }
+		generation_args: Dict[ str, Any ] = {
+			'messages': messages,
+			'max_tokens': int( st.session_state.get( 'max_tokens', 1024 ) or 1024 ),
+			'temperature': float( st.session_state.get( 'temperature', 0.0 ) ),
+			'top_p': float( st.session_state.get( 'top_percent', 0.95 ) or 0.95 ),
+			'repeat_penalty': float( st.session_state.get( 'repeat_penalty', 1.1 ) or 1.1 ),
+			'stream': bool( stream )
+		}
 		top_k_value = int( st.session_state.get( 'top_k', 0 ) )
 		seed_value = int( st.session_state.get( 'random_seed', 0 ) )
 		if top_k_value > 0:
 			generation_args[ 'top_k' ] = top_k_value
 		if seed_value > 0:
 			generation_args[ 'seed' ] = seed_value
-		generation_args[
-			'presence_penalty' ] = float( st.session_state.get( 'presense_penalty', 0.0 ) )
-		generation_args[
-			'frequency_penalty' ] = float( st.session_state.get( 'frequency_penalty', 0.0 ) )
-		vision_format = str( response_format_override or st.session_state.get(
-			'vision_response_format', 'Plain Text' ) )
+		generation_args[ 'presence_penalty' ] = float( st.session_state.get( 'presense_penalty', 0.0 ) )
+		generation_args[ 'frequency_penalty' ] = float( st.session_state.get( 'frequency_penalty', 0.0 ) )
+		vision_format = str( response_format_override or
+			st.session_state.get( 'vision_response_format', 'Plain Text' ) )
 		if vision_format == 'JSON':
 			generation_args[ 'response_format' ] = { 'type': 'json_object' }
 		if not stream:
@@ -1873,8 +1929,7 @@ def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str =
 		exception = Error( e )
 		exception.module = 'app'
 		exception.cause = 'run_vision_turn'
-		exception.method = (
-			'run_vision_turn( image_payloads, user_input, stream, output, show_errors, '
+		exception.method = ('run_vision_turn( image_payloads, user_input, stream, output, show_errors, '
 			'instruction_override, response_format_override ) -> str')
 		Logger( ).write( exception )
 		if show_errors:
@@ -1885,8 +1940,8 @@ def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str =
 				st.error( message )
 		return ''
 
-def build_starter_prompt_template( category: str, task_type: str, response_format: str, language:
-str ) -> str:
+def build_starter_prompt_template( category: str, task_type: str, response_format: str,
+		language: str ) -> str:
 	"""Builds a starter system prompt from prompt metadata before optional local-model drafting.
 
 	Purpose:
@@ -1907,36 +1962,25 @@ str ) -> str:
 	format_value = str( response_format or 'Markdown' ).strip( )
 	language_value = str( language or 'English' ).strip( )
 	lines: List[ str ] = [
-			f'You are Bro, a local AI assistant operating in the category "{category_value}".',
-			f'Primary task type: {task_value}.', f'Response format: {format_value}.',
-			f'Preferred language: {language_value}.' ]
+		f'You are Bro, a local AI assistant operating in the category "{category_value}".',
+		f'Primary task type: {task_value}.', f'Response format: {format_value}.',
+		f'Preferred language: {language_value}.'
+	]
 	category_guidance = {
-			'Analysis & Reasoning': 'Provide careful, structured analytical answers grounded in '
-			                        'supplied information.',
-			'Software Development': 'Produce correct, editor-ready software guidance and code when '
-			                        'requested.',
-			'Writing & Editing': 'Draft or revise content while preserving supplied facts, '
-			                     'purpose, and audience.',
-			'Summarization': 'Summarize faithfully and preserve material facts, names, dates, '
-			                 'and conclusions.',
-			'Information Extraction': 'Extract only supported facts and do not invent missing '
-			                          'values.',
-			'Classification': 'Classify from supplied evidence and use only the requested '
-			                  'classification scheme.',
-			'Translation': 'Translate faithfully while preserving meaning, tone, terminology, '
-			               'and structure.',
-			'Structured Output': 'Follow the requested output structure exactly and omit unrelated '
-			                     'prose.',
-			'Document Analysis': 'Use supplied document content as the evidence base for the '
-			                     'requested analysis.',
-			'Federal / Administrative Analysis': 'Apply precise federal administrative and '
-			                                     'analytical reasoning to the supplied '
-			                                     'information.' }
-	lines.append( category_guidance.get( category_value, 'Respond helpfully, accurately, '
-	                                                     'and concisely.' ) )
+		'Analysis & Reasoning': 'Provide careful, structured analytical answers grounded in supplied information.',
+		'Software Development': 'Produce correct, editor-ready software guidance and code when requested.',
+		'Writing & Editing': 'Draft or revise content while preserving supplied facts, purpose, and audience.',
+		'Summarization': 'Summarize faithfully and preserve material facts, names, dates, and conclusions.',
+		'Information Extraction': 'Extract only supported facts and do not invent missing values.',
+		'Classification': 'Classify from supplied evidence and use only the requested classification scheme.',
+		'Translation': 'Translate faithfully while preserving meaning, tone, terminology, and structure.',
+		'Structured Output': 'Follow the requested output structure exactly and omit unrelated prose.',
+		'Document Analysis': 'Use supplied document content as the evidence base for the requested analysis.',
+		'Federal / Administrative Analysis': 'Apply precise federal administrative and analytical reasoning to the supplied information.'
+	}
+	lines.append( category_guidance.get( category_value, 'Respond helpfully, accurately, and concisely.' ) )
 	lines.append( 'If required information is missing, state that clearly.' )
 	return '\n'.join( lines ).strip( )
-
 
 def generate_prompt_template_draft( goal: str, constraints: str, style: str,
 		category: str, task_type: str, response_format: str, language: str ) -> str:
@@ -1975,7 +2019,6 @@ Write only the system prompt text. Do not add explanation.'''.strip( )
 		repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.05 ) ),
 		max_tokens=512, stream=False, output=None )
 
-
 def apply_prompt_to_text_generation( prompt_text: str ) -> None:
 	"""Copies selected prompt text into shared system instructions for Text Generation mode.
 
@@ -1989,7 +2032,6 @@ def apply_prompt_to_text_generation( prompt_text: str ) -> None:
 		None: This function performs its work through Streamlit session state.
 	"""
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
-
 
 def apply_prompt_to_document_qna( prompt_text: str ) -> None:
 	"""Copies selected prompt text into shared system instructions for Document Q&A.
@@ -2006,7 +2048,6 @@ def apply_prompt_to_document_qna( prompt_text: str ) -> None:
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
 	st.session_state[ 'require_grounding' ] = True
 	st.session_state[ 'answer_from_excerpts_only' ] = True
-
 
 def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
 		response_format: str, language: str ) -> None:
@@ -2030,7 +2071,6 @@ def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
 	st.session_state[ 'response_format' ] = str( response_format or 'Markdown' )
 	st.session_state[ 'response_language' ] = str( language or 'English' )
 
-
 def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
 	"""Copies a selected prompt record into the edit surface as a new prompt draft.
 
@@ -2051,8 +2091,6 @@ def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
 	st.session_state.pe_category = str( source_prompt.get( 'Category', 'General Assistant' ) or 'General Assistant' )
 	st.session_state.pe_text = str( source_prompt.get( 'Text', '' ) or '' )
 
-
-
 def render_system_instructions_controls( include_preset: bool, include_preview: bool ) -> None:
 	"""Renders category-aware System Instructions controls.
 
@@ -2068,7 +2106,7 @@ def render_system_instructions_controls( include_preset: bool, include_preview: 
 	Returns:
 		None: This function renders Streamlit controls and updates session state.
 	"""
-	categories = fetch_prompt_categories( cfg.DB_PATH )
+	categories = fetch_model_prompt_categories( cfg.DB_PATH )
 	if st.session_state.get( 'instruction_category' ) not in categories:
 		st.session_state[ 'instruction_category' ] = categories[ 0 ] if categories else 'General Assistant'
 
@@ -3122,7 +3160,6 @@ def reset_selection( ) -> None:
 	st.session_state.pe_category = 'General Assistant'
 	st.session_state.pe_text = ''
 
-
 def load_prompt( pid: int ) -> None:
 	"""Loads a prompt record into the Prompt Engineering edit surface by primary key.
 
@@ -3144,7 +3181,6 @@ def load_prompt( pid: int ) -> None:
 	st.session_state.pe_category = str(
 		prompt_row.get( 'Category', 'General Assistant' ) or 'General Assistant' )
 	st.session_state.pe_text = str( prompt_row.get( 'Text', '' ) or '' )
-
 
 def get_ai_asset_tables( ) -> List[ str ]:
 	"""Returns the SQLite table names used for AI asset governance metadata.
@@ -4186,7 +4222,6 @@ def decode_embedding_rows( ) -> List[ Tuple[ str, str, np.ndarray ] ]:
 			str( chunk_text_value or '' ), vec) )
 	return rows_out
 
-
 def clear_semantic_index( ) -> None:
 	"""Clears the semantic-search embeddings table and related diagnostics.
 
@@ -4207,7 +4242,6 @@ def clear_semantic_index( ) -> None:
 	st.session_state[ 'semantic_index_doc_count' ] = 0
 	st.session_state[ 'semantic_uploaded_names' ] = [ ]
 	st.session_state[ 'semantic_last_query' ] = ''
-
 
 def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
 	"""Builds or appends a document-aware semantic chunk index.
@@ -4276,7 +4310,6 @@ def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
 	st.session_state[ 'semantic_index_dim' ] = vector_dim
 	return { 'success': True, 'message': 'Semantic index built successfully.',
 		'doc_count': len( set( doc_names ) ), 'chunk_count': len( chunk_rows ), 'vector_dim': vector_dim }
-
 
 def query_semantic_index( query_text: str ) -> List[ Dict[ str, Any ] ]:
 	"""Queries the semantic index with optional document grouping.
@@ -4414,7 +4447,6 @@ def send_docqna_chunks( ) -> None:
 # ==============================================================================
 initialize_database( )
 embedder = load_embedder( )
-
 if not isinstance( st.session_state.get( 'messages' ), list ):
 	st.session_state[ 'messages' ] = [ ]
 
@@ -4745,7 +4777,6 @@ if mode == 'Text Generation':
 			st.session_state.messages = [ ]
 			st.rerun( )
 
-
 # ==============================================================================
 # IMAGE TO TEXT MODE
 # ==============================================================================
@@ -4760,7 +4791,6 @@ elif mode == 'Image to Text':
 				'an mmproj*.gguf file beside the model GGUF.' )
 
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
-			
 			with st.expander( label='Vision Controls', icon='👁️', expanded=False ):
 				vis_c1, vis_c2, vis_c3, vis_c4, vis_c5, vis_c6 = st.columns(
 					[ 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6 ], border=True, gap='medium' )
@@ -4905,7 +4935,6 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
-			
 			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
 				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
@@ -5044,6 +5073,7 @@ elif mode == 'Document Q&A':
 							del st.session_state[ key ]
 					st.session_state[ 'docqna_ocr_cache' ] = { }
 					st.rerun( )
+
 
 			with st.expander( label='Diagnostics', icon='🔎', expanded=False ):
 				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
@@ -5750,22 +5780,36 @@ elif mode == 'Prompt Engineering':
 			act_c1, act_c2, act_c3, act_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
 			with act_c1:
 				if st.button( 'Apply to Text Generation', width='stretch' ):
-					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
-					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category', 'General Assistant' ),
-						task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
-						language=st.session_state.get( 'pe_language_edit', 'English' ) )
-					st.success( 'Applied to shared Text Generation settings.' )
+					selected_category = str(
+						st.session_state.get( 'pe_category', 'General Assistant' ) or 'General Assistant' )
+					if not is_model_prompt_category_supported( selected_category ):
+						st.error(
+							f'The "{selected_category}" prompt category is not supported by the active '
+							'Gemma 3 runtime and cannot be applied to Text Generation.' )
+					else:
+						apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
+						apply_prompt_metadata_to_shared_state(
+							category=selected_category,
+							task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
+							response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+							language=st.session_state.get( 'pe_language_edit', 'English' ) )
+						st.success( 'Applied to shared Text Generation settings.' )
 			with act_c2:
 				if st.button( 'Apply to Document Q&A', width='stretch' ):
-					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
-					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category', 'General Assistant' ),
-						task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
-						response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
-						language=st.session_state.get( 'pe_language_edit', 'English' ) )
-					st.success( 'Applied to shared Document Q&A settings.' )
+					selected_category = str(
+						st.session_state.get( 'pe_category', 'General Assistant' ) or 'General Assistant' )
+					if not is_model_prompt_category_supported( selected_category ):
+						st.error(
+							f'The "{selected_category}" prompt category is not supported by the active '
+							'Gemma 3 runtime and cannot be applied to Document Q&A.' )
+					else:
+						apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
+						apply_prompt_metadata_to_shared_state(
+							category=selected_category,
+							task_type=st.session_state.get( 'pe_task_type_edit', 'Chat' ),
+							response_format=st.session_state.get( 'prompt_response_format', 'Markdown' ),
+							language=st.session_state.get( 'pe_language_edit', 'English' ) )
+						st.success( 'Applied to shared Document Q&A settings.' )
 			with act_c3:
 				if st.button( 'Clone as New Template', width='stretch' ):
 					source_prompt = {
@@ -5796,10 +5840,14 @@ elif mode == 'Prompt Engineering':
 		# Prompt generator
 		# ------------------------------------------------------------------
 		with st.expander( '🧪 Prompt Generator', expanded=False ):
+			model_categories = fetch_model_prompt_categories( cfg.DB_PATH )
+			if st.session_state.get( 'prompt_category_draft' ) not in model_categories:
+				st.session_state[ 'prompt_category_draft' ] = (
+					model_categories[ 0 ] if model_categories else 'General Assistant' )
 			gen_c1, gen_c2, gen_c3, gen_c4, gen_c5 = st.columns(
 				[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True )
 			with gen_c1:
-				st.selectbox( 'Category', available_categories, key='prompt_category_draft' )
+				st.selectbox( 'Category', model_categories, key='prompt_category_draft' )
 			with gen_c2:
 				st.selectbox( 'Task Type', get_prompt_task_types( ), key='prompt_task_generator' )
 			with gen_c3:
