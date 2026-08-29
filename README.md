@@ -125,6 +125,8 @@ Bro exposes six functional modes. `Image to Text` is appended to the configured 
 
 ## 🏛 Architecture
 
+![](https://github.com/is-leeroy-jenkins/Bro/blob/main/docs/img/bro-architecture.png)
+
 ```text
 Streamlit UI
     │
