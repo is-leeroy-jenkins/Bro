@@ -4385,10 +4385,10 @@ elif mode == 'Document Q&A':
 				
 				with action_c2:
 					st.markdown( '<br>', unsafe_allow_html=True )
-					if st.button( 'Run Action', key='doc_run_action', width='stretch' ):
-						action_name = str( st.session_state.get( 'docqna_action', 'Answer '
-						                                                          'Question' ) or
-						                   'Answer Question' ).strip( )
+					if st.button( label='Run Action', key='doc_run_action',
+							width='stretch', icon='🏃' ):
+						action_name = str( st.session_state.get(
+							'docqna_action', 'Answer ' 'Question' ) or 'Answer Question' ).strip( )
 						
 						action_prompts = {
 								'Summarize Active Document': 'Summarize the active document set clearly and faithfully.',
@@ -4408,8 +4408,8 @@ elif mode == 'Document Q&A':
 								'Identify Missing Information': 'Identify information required by the request that is absent from the active documents.' }
 						
 						if action_name != 'Answer Question':
-							action_prompt = action_prompts.get( action_name, 'Summarize the active '
-							                                                 'document set.' )
+							action_prompt = action_prompts.get(
+								action_name, 'Summarize the active ' 'document set.' )
 							
 							with st.chat_message( 'assistant' ):
 								out = st.empty( )
