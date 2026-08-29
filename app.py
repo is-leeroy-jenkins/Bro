@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import os
 import re
 import sqlite3
 import time
@@ -68,6 +69,32 @@ except ImportError:
 # Model Path Resolution
 # ==============================================================================
 MODEL_PATH_OBJ = Path( cfg.MODEL_PATH )
+
+def resolve_mmproj_path( ) -> Path | None:
+	"""Resolves the Gemma 3 multimodal projector path.
+
+	Purpose:
+		Resolves an explicitly configured projector first and then searches the model directory for
+		a local mmproj GGUF file so Image-to-Text can operate without requiring an unrelated
+		configuration-file change.
+
+	Returns:
+		Path | None: Existing multimodal projector path when one can be resolved.
+	"""
+	configured = str( getattr( cfg, 'MMPROJ_PATH', '' ) or getattr( cfg, 'MM_PROJ_PATH', '' ) or
+		os.environ.get( 'BRO_MMPROJ_PATH', '' ) or os.environ.get( 'GEMMA_MMPROJ_PATH', '' ) ).strip( )
+	if configured:
+		configured_path = Path( configured )
+		if configured_path.exists( ):
+			return configured_path
+	model_directory = MODEL_PATH_OBJ.parent
+	if model_directory.exists( ):
+		candidates = sorted( model_directory.glob( 'mmproj*.gguf' ) )
+		if candidates:
+			return candidates[ 0 ]
+	return None
+
+MMPROJ_PATH_OBJ = resolve_mmproj_path( )
 
 def local_model_available( ) -> bool:
 	"""Determines whether the configured local GGUF model path resolves to an existing model file before runtime loading is attempted.
@@ -105,7 +132,7 @@ if 'context_window' not in st.session_state:
 	st.session_state[ 'context_window' ] = 0
 
 if 'cpu_threads' not in st.session_state:
-	st.session_state[ 'cpu_threads' ] = 0
+	st.session_state[ 'cpu_threads' ] = int( cfg.CORES )
 
 if 'max_tokens' not in st.session_state:
 	st.session_state[ 'max_tokens' ] = 0
@@ -217,6 +244,62 @@ if 'classification_confidence' not in st.session_state:
 if 'classification_allow_unknown' not in st.session_state:
 	st.session_state[ 'classification_allow_unknown' ] = True
 
+if 'task_detail' not in st.session_state:
+	st.session_state[ 'task_detail' ] = 'Standard'
+
+if 'task_focus' not in st.session_state:
+	st.session_state[ 'task_focus' ] = 'Balanced'
+
+if 'translation_mode' not in st.session_state:
+	st.session_state[ 'translation_mode' ] = 'Natural'
+
+if 'translation_preserve_formatting' not in st.session_state:
+	st.session_state[ 'translation_preserve_formatting' ] = True
+
+if 'writing_length' not in st.session_state:
+	st.session_state[ 'writing_length' ] = 'Standard'
+
+if 'classification_explain' not in st.session_state:
+	st.session_state[ 'classification_explain' ] = False
+
+if 'response_length' not in st.session_state:
+	st.session_state[ 'response_length' ] = 'Standard'
+
+if 'response_include_headings' not in st.session_state:
+	st.session_state[ 'response_include_headings' ] = True
+
+if 'batch_size' not in st.session_state:
+	st.session_state[ 'batch_size' ] = 512
+
+if 'micro_batch_size' not in st.session_state:
+	st.session_state[ 'micro_batch_size' ] = 128
+
+# -------- IMAGE TO TEXT ---------------------
+
+if 'vision_task' not in st.session_state:
+	st.session_state[ 'vision_task' ] = 'Extract Visible Text'
+
+if 'vision_detail' not in st.session_state:
+	st.session_state[ 'vision_detail' ] = 'Detailed'
+
+if 'vision_response_format' not in st.session_state:
+	st.session_state[ 'vision_response_format' ] = 'Plain Text'
+
+if 'vision_response_language' not in st.session_state:
+	st.session_state[ 'vision_response_language' ] = 'English'
+
+if 'vision_preserve_layout' not in st.session_state:
+	st.session_state[ 'vision_preserve_layout' ] = True
+
+if 'vision_include_visible_text' not in st.session_state:
+	st.session_state[ 'vision_include_visible_text' ] = True
+
+if 'vision_projector_device' not in st.session_state:
+	st.session_state[ 'vision_projector_device' ] = 'CPU'
+
+if 'vision_last_response' not in st.session_state:
+	st.session_state[ 'vision_last_response' ] = ''
+
 if 'instruction_category' not in st.session_state:
 	st.session_state[ 'instruction_category' ] = 'General Assistant'
 
@@ -299,11 +382,41 @@ if 'include_page_markers' not in st.session_state:
 if 'show_docqna_diagnostics' not in st.session_state:
 	st.session_state[ 'show_docqna_diagnostics' ] = False
 
+if 'show_ocr_status' not in st.session_state:
+	st.session_state[ 'show_ocr_status' ] = True
+
+if 'show_runtime_metadata' not in st.session_state:
+	st.session_state[ 'show_runtime_metadata' ] = False
+
 if 'docqna_last_retrieval' not in st.session_state:
 	st.session_state[ 'docqna_last_retrieval' ] = [ ]
 
 if 'docqna_inventory_rows' not in st.session_state:
 	st.session_state[ 'docqna_inventory_rows' ] = [ ]
+
+if 'grounding_failure_behavior' not in st.session_state:
+	st.session_state[ 'grounding_failure_behavior' ] = 'State Insufficient Information'
+
+if 'retrieval_backend' not in st.session_state:
+	st.session_state[ 'retrieval_backend' ] = 'Automatic'
+
+if 'docqna_rebuild_each_query' not in st.session_state:
+	st.session_state[ 'docqna_rebuild_each_query' ] = False
+
+if 'docqna_action_detail' not in st.session_state:
+	st.session_state[ 'docqna_action_detail' ] = 'Standard'
+
+if 'ocr_page_limit' not in st.session_state:
+	st.session_state[ 'ocr_page_limit' ] = '5 Pages'
+
+if 'docqna_include_semantic_context' not in st.session_state:
+	st.session_state[ 'docqna_include_semantic_context' ] = True
+
+if 'docqna_context_order' not in st.session_state:
+	st.session_state[ 'docqna_context_order' ] = 'Retrieved First'
+
+if 'docqna_ocr_cache' not in st.session_state:
+	st.session_state[ 'docqna_ocr_cache' ] = { }
 
 # -------- SEMANTIC SEARCH ---------------------
 
@@ -700,7 +813,7 @@ def clear_history( ) -> None:
 PROMPT_CATEGORY_OPTIONS: List[ str ] = [ 'General Assistant', 'Analysis & Reasoning',
 		'Software Development', 'Writing & Editing', 'Summarization', 'Information Extraction',
 		'Classification', 'Translation', 'Structured Output', 'Document Analysis',
-		'Federal / Administrative Analysis' ]
+		'Vision & Image Analysis', 'Federal / Administrative Analysis' ]
 
 PROMPT_TASK_OPTIONS: List[ str ] = [ 'Chat', 'Analysis', 'Reasoning', 'Coding', 'Writing',
 		'Editing', 'Summarization', 'Extraction', 'Classification', 'Translation', 'Comparison',
@@ -711,7 +824,8 @@ RESPONSE_FORMAT_OPTIONS: List[ str ] = [ 'Plain Text', 'Markdown', 'Bullet List'
 
 CODING_LANGUAGE_OPTIONS: List[ str ] = [ 'Python', 'C', 'C++', 'C#', 'Java', 'JavaScript',
 		'TypeScript', 'SQL', 'VBA', 'PowerShell', 'Bash', 'HTML', 'CSS', 'Markdown', 'JSON',
-		                                 'YAML', 'Other' ]
+		                                 'YAML',
+		'Other' ]
 
 CODING_TASK_OPTIONS: List[ str ] = [ 'Generate', 'Complete', 'Refactor', 'Debug', 'Review',
 		'Explain', 'Optimize', 'Convert', 'Test', 'Document', 'Design' ]
@@ -733,6 +847,32 @@ WRITING_AUDIENCE_OPTIONS: List[ str ] = [ 'General', 'Technical', 'Executive', '
 
 CLASSIFICATION_TYPE_OPTIONS: List[ str ] = [ 'Binary', 'Multi-Class', 'Multi-Label', 'Sentiment',
 		'Intent', 'Topic', 'Relevance' ]
+
+TASK_DETAIL_OPTIONS: List[ str ] = [ 'Concise', 'Standard', 'Detailed' ]
+
+TASK_FOCUS_OPTIONS: List[ str ] = [ 'Accuracy', 'Balanced', 'Creativity' ]
+
+TRANSLATION_MODE_OPTIONS: List[ str ] = [ 'Natural', 'Literal', 'Formal', 'Technical',
+		'Localization' ]
+
+RESPONSE_LENGTH_OPTIONS: List[ str ] = [ 'Concise', 'Standard', 'Detailed' ]
+
+VISION_TASK_OPTIONS: List[ str ] = [ 'Extract Visible Text', 'Describe Image', 'Answer Questions',
+		'Analyze Screenshot', 'Analyze Chart', 'Analyze Diagram', 'Extract Structured Data',
+		'Compare Images' ]
+
+VISION_DETAIL_OPTIONS: List[ str ] = [ 'Concise', 'Standard', 'Detailed' ]
+
+GROUNDING_FAILURE_OPTIONS: List[ str ] = [ 'State Insufficient Information',
+		'Return Retrieved Excerpts', 'Best Supported Answer' ]
+
+RETRIEVAL_BACKEND_OPTIONS: List[ str ] = [ 'Automatic', 'sqlite-vec', 'Cosine Similarity' ]
+
+DOC_ACTION_DETAIL_OPTIONS: List[ str ] = [ 'Concise', 'Standard', 'Detailed' ]
+
+OCR_PAGE_LIMIT_OPTIONS: List[ str ] = [ '1 Page', '2 Pages', '5 Pages', '10 Pages', 'All Pages' ]
+
+DOC_CONTEXT_ORDER_OPTIONS: List[ str ] = [ 'Retrieved First', 'Semantic First' ]
 
 
 def throw_if( name: str, value: object ) -> None:
@@ -881,6 +1021,7 @@ def fetch_prompt_names( db_path: str, category: str = '' ) -> List[ str ]:
 		Logger( ).write( exception )
 		return [ ]
 
+
 def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str ] ]:
 	"""Retrieves prompt identifiers and captions for a selected category.
 
@@ -914,6 +1055,7 @@ def fetch_prompt_options( db_path: str, category: str ) -> List[ Tuple[ int, str
 		Logger( ).write( exception )
 		return [ ]
 
+
 def fetch_prompt_text( db_path: str, name: str ) -> str | None:
 	"""Retrieves prompt template text for a selected caption.
 
@@ -945,6 +1087,7 @@ def fetch_prompt_text( db_path: str, name: str ) -> str | None:
 		Logger( ).write( exception )
 		return None
 
+
 def fetch_prompts_df( ) -> pd.DataFrame:
 	"""Builds a prompt-management DataFrame from the Prompts table.
 
@@ -960,6 +1103,7 @@ def fetch_prompts_df( ) -> pd.DataFrame:
 			'SELECT ID, Caption, Name, Category, Text FROM Prompts ORDER BY ID DESC;', conn )
 	df_prompts.insert( 0, 'Selected', False )
 	return df_prompts
+
 
 def fetch_prompt_by_id( pid: int ) -> Dict[ str, Any ] | None:
 	"""Retrieves one prompt record by primary key.
@@ -989,6 +1133,7 @@ def fetch_prompt_by_id( pid: int ) -> Dict[ str, Any ] | None:
 		exception.method = 'fetch_prompt_by_id( pid: int ) -> Dict[str, Any] | None'
 		Logger( ).write( exception )
 		return None
+
 
 def fetch_prompt_by_name( name: str ) -> Dict[ str, Any ] | None:
 	"""Retrieves one prompt record by caption.
@@ -1021,6 +1166,7 @@ def fetch_prompt_by_name( name: str ) -> Dict[ str, Any ] | None:
 		Logger( ).write( exception )
 		return None
 
+
 def insert_prompt( data: Dict[ str, Any ] ) -> int:
 	"""Inserts a prompt-template record into the local Prompts table.
 
@@ -1041,6 +1187,7 @@ def insert_prompt( data: Dict[ str, Any ] ) -> int:
 		)
 		conn.commit( )
 		return int( cur.lastrowid )
+
 
 def update_prompt( pid: int, data: Dict[ str, Any ] ) -> None:
 	"""Updates an existing prompt-template record by primary key.
@@ -1065,6 +1212,7 @@ def update_prompt( pid: int, data: Dict[ str, Any ] ) -> None:
 		)
 		conn.commit( )
 
+
 def delete_prompt( pid: int ) -> None:
 	"""Deletes a prompt-template record from the local Prompts table by primary key.
 
@@ -1082,6 +1230,7 @@ def delete_prompt( pid: int ) -> None:
 		conn.execute( 'DELETE FROM Prompts WHERE ID = ?;', (pid,) )
 		conn.commit( )
 
+
 def get_effective_system_instructions( ) -> str:
 	"""Returns the active system-instruction text from Streamlit session state.
 
@@ -1093,6 +1242,7 @@ def get_effective_system_instructions( ) -> str:
 	"""
 	text = st.session_state.get( 'system_instructions', '' )
 	return str( text ).strip( ) if text is not None else ''
+
 
 def build_task_instruction_block( ) -> str:
 	"""Builds task-specific instruction text from Text Generation controls.
@@ -1127,9 +1277,21 @@ def build_task_instruction_block( ) -> str:
 		st.session_state.get( 'classification_type', 'Multi-Class' ) or 'Multi-Class' ).strip( )
 	classification_confidence = bool( st.session_state.get( 'classification_confidence', False ) )
 	classification_allow_unknown = bool( st.session_state.get( 'classification_allow_unknown', True ) )
+	task_detail = str( st.session_state.get( 'task_detail', 'Standard' ) or 'Standard' ).strip( )
+	task_focus = str( st.session_state.get( 'task_focus', 'Balanced' ) or 'Balanced' ).strip( )
+	translation_mode = str( st.session_state.get( 'translation_mode', 'Natural' ) or 'Natural' ).strip( )
+	translation_preserve_formatting = bool( st.session_state.get( 'translation_preserve_formatting', True ) )
+	writing_length = str( st.session_state.get( 'writing_length', 'Standard' ) or 'Standard' ).strip( )
+	classification_explain = bool( st.session_state.get( 'classification_explain', False ) )
+	response_length = str( st.session_state.get( 'response_length', 'Standard' ) or 'Standard' ).strip( )
+	response_include_headings = bool( st.session_state.get( 'response_include_headings', True ) )
 
 	lines: List[ str ] = [ 'Task Preset:', f'- Active Task: {task_preset}',
-		f'- Response Format: {response_format}', f'- Response Language: {response_language}' ]
+		f'- Task Detail: {task_detail}', f'- Task Focus: {task_focus}',
+		f'- Response Format: {response_format}', f'- Response Language: {response_language}',
+		f'- Response Length: {response_length}' ]
+	if response_include_headings:
+		lines.append( '- Use descriptive headings when they improve readability.' )
 	if bool( st.session_state.get( 'is_grounded', False ) ):
 		lines.append( '- Ground claims in supplied context and state when the context is insufficient.' )
 
@@ -1160,10 +1322,14 @@ def build_task_instruction_block( ) -> str:
 		lines.append( f'- Writing Operation: {writing_task}' )
 		lines.append( f'- Tone: {writing_tone}' )
 		lines.append( f'- Audience: {writing_audience}' )
+		lines.append( f'- Writing Length: {writing_length}' )
 		lines.append( '- Preserve the supplied facts and requested intent.' )
 	elif task_preset == 'Translation':
 		lines.append( f'- Source Language: {translation_source_language}' )
 		lines.append( f'- Target Language: {translation_target_language}' )
+		lines.append( f'- Translation Mode: {translation_mode}' )
+		if translation_preserve_formatting:
+			lines.append( '- Preserve source formatting and structural cues where practical.' )
 		lines.append( '- Preserve original meaning, tone, terminology, and structure where practical.' )
 	elif task_preset == 'Summarization':
 		lines.append( '- Summarize the supplied content clearly and faithfully.' )
@@ -1178,6 +1344,8 @@ def build_task_instruction_block( ) -> str:
 			lines.append( '- Include a concise confidence assessment with the classification.' )
 		if classification_allow_unknown:
 			lines.append( '- Use Unknown when the supplied evidence does not support a reliable class.' )
+		if classification_explain:
+			lines.append( '- Briefly explain the evidence supporting the selected classification.' )
 	elif task_preset == 'Comparison':
 		lines.append( '- Compare the supplied items using consistent criteria and identify material differences.' )
 	elif task_preset == 'Structured Output':
@@ -1202,6 +1370,7 @@ def build_task_instruction_block( ) -> str:
 
 	return '\n'.join( lines ).strip( )
 
+
 def build_effective_prompt_preview( user_input: str ) -> str:
 	"""Builds a readable preview of the system, task, and user prompt content.
 
@@ -1225,6 +1394,7 @@ def build_effective_prompt_preview( user_input: str ) -> str:
 	preview_parts.extend( [ '[User Input]', user_input or '' ] )
 	return '\n\n'.join( preview_parts ).strip( )
 
+
 def get_runtime_llm( ) -> Llama:
 	"""Loads or retrieves the cached llama.cpp runtime.
 
@@ -1244,10 +1414,14 @@ def get_runtime_llm( ) -> Llama:
 		thread_value = int( cfg.CORES )
 	if repeat_window_value <= 0:
 		repeat_window_value = 64
-	runtime_llm = load_llm( ctx_value, thread_value, repeat_window_value )
+	batch_size_value = int( st.session_state.get( 'batch_size', 512 ) or 512 )
+	micro_batch_size_value = int( st.session_state.get( 'micro_batch_size', 128 ) or 128 )
+	runtime_llm = load_llm( ctx_value, thread_value, repeat_window_value, batch_size_value,
+		micro_batch_size_value )
 	if runtime_llm is None:
 		raise RuntimeError( 'The configured Gemma 3 GGUF model could not be loaded.' )
 	return runtime_llm
+
 
 def build_chat_messages( user_input: str ) -> List[ Dict[ str, str ] ]:
 	"""Builds the chat-message sequence consumed by llama.cpp.
@@ -1346,6 +1520,7 @@ def build_chat_messages( user_input: str ) -> List[ Dict[ str, str ] ]:
 	chat_messages.append( { 'role': 'user', 'content': user_input } )
 	return chat_messages
 
+
 def build_prompt( user_input: str ) -> str:
 	"""Builds a readable compatibility prompt from the current chat-message sequence.
 
@@ -1364,6 +1539,7 @@ def build_prompt( user_input: str ) -> str:
 	for message in messages:
 		parts.append( f'[{message[ "role" ].title( )}]\n{message[ "content" ]}' )
 	return '\n\n'.join( parts ).strip( )
+
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
 		max_tokens: int, stream: bool, output: Any = None ) -> str:
@@ -1459,8 +1635,258 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 		return ''
 
 
-def build_starter_prompt_template( category: str, task_type: str, response_format: str,
-		language: str ) -> str:
+def vision_runtime_available( ) -> bool:
+	"""Determines whether Image-to-Text runtime assets are available.
+
+	Purpose:
+		Confirms that both the configured Gemma 3 GGUF model and a compatible local multimodal
+		projector are available before vision execution is attempted.
+
+	Returns:
+		bool: True when model and projector files are available.
+	"""
+	return local_model_available( ) and MMPROJ_PATH_OBJ is not None and MMPROJ_PATH_OBJ.exists( )
+
+
+@st.cache_resource
+def load_vision_llm( ctx: int, threads: int, repeat_window: int, batch_size: int,
+		micro_batch_size: int, mmproj_path: str, use_gpu: bool ) -> Any | None:
+	"""Loads the Gemma 3 multimodal llama.cpp runtime.
+
+	Purpose:
+		Loads Gemma 3 with llama-cpp-python's MTMD chat handler and the matching multimodal projector
+		so local image bytes can be supplied as OpenAI-compatible image_url content parts.
+
+	Args:
+		ctx (int): Context-window size.
+		threads (int): CPU thread count.
+		repeat_window (int): Repeat-history token window.
+		batch_size (int): llama.cpp logical batch size.
+		micro_batch_size (int): llama.cpp physical micro-batch size.
+		mmproj_path (str): Local multimodal projector path.
+		use_gpu (bool): True to request GPU projector execution.
+
+	Returns:
+		Any | None: Loaded multimodal runtime when available; otherwise None.
+	"""
+	try:
+		throw_if( 'mmproj_path', mmproj_path )
+		from llama_cpp import Llama
+		from llama_cpp.llama_chat_format import MTMDChatHandler
+		projector_path = Path( mmproj_path )
+		if not local_model_available( ) or not projector_path.exists( ):
+			return None
+		ctx_value = int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX )
+		thread_value = int( threads ) if int( threads ) > 0 else int( cfg.CORES )
+		repeat_window_value = int( repeat_window ) if int( repeat_window ) > 0 else 64
+		batch_size_value = int( batch_size ) if int( batch_size ) > 0 else 512
+		micro_batch_size_value = int( micro_batch_size ) if int( micro_batch_size ) > 0 else 128
+		micro_batch_size_value = min( micro_batch_size_value, batch_size_value )
+		chat_handler = MTMDChatHandler( clip_model_path=str( projector_path ), verbose=False,
+			use_gpu=bool( use_gpu ) )
+		return Llama( model_path=str( cfg.MODEL_PATH ), chat_handler=chat_handler,
+			n_ctx=ctx_value, n_threads=thread_value, n_batch=batch_size_value,
+			n_ubatch=micro_batch_size_value, last_n_tokens_size=repeat_window_value, verbose=False )
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'load_vision_llm'
+		exception.method = ('load_vision_llm( ctx, threads, repeat_window, batch_size, '
+			'micro_batch_size, mmproj_path, use_gpu ) -> Any | None')
+		Logger( ).write( exception )
+		return None
+
+
+def get_vision_runtime_llm( ) -> Any:
+	"""Loads or retrieves the cached Image-to-Text runtime.
+
+	Purpose:
+		Builds the multimodal runtime from the same context/runtime controls used by text generation and
+		fails through a controlled exception when the projector is unavailable.
+
+	Returns:
+		Any: Loaded llama.cpp multimodal runtime.
+	"""
+	if not vision_runtime_available( ) or MMPROJ_PATH_OBJ is None:
+		raise RuntimeError( 'A compatible Gemma 3 mmproj GGUF file is required for Image-to-Text.' )
+	ctx_value = int( st.session_state.get( 'context_window', cfg.DEFAULT_CTX ) or cfg.DEFAULT_CTX )
+	thread_value = int( st.session_state.get( 'cpu_threads', cfg.CORES ) or cfg.CORES )
+	repeat_window_value = int( st.session_state.get( 'repeat_window', 64 ) or 64 )
+	batch_size_value = int( st.session_state.get( 'batch_size', 512 ) or 512 )
+	micro_batch_size_value = int( st.session_state.get( 'micro_batch_size', 128 ) or 128 )
+	use_gpu = str( st.session_state.get( 'vision_projector_device', 'CPU' ) ) == 'GPU'
+	runtime_llm = load_vision_llm( ctx_value, thread_value, repeat_window_value, batch_size_value,
+		micro_batch_size_value, str( MMPROJ_PATH_OBJ ), use_gpu )
+	if runtime_llm is None:
+		raise RuntimeError( 'The Gemma 3 multimodal runtime could not be initialized.' )
+	return runtime_llm
+
+
+def image_bytes_to_data_uri( image_bytes: bytes, mime_type: str ) -> str:
+	"""Converts local image bytes to a data URI.
+
+	Purpose:
+		Encodes uploaded local image bytes into the image_url representation accepted by
+		llama-cpp-python's MTMD chat handler without making outbound network requests.
+
+	Args:
+		image_bytes (bytes): Image content.
+		mime_type (str): Image MIME type.
+
+	Returns:
+		str: Base64 data URI.
+	"""
+	throw_if( 'image_bytes', image_bytes )
+	mime_value = str( mime_type or 'image/png' ).strip( )
+	encoded = base64.b64encode( image_bytes ).decode( 'utf-8' )
+	return f'data:{mime_value};base64,{encoded}'
+
+
+def build_vision_instruction( user_input: str ) -> str:
+	"""Builds the Image-to-Text task instruction.
+
+	Purpose:
+		Converts bounded vision controls into a direct image-understanding request while preserving an
+		optional user-authored question as the highest-specificity task instruction.
+
+	Args:
+		user_input (str): Optional user question or image-analysis request.
+
+	Returns:
+		str: Vision task instruction.
+	"""
+	task = str( st.session_state.get( 'vision_task', 'Extract Visible Text' ) )
+	detail = str( st.session_state.get( 'vision_detail', 'Detailed' ) )
+	response_format = str( st.session_state.get( 'vision_response_format', 'Plain Text' ) )
+	response_language = str( st.session_state.get( 'vision_response_language', 'English' ) )
+	preserve_layout = bool( st.session_state.get( 'vision_preserve_layout', True ) )
+	include_visible_text = bool( st.session_state.get( 'vision_include_visible_text', True ) )
+	task_map = {
+		'Extract Visible Text': 'Extract all visible text accurately from the supplied image.',
+		'Describe Image': 'Describe the supplied image accurately and identify important visual details.',
+		'Answer Questions': 'Answer the user question using only information visible in the supplied image.',
+		'Analyze Screenshot': 'Analyze the screenshot, including visible interface elements, text, and state.',
+		'Analyze Chart': 'Analyze the chart, identify axes, series, values, trends, and material comparisons.',
+		'Analyze Diagram': 'Analyze the diagram, identify components, labels, relationships, and flow.',
+		'Extract Structured Data': 'Extract visible structured fields and values from the supplied image.',
+		'Compare Images': 'Compare the supplied images and identify material similarities and differences.'
+	}
+	lines: List[ str ] = [ task_map.get( task, task_map[ 'Extract Visible Text' ] ),
+		f'Detail Level: {detail}.', f'Response Format: {response_format}.',
+		f'Response Language: {response_language}.' ]
+	if preserve_layout:
+		lines.append( 'Preserve meaningful visual ordering, sections, rows, columns, and line breaks.' )
+	if include_visible_text and task != 'Extract Visible Text':
+		lines.append( 'Include materially relevant visible text in the analysis.' )
+	if user_input and str( user_input ).strip( ):
+		lines.append( f'User Request: {str( user_input ).strip( )}' )
+	return '\n'.join( lines ).strip( )
+
+
+def run_vision_turn( image_payloads: List[ Dict[ str, Any ] ], user_input: str = '',
+		stream: bool = False, output: Any = None, show_errors: bool = True,
+		instruction_override: str = '', response_format_override: str = '' ) -> str:
+	"""Executes one Gemma 3 Image-to-Text turn.
+
+	Purpose:
+		Sends local image bytes and bounded vision instructions through the MTMD multimodal chat path,
+		using the same inference controls as text generation and converting failures into controlled UI
+		feedback.
+
+	Args:
+		image_payloads (List[Dict[str, Any]]): Image dictionaries containing bytes and MIME metadata.
+		user_input (str): Optional user-authored image question.
+		stream (bool): True to stream response text.
+		output (Any): Optional Streamlit output placeholder.
+		show_errors (bool): True to display controlled runtime failures in the UI.
+		instruction_override (str): Explicit vision instruction used by internal OCR workflows.
+		response_format_override (str): Explicit response format used by internal OCR workflows.
+
+	Returns:
+		str: Generated Image-to-Text response, or an empty string when unavailable.
+	"""
+	if not image_payloads:
+		return ''
+	try:
+		runtime_llm = get_vision_runtime_llm( )
+		instruction_text = (
+			str( instruction_override ).strip( ) if instruction_override else
+			build_vision_instruction( user_input ))
+		content_parts: List[ Dict[ str, Any ] ] = [ { 'type': 'text', 'text': instruction_text } ]
+		for payload in image_payloads:
+			image_bytes = payload.get( 'bytes', b'' )
+			mime_type = str( payload.get( 'mime_type', 'image/png' ) or 'image/png' )
+			if not image_bytes:
+				continue
+			content_parts.append( { 'type': 'image_url',
+					'image_url': { 'url': image_bytes_to_data_uri( image_bytes, mime_type ) } } )
+		if len( content_parts ) == 1:
+			return ''
+		messages: List[ Dict[ str, Any ] ] = [ ]
+		system_instructions = get_effective_system_instructions( )
+		if system_instructions:
+			messages.append( { 'role': 'system', 'content': system_instructions } )
+		messages.append( { 'role': 'user', 'content': content_parts } )
+		generation_args: Dict[ str, Any ] = { 'messages': messages,
+				'max_tokens': int( st.session_state.get( 'max_tokens', 1024 ) or 1024 ),
+				'temperature': float( st.session_state.get( 'temperature', 0.0 ) ),
+				'top_p': float( st.session_state.get( 'top_percent', 0.95 ) or 0.95 ),
+				'repeat_penalty': float( st.session_state.get( 'repeat_penalty', 1.1 ) or 1.1 ),
+				'stream': bool( stream ) }
+		top_k_value = int( st.session_state.get( 'top_k', 0 ) )
+		seed_value = int( st.session_state.get( 'random_seed', 0 ) )
+		if top_k_value > 0:
+			generation_args[ 'top_k' ] = top_k_value
+		if seed_value > 0:
+			generation_args[ 'seed' ] = seed_value
+		generation_args[
+			'presence_penalty' ] = float( st.session_state.get( 'presense_penalty', 0.0 ) )
+		generation_args[
+			'frequency_penalty' ] = float( st.session_state.get( 'frequency_penalty', 0.0 ) )
+		vision_format = str( response_format_override or st.session_state.get(
+			'vision_response_format', 'Plain Text' ) )
+		if vision_format == 'JSON':
+			generation_args[ 'response_format' ] = { 'type': 'json_object' }
+		if not stream:
+			response = runtime_llm.create_chat_completion( **generation_args )
+			choices = response.get( 'choices', [ ] ) if isinstance( response, dict ) else [ ]
+			if not choices:
+				return ''
+			return str( choices[ 0 ].get( 'message', { } ).get( 'content', '' ) or '' ).strip( )
+		buffer = ''
+		if output is None:
+			output = st.empty( )
+		for chunk in runtime_llm.create_chat_completion( **generation_args ):
+			if not isinstance( chunk, dict ):
+				continue
+			choices = chunk.get( 'choices', [ ] )
+			if not choices:
+				continue
+			delta = choices[ 0 ].get( 'delta', { } )
+			piece = str( delta.get( 'content', '' ) or '' )
+			if piece:
+				buffer += piece
+				output.markdown( buffer + '▌' )
+		output.markdown( buffer )
+		return buffer.strip( )
+	except Exception as e:
+		exception = Error( e )
+		exception.module = 'app'
+		exception.cause = 'run_vision_turn'
+		exception.method = (
+			'run_vision_turn( image_payloads, user_input, stream, output, show_errors, '
+			'instruction_override, response_format_override ) -> str')
+		Logger( ).write( exception )
+		if show_errors:
+			message = f'Image-to-Text failed: {e}'
+			if output is not None:
+				output.error( message )
+			else:
+				st.error( message )
+		return ''
+
+def build_starter_prompt_template( category: str, task_type: str, response_format: str, language:
+str ) -> str:
 	"""Builds a starter system prompt from prompt metadata before optional local-model drafting.
 
 	Purpose:
@@ -1481,25 +1907,36 @@ def build_starter_prompt_template( category: str, task_type: str, response_forma
 	format_value = str( response_format or 'Markdown' ).strip( )
 	language_value = str( language or 'English' ).strip( )
 	lines: List[ str ] = [
-		f'You are Bro, a local AI assistant operating in the category "{category_value}".',
-		f'Primary task type: {task_value}.', f'Response format: {format_value}.',
-		f'Preferred language: {language_value}.'
-	]
+			f'You are Bro, a local AI assistant operating in the category "{category_value}".',
+			f'Primary task type: {task_value}.', f'Response format: {format_value}.',
+			f'Preferred language: {language_value}.' ]
 	category_guidance = {
-		'Analysis & Reasoning': 'Provide careful, structured analytical answers grounded in supplied information.',
-		'Software Development': 'Produce correct, editor-ready software guidance and code when requested.',
-		'Writing & Editing': 'Draft or revise content while preserving supplied facts, purpose, and audience.',
-		'Summarization': 'Summarize faithfully and preserve material facts, names, dates, and conclusions.',
-		'Information Extraction': 'Extract only supported facts and do not invent missing values.',
-		'Classification': 'Classify from supplied evidence and use only the requested classification scheme.',
-		'Translation': 'Translate faithfully while preserving meaning, tone, terminology, and structure.',
-		'Structured Output': 'Follow the requested output structure exactly and omit unrelated prose.',
-		'Document Analysis': 'Use supplied document content as the evidence base for the requested analysis.',
-		'Federal / Administrative Analysis': 'Apply precise federal administrative and analytical reasoning to the supplied information.'
-	}
-	lines.append( category_guidance.get( category_value, 'Respond helpfully, accurately, and concisely.' ) )
+			'Analysis & Reasoning': 'Provide careful, structured analytical answers grounded in '
+			                        'supplied information.',
+			'Software Development': 'Produce correct, editor-ready software guidance and code when '
+			                        'requested.',
+			'Writing & Editing': 'Draft or revise content while preserving supplied facts, '
+			                     'purpose, and audience.',
+			'Summarization': 'Summarize faithfully and preserve material facts, names, dates, '
+			                 'and conclusions.',
+			'Information Extraction': 'Extract only supported facts and do not invent missing '
+			                          'values.',
+			'Classification': 'Classify from supplied evidence and use only the requested '
+			                  'classification scheme.',
+			'Translation': 'Translate faithfully while preserving meaning, tone, terminology, '
+			               'and structure.',
+			'Structured Output': 'Follow the requested output structure exactly and omit unrelated '
+			                     'prose.',
+			'Document Analysis': 'Use supplied document content as the evidence base for the '
+			                     'requested analysis.',
+			'Federal / Administrative Analysis': 'Apply precise federal administrative and '
+			                                     'analytical reasoning to the supplied '
+			                                     'information.' }
+	lines.append( category_guidance.get( category_value, 'Respond helpfully, accurately, '
+	                                                     'and concisely.' ) )
 	lines.append( 'If required information is missing, state that clearly.' )
 	return '\n'.join( lines ).strip( )
+
 
 def generate_prompt_template_draft( goal: str, constraints: str, style: str,
 		category: str, task_type: str, response_format: str, language: str ) -> str:
@@ -1538,6 +1975,7 @@ Write only the system prompt text. Do not add explanation.'''.strip( )
 		repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.05 ) ),
 		max_tokens=512, stream=False, output=None )
 
+
 def apply_prompt_to_text_generation( prompt_text: str ) -> None:
 	"""Copies selected prompt text into shared system instructions for Text Generation mode.
 
@@ -1551,6 +1989,7 @@ def apply_prompt_to_text_generation( prompt_text: str ) -> None:
 		None: This function performs its work through Streamlit session state.
 	"""
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
+
 
 def apply_prompt_to_document_qna( prompt_text: str ) -> None:
 	"""Copies selected prompt text into shared system instructions for Document Q&A.
@@ -1567,6 +2006,7 @@ def apply_prompt_to_document_qna( prompt_text: str ) -> None:
 	st.session_state[ 'system_instructions' ] = str( prompt_text or '' )
 	st.session_state[ 'require_grounding' ] = True
 	st.session_state[ 'answer_from_excerpts_only' ] = True
+
 
 def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
 		response_format: str, language: str ) -> None:
@@ -1589,7 +2029,7 @@ def apply_prompt_metadata_to_shared_state( category: str, task_type: str,
 	st.session_state[ 'task_preset' ] = str( task_type or 'Chat' )
 	st.session_state[ 'response_format' ] = str( response_format or 'Markdown' )
 	st.session_state[ 'response_language' ] = str( language or 'English' )
-	st.session_state[ 'translation_target_language' ] = str( language or 'English' )
+
 
 def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
 	"""Copies a selected prompt record into the edit surface as a new prompt draft.
@@ -1610,6 +2050,8 @@ def clone_prompt_record( source_prompt: Dict[ str, Any ] | None ) -> None:
 	st.session_state.pe_name = str( source_prompt.get( 'Name', '' ) or '' )
 	st.session_state.pe_category = str( source_prompt.get( 'Category', 'General Assistant' ) or 'General Assistant' )
 	st.session_state.pe_text = str( source_prompt.get( 'Text', '' ) or '' )
+
+
 
 def render_system_instructions_controls( include_preset: bool, include_preview: bool ) -> None:
 	"""Renders category-aware System Instructions controls.
@@ -1761,7 +2203,9 @@ def initialize_database( ) -> None:
                           chunk
                           TEXT,
                           vector
-                          BLOB
+                          BLOB,
+                          DocumentName
+                          TEXT
                       )
 		              """ )
 		
@@ -1879,6 +2323,11 @@ def initialize_database( ) -> None:
                       )
 		              """ )
 		
+		embedding_columns = [ row[ 1 ] for row in
+		                      conn.execute( 'PRAGMA table_info("embeddings");' ).fetchall( ) ]
+		if 'DocumentName' not in embedding_columns:
+			conn.execute( 'ALTER TABLE embeddings ADD COLUMN DocumentName TEXT;' )
+
 		prompt_columns = [ row[ 1 ] for row in
 		                   conn.execute( 'PRAGMA table_info("Prompts");' ).fetchall( ) ]
 		target_prompt_columns = [ 'ID', 'Caption', 'Name', 'Category', 'Text' ]
@@ -2673,6 +3122,7 @@ def reset_selection( ) -> None:
 	st.session_state.pe_category = 'General Assistant'
 	st.session_state.pe_text = ''
 
+
 def load_prompt( pid: int ) -> None:
 	"""Loads a prompt record into the Prompt Engineering edit surface by primary key.
 
@@ -2694,6 +3144,7 @@ def load_prompt( pid: int ) -> None:
 	st.session_state.pe_category = str(
 		prompt_row.get( 'Category', 'General Assistant' ) or 'General Assistant' )
 	st.session_state.pe_text = str( prompt_row.get( 'Text', '' ) or '' )
+
 
 def get_ai_asset_tables( ) -> List[ str ]:
 	"""Returns the SQLite table names used for AI asset governance metadata.
@@ -3011,7 +3462,8 @@ def register_upload_images( uploaded_files: List[ Any ] ) -> Dict[ str, int ]:
 # -------------- LLM  UTILITIES -------------------
 
 @st.cache_resource
-def load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None:
+def load_llm( ctx: int, threads: int, repeat_window: int, batch_size: int,
+		micro_batch_size: int ) -> Any | None:
 	"""Loads the configured local GGUF model through llama.cpp.
 
 	Purpose:
@@ -3022,6 +3474,8 @@ def load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None:
 		ctx (int): Context-window size.
 		threads (int): CPU thread count.
 		repeat_window (int): Number of recent tokens retained for repetition penalties.
+		batch_size (int): llama.cpp logical batch size.
+		micro_batch_size (int): llama.cpp physical micro-batch size.
 
 	Returns:
 		Any | None: Loaded llama.cpp runtime when available; otherwise None.
@@ -3033,13 +3487,18 @@ def load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None:
 		ctx_value = int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX )
 		thread_value = int( threads ) if int( threads ) > 0 else int( cfg.CORES )
 		repeat_window_value = int( repeat_window ) if int( repeat_window ) > 0 else 64
+		batch_size_value = int( batch_size ) if int( batch_size ) > 0 else 512
+		micro_batch_size_value = int( micro_batch_size ) if int( micro_batch_size ) > 0 else 128
+		micro_batch_size_value = min( micro_batch_size_value, batch_size_value )
 		return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx_value, n_threads=thread_value,
-			n_batch=512, last_n_tokens_size=repeat_window_value, verbose=False )
+			n_batch=batch_size_value, n_ubatch=micro_batch_size_value,
+			last_n_tokens_size=repeat_window_value, verbose=False )
 	except Exception as e:
 		exception = Error( e )
 		exception.module = 'app'
 		exception.cause = 'load_llm'
-		exception.method = 'load_llm( ctx: int, threads: int, repeat_window: int ) -> Any | None'
+		exception.method = ('load_llm( ctx: int, threads: int, repeat_window: int, batch_size: int, '
+			'micro_batch_size: int ) -> Any | None')
 		Logger( ).write( exception )
 		return None
 
@@ -3131,6 +3590,8 @@ def build_instruction_block( ) -> str:
 	system_instructions = get_effective_system_instructions( )
 	require_grounding = bool( st.session_state.get( 'require_grounding', True ) )
 	answer_from_excerpts_only = bool( st.session_state.get( 'answer_from_excerpts_only', True ) )
+	grounding_failure_behavior = str( st.session_state.get( 'grounding_failure_behavior',
+		'State Insufficient Information' ) )
 	response_format = str(
 		st.session_state.get( 'response_format', 'Markdown' ) or 'Markdown' ).strip( )
 	doc_action = str(
@@ -3147,9 +3608,13 @@ def build_instruction_block( ) -> str:
 		lines.append( '- Ground every answer in the retrieved document excerpts.' )
 	
 	if answer_from_excerpts_only:
-		lines.append(
-			'- If the retrieved excerpts do not contain the answer, '
-			'state clearly that there is not enough information.' )
+		lines.append( '- Answer only from retrieved excerpts and supplied document context.' )
+	if grounding_failure_behavior == 'Return Retrieved Excerpts':
+		lines.append( '- When the answer is unsupported, return the most relevant excerpts instead.' )
+	elif grounding_failure_behavior == 'Best Supported Answer':
+		lines.append( '- When evidence is incomplete, provide the best supported answer and identify the gap.' )
+	else:
+		lines.append( '- When evidence is insufficient, state clearly that there is not enough information.' )
 	
 	if response_format == 'JSON':
 		lines.append( '- Return valid JSON only.' )
@@ -3157,52 +3622,83 @@ def build_instruction_block( ) -> str:
 	return '\n'.join( lines ).strip( )
 
 def extract_text_bytes( file_bytes: bytes, file_name: str = '' ) -> str:
-	"""Extracts text from PDF or text-like bytes using configured parsing preferences and available PDF dependencies.
+	"""Extracts text from PDF or text-like bytes using native parsing and optional Gemma vision OCR.
 
 	Purpose:
-		Extracts text from PDF or text-like bytes using configured parsing preferences and
-		available PDF dependencies.
+		Prefers native PDF text when configured, falls back to Gemma 3 Image-to-Text OCR for image-only
+		PDF pages when OCR is enabled and the multimodal projector is available, and decodes ordinary
+		text-like files without recursive calls.
 
 	Args:
-		file_bytes: Document bytes to parse.
-		file_name: Source file name used to infer parsing behavior.
+		file_bytes (bytes): Document bytes to parse.
+		file_name (str): Source file name used to infer parsing behavior.
 
 	Returns:
-		str: Text produced by the operation.
+		str: Extracted document text.
 	"""
 	if not file_bytes:
 		return ''
-	
 	file_name_value = str( file_name or '' ).lower( )
-	if (file_name_value.endswith( '.pdf' ) or file_name_value == '') and fitz is None:
-		st.warning( 'PyMuPDF is not installed. PDF text extraction is unavailable.' )
+	is_pdf = file_name_value.endswith( '.pdf' ) or file_name_value == ''
+	if not is_pdf:
+		try:
+			return file_bytes.decode( errors='ignore' ).strip( )
+		except Exception as e:
+			exception = Error( e )
+			exception.module = 'app'
+			exception.cause = 'extract_text_bytes'
+			exception.method = 'extract_text_bytes( file_bytes: bytes, file_name: str ) -> str'
+			Logger( ).write( exception )
+			return ''
+	if fitz is None:
 		return ''
-	
 	include_page_markers = bool( st.session_state.get( 'include_page_markers', False ) )
 	prefer_native_pdf_text = bool( st.session_state.get( 'prefer_native_pdf_text', True ) )
+	ocr_enabled = bool( st.session_state.get( 'ocr_enabled', False ) )
+	cache_key = hashlib.sha256( file_bytes ).hexdigest( )
+	ocr_cache = st.session_state.get( 'docqna_ocr_cache', { } )
+	if ocr_enabled and isinstance( ocr_cache, dict ) and cache_key in ocr_cache:
+		return str( ocr_cache[ cache_key ] or '' )
 	try:
-		if file_name_value.endswith( '.pdf' ) or file_name_value == '':
-			if prefer_native_pdf_text:
-				doc = fitz.open( stream=file_bytes, filetype='pdf' )
-				parts: List[ str ] = [ ]
-				page_index = 0
-				for page in doc:
-					page_index += 1
-					page_text = page.get_text( 'text' ) or ''
-					if include_page_markers:
-						parts.append( f'[Page {page_index}]' )
-					parts.append( page_text )
-				return '\n'.join( parts ).strip( )
-	except Exception as e:
-		exception = Error( e )
-		exception.module = 'app'
-		exception.cause = 'extract_text_bytes'
-		exception.method = 'extract_text_bytes( file_bytes: bytes, file_name: str ) -> str'
-		Logger( ).write( exception )
-		pass
-	
-	try:
-		return file_bytes.decode( errors='ignore' ).strip( )
+		doc = fitz.open( stream=file_bytes, filetype='pdf' )
+		parts: List[ str ] = [ ]
+		native_character_count = 0
+		for page_index, page in enumerate( doc, start=1 ):
+			page_text = page.get_text( 'text' ) or '' if prefer_native_pdf_text else ''
+			native_character_count += len( page_text.strip( ) )
+			if include_page_markers:
+				parts.append( f'[Page {page_index}]' )
+			if page_text.strip( ):
+				parts.append( page_text )
+		if native_character_count > 0 or not ocr_enabled:
+			return '\n'.join( parts ).strip( )
+		if not vision_runtime_available( ):
+			return '\n'.join( parts ).strip( )
+		page_limit_value = str( st.session_state.get( 'ocr_page_limit', '5 Pages' ) )
+		page_limit_map = { '1 Page': 1, '2 Pages': 2, '5 Pages': 5, '10 Pages': 10,
+			'All Pages': len( doc ) }
+		page_limit = min( len( doc ), page_limit_map.get( page_limit_value, 5 ) )
+		ocr_parts: List[ str ] = [ ]
+		for page_index in range( page_limit ):
+			page = doc[ page_index ]
+			pixmap = page.get_pixmap( matrix=fitz.Matrix( 2.0, 2.0 ), alpha=False )
+			png_bytes = pixmap.tobytes( 'png' )
+			page_text = run_vision_turn( [ {
+				'name': f'{file_name or "document.pdf"} page {page_index + 1}',
+				'bytes': png_bytes,
+				'mime_type': 'image/png'
+			} ], stream=False, output=None, show_errors=False,
+				instruction_override='Extract all visible text from this document page. Return the text only.',
+				response_format_override='Plain Text' )
+			if include_page_markers:
+				ocr_parts.append( f'[Page {page_index + 1}]' )
+			if page_text:
+				ocr_parts.append( page_text )
+		result = '\n'.join( ocr_parts ).strip( )
+		if isinstance( ocr_cache, dict ):
+			ocr_cache[ cache_key ] = result
+			st.session_state[ 'docqna_ocr_cache' ] = ocr_cache
+		return result
 	except Exception as e:
 		exception = Error( e )
 		exception.module = 'app'
@@ -3557,7 +4053,9 @@ def retrieve_chunks( query: str, k: int = None ) -> List[ Tuple[ str, str, float
 		exception.method = 'retrieve_chunks( query: str, k: int ) -> List[Tuple[str, str, float]]'
 		Logger( ).write( exception )
 		return [ ]
-	if bool( st.session_state.get( 'docqna_vec_ready', False ) ):
+	backend = str( st.session_state.get( 'retrieval_backend', 'Automatic' ) )
+	use_vector_backend = backend in ( 'Automatic', 'sqlite-vec' )
+	if use_vector_backend and bool( st.session_state.get( 'docqna_vec_ready', False ) ):
 		conn = create_connection( )
 		try:
 			load_sqlite_vec( conn )
@@ -3582,6 +4080,8 @@ def retrieve_chunks( query: str, k: int = None ) -> List[ Tuple[ str, str, float
 		finally:
 			conn.close( )
 	
+	if backend == 'sqlite-vec':
+		return [ ]
 	if not bool( st.session_state.get( 'allow_similarity_fallback', True ) ):
 		return [ ]
 	
@@ -3630,11 +4130,17 @@ def build_docqna_input( user_query: str, k: int = None ) -> str:
 	for doc_name, chunk, score in hits:
 		context_blocks.append( f'[Document: {doc_name}]\n{chunk}'.strip( ) )
 	
+	semantic_blocks: List[ str ] = [ ]
 	semantic_context_buffer = st.session_state.get( 'semantic_context_buffer', [ ] )
-	if isinstance( semantic_context_buffer, list ):
+	if bool( st.session_state.get( 'docqna_include_semantic_context', True ) ) and isinstance(
+			semantic_context_buffer, list ):
 		for value in semantic_context_buffer:
 			if isinstance( value, str ) and value.strip( ):
-				context_blocks.append( f'[Semantic Context]\n{value.strip( )}' )
+				semantic_blocks.append( f'[Semantic Context]\n{value.strip( )}' )
+	if str( st.session_state.get( 'docqna_context_order', 'Retrieved First' ) ) == 'Semantic First':
+		context_blocks = semantic_blocks + context_blocks
+	else:
+		context_blocks.extend( semantic_blocks )
 	
 	context = '\n\n'.join( context_blocks ).strip( )
 	active_doc_names = get_docqna_names( )
@@ -3657,44 +4163,43 @@ def build_docqna_input( user_query: str, k: int = None ) -> str:
 
 # ------------ SEMANTIC SEARCH UTLITIES -------------------
 
-def decode_embedding_rows( ) -> List[ Tuple[ str, np.ndarray ] ]:
-	"""Reads semantic-search embedding rows from SQLite and decodes vector blobs into NumPy arrays.
+def decode_embedding_rows( ) -> List[ Tuple[ str, str, np.ndarray ] ]:
+	"""Reads semantic-search embedding rows and decodes vectors.
 
 	Purpose:
-		Reads semantic-search embedding rows from SQLite and decodes vector blobs into NumPy
-		arrays.
+		Returns document identity with each chunk so the Semantic Query Group by Document control has a
+		real execution path rather than a display-only toggle.
 
 	Returns:
-		List[Tuple[str, np.ndarray]]: Result produced by the operation.
+		List[Tuple[str, str, np.ndarray]]: Document name, chunk text, and numeric vector rows.
 	"""
-	rows_out: List[ Tuple[ str, np.ndarray ] ] = [ ]
-	
+	rows_out: List[ Tuple[ str, str, np.ndarray ] ] = [ ]
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		rows = conn.execute( 'SELECT chunk, vector FROM embeddings' ).fetchall( )
-	
-	for chunk_text_value, vector_blob in rows:
+		rows = conn.execute( 'SELECT DocumentName, chunk, vector FROM embeddings' ).fetchall( )
+	for document_name, chunk_text_value, vector_blob in rows:
 		if not vector_blob:
 			continue
-		
 		vec = np.frombuffer( vector_blob, dtype=np.float32 )
 		if vec.size == 0:
 			continue
-		
-		rows_out.append( (str( chunk_text_value or '' ), vec) )
-	
+		rows_out.append( (str( document_name or 'Unknown Document' ),
+			str( chunk_text_value or '' ), vec) )
 	return rows_out
 
+
 def clear_semantic_index( ) -> None:
-	"""Clears the semantic-search embeddings table and resets related diagnostics in Streamlit session state.
+	"""Clears the semantic-search embeddings table and related diagnostics.
 
 	Purpose:
-		Clears the semantic-search embeddings table and resets related diagnostics in
-		Streamlit session state.
+		Removes indexed chunks while preserving the embeddings schema and resets all Streamlit semantic
+		search result state.
+
+	Returns:
+		None: This function performs its work through database and session-state side effects.
 	"""
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
 		conn.execute( 'DELETE FROM embeddings' )
 		conn.commit( )
-	
 	st.session_state[ 'semantic_result_rows' ] = [ ]
 	st.session_state[ 'semantic_selected_rows' ] = [ ]
 	st.session_state[ 'semantic_index_chunk_count' ] = 0
@@ -3703,42 +4208,35 @@ def clear_semantic_index( ) -> None:
 	st.session_state[ 'semantic_uploaded_names' ] = [ ]
 	st.session_state[ 'semantic_last_query' ] = ''
 
+
 def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
-	"""Builds or appends a semantic chunk index from uploaded files using the configured sentence embedder.
+	"""Builds or appends a document-aware semantic chunk index.
 
 	Purpose:
-		Builds or appends a semantic chunk index from uploaded files using the configured
-		sentence embedder.
+		Extracts text, creates bounded overlapping chunks, embeds them, and persists the source document
+		name with each vector so query results can optionally be grouped by document.
 
 	Args:
-		uploaded_files: Uploaded Streamlit file objects.
+		uploaded_files (List[Any]): Uploaded Streamlit files.
 
 	Returns:
-		Dict[str, Any]: Result produced by the operation.
+		Dict[str, Any]: Index build status and diagnostics.
 	"""
 	if embedder is None:
-		return {
-				'success': False,
-				'message': 'Embedding model unavailable.',
-				'doc_count': 0,
-				'chunk_count': 0,
-				'vector_dim': 0
-		}
-	
+		return { 'success': False, 'message': 'Embedding model unavailable.', 'doc_count': 0,
+			'chunk_count': 0, 'vector_dim': 0 }
 	chunk_size = int( st.session_state.get( 'semantic_chunk_size', 1200 ) )
 	chunk_overlap = int( st.session_state.get( 'semantic_chunk_overlap', 200 ) )
 	clear_existing = bool( st.session_state.get( 'semantic_clear_existing', True ) )
 	append_existing = bool( st.session_state.get( 'semantic_append_existing', False ) )
-	
 	if clear_existing and not append_existing:
 		clear_semantic_index( )
-	
-	all_chunks: List[ str ] = [ ]
+	chunk_rows: List[ Tuple[ str, str ] ] = [ ]
 	doc_names: List[ str ] = [ ]
-	for f in uploaded_files:
+	for uploaded_file in uploaded_files:
 		try:
-			file_name = str( getattr( f, 'name', '' ) or '' ).strip( )
-			file_bytes = f.getvalue( )
+			file_name = str( getattr( uploaded_file, 'name', '' ) or '' ).strip( )
+			file_bytes = uploaded_file.getvalue( )
 		except Exception as e:
 			exception = Error( e )
 			exception.module = 'app'
@@ -3746,108 +4244,83 @@ def build_semantic_index( uploaded_files: List[ Any ] ) -> Dict[ str, Any ]:
 			exception.method = 'build_semantic_index( uploaded_files: List[Any] ) -> Dict[str, Any]'
 			Logger( ).write( exception )
 			continue
-		
 		if not file_name or not file_bytes:
 			continue
-		
-		text = extract_text( file_bytes=file_bytes, file_name=file_name )
-		if not text:
+		text_value = extract_text( file_bytes=file_bytes, file_name=file_name )
+		if not text_value:
 			try:
-				text = file_bytes.decode( errors='ignore' )
-			except Exception as e:
-				exception = Error( e )
-				exception.module = 'app'
-				exception.cause = 'build_semantic_index'
-				exception.method = 'build_semantic_index( uploaded_files: List[Any] ) -> Dict[str, Any]'
-				Logger( ).write( exception )
-				text = ''
-		
-		if not text:
+				text_value = file_bytes.decode( errors='ignore' )
+			except Exception:
+				text_value = ''
+		if not text_value:
 			continue
-		
-		chunks = chunk_text( text=text, size=chunk_size, overlap=chunk_overlap )
-		if not chunks:
-			continue
-		
-		all_chunks.extend( chunks )
-		doc_names.append( file_name )
-	
-	if len( all_chunks ) == 0:
-		return {
-				'success': False,
-				'message': 'No extractable text was found in the uploaded files.',
-				'doc_count': 0,
-				'chunk_count': 0,
-				'vector_dim': 0
-		}
-	
-	vecs = embedder.encode( all_chunks, show_progress_bar=False )
-	vecs = np.asarray( vecs, dtype=np.float32 )
+		chunks = chunk_text( text=text_value, size=chunk_size, overlap=chunk_overlap )
+		for chunk_value in chunks:
+			chunk_rows.append( (file_name, chunk_value) )
+		if chunks:
+			doc_names.append( file_name )
+	if not chunk_rows:
+		return { 'success': False, 'message': 'No extractable text was found in the uploaded files.',
+			'doc_count': 0, 'chunk_count': 0, 'vector_dim': 0 }
+	chunk_values = [ row[ 1 ] for row in chunk_rows ]
+	vecs = np.asarray( embedder.encode( chunk_values, show_progress_bar=False ), dtype=np.float32 )
 	with sqlite3.connect( cfg.DB_PATH ) as conn:
-		for chunk_text_value, vec in zip( all_chunks, vecs ):
-			conn.execute(
-				'INSERT INTO embeddings (chunk, vector) VALUES (?, ?)',
-				(chunk_text_value, vec.tobytes( ))
-			)
+		for (document_name, chunk_value), vec in zip( chunk_rows, vecs ):
+			conn.execute( 'INSERT INTO embeddings (DocumentName, chunk, vector) VALUES (?, ?, ?)',
+				(document_name, chunk_value, vec.tobytes( )) )
 		conn.commit( )
-	
 	vector_dim = int( vecs.shape[ 1 ] ) if len( vecs.shape ) == 2 else 0
 	st.session_state[ 'semantic_uploaded_names' ] = doc_names
-	st.session_state[ 'semantic_index_doc_count' ] = len( doc_names )
-	st.session_state[ 'semantic_index_chunk_count' ] = len( all_chunks )
+	st.session_state[ 'semantic_index_doc_count' ] = len( set( doc_names ) )
+	st.session_state[ 'semantic_index_chunk_count' ] = len( chunk_rows )
 	st.session_state[ 'semantic_index_dim' ] = vector_dim
-	
-	return {
-			'success': True,
-			'message': 'Semantic index built successfully.',
-			'doc_count': len( doc_names ),
-			'chunk_count': len( all_chunks ),
-			'vector_dim': vector_dim
-	}
+	return { 'success': True, 'message': 'Semantic index built successfully.',
+		'doc_count': len( set( doc_names ) ), 'chunk_count': len( chunk_rows ), 'vector_dim': vector_dim }
+
 
 def query_semantic_index( query_text: str ) -> List[ Dict[ str, Any ] ]:
-	"""Queries the semantic index and returns ranked chunk rows for Streamlit display and context routing.
+	"""Queries the semantic index with optional document grouping.
 
 	Purpose:
-		Queries the semantic index and returns ranked chunk rows for Streamlit display and
-		context routing.
+		Ranks semantic chunks by cosine similarity and, when Group by Document is enabled, returns the
+		best-scoring chunk for each document before applying Top K.
 
 	Args:
-		query_text: query text value used by this workflow.
+		query_text (str): Semantic query text.
 
 	Returns:
-		List[Dict[str, Any]]: Result produced by the operation.
+		List[Dict[str, Any]]: Ranked semantic-search rows.
 	"""
-	if not query_text or not query_text.strip( ):
+	if not query_text or not query_text.strip( ) or embedder is None:
 		return [ ]
-	
-	if embedder is None:
-		return [ ]
-	
 	top_k = int( st.session_state.get( 'semantic_top_k', 8 ) )
 	min_similarity = float( st.session_state.get( 'semantic_min_similarity', 0.0 ) )
+	group_by_document = bool( st.session_state.get( 'semantic_group_by_document', False ) )
 	rows = decode_embedding_rows( )
 	if not rows:
 		return [ ]
-	
-	q = embedder.encode( [ query_text.strip( ) ], show_progress_bar=False )[ 0 ]
-	q = np.asarray( q, dtype=np.float32 )
+	query_vector = np.asarray( embedder.encode( [ query_text.strip( ) ], show_progress_bar=False )[ 0 ],
+		dtype=np.float32 )
 	scored_rows: List[ Dict[ str, Any ] ] = [ ]
-	for idx, (chunk_text_value, vec) in enumerate( rows, start=1 ):
-		score = cosine_similarity( q, vec )
+	for document_name, chunk_text_value, vec in rows:
+		if vec.size != query_vector.size:
+			continue
+		score = cosine_similarity( query_vector, vec )
 		if score < min_similarity:
 			continue
-		
-		scored_rows.append( {
-				'Selected': False,
-				'Rank': idx,
-				'Score': float( score ),
-				'Chunk': chunk_text_value,
-				'Length': len( chunk_text_value )
-		} )
-	
-	scored_rows.sort( key=lambda r: r[ 'Score' ], reverse=True )
+		scored_rows.append( { 'Selected': False, 'Document': document_name, 'Rank': 0,
+			'Score': float( score ), 'Chunk': chunk_text_value, 'Length': len( chunk_text_value ) } )
+	scored_rows.sort( key=lambda row: row[ 'Score' ], reverse=True )
+	if group_by_document:
+		best_by_document: Dict[ str, Dict[ str, Any ] ] = { }
+		for row in scored_rows:
+			document_name = str( row[ 'Document' ] )
+			if document_name not in best_by_document:
+				best_by_document[ document_name ] = row
+		scored_rows = list( best_by_document.values( ) )
 	scored_rows = scored_rows[ :top_k ]
+	for rank, row in enumerate( scored_rows, start=1 ):
+		row[ 'Rank' ] = rank
 	st.session_state[ 'semantic_last_query' ] = query_text.strip( )
 	st.session_state[ 'semantic_result_rows' ] = scored_rows
 	return scored_rows
@@ -3962,7 +4435,10 @@ with st.sidebar:
 	st.logo( cfg.LOGO, size='large' )
 	st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True )
 	with st.expander( label='Mode', expanded=True ):
-		mode = st.radio( label='Select', options=cfg.MODES, index=0 )
+		mode_options = list( cfg.MODES )
+		if 'Image to Text' not in mode_options:
+			mode_options.append( 'Image to Text' )
+		mode = st.radio( label='Select', options=mode_options, index=0 )
 
 # ==============================================================================
 # TEXT GENERATION MODE
@@ -3989,6 +4465,8 @@ if mode == 'Text Generation':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			if st.session_state.get( 'task_preset' ) not in get_prompt_task_types( ):
+				st.session_state[ 'task_preset' ] = 'Chat'
 			if st.session_state.get( 'response_format' ) not in get_response_formats( ):
 				st.session_state[ 'response_format' ] = 'Markdown'
 			if st.session_state.get( 'response_language' ) not in get_spoken_languages( False ):
@@ -3997,139 +4475,113 @@ if mode == 'Text Generation':
 				st.session_state[ 'translation_source_language' ] = 'Auto Detect'
 			if st.session_state.get( 'translation_target_language' ) not in get_spoken_languages( False ):
 				st.session_state[ 'translation_target_language' ] = 'English'
-			
+
 			with st.expander( label='Task Preset', icon='🧭', expanded=False ):
-				task_c1, task_c2, task_c3, task_c4, task_c5 = st.columns(
-					[ 0.20, 0.20, 0.20, 0.20, 0.20 ], border=True, gap='medium' )
-				
+				task_c1, task_c2, task_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True,
+					gap='medium' )
 				with task_c1:
-					st.selectbox( label='Task Type',
-						options=[ 'Chat', 'Reasoning', 'Coding', 'Translation', 'Summarization',
-						          'Extraction' ], key='task_preset' )
-				
+					st.selectbox( label='Task Type', options=get_prompt_task_types( ), key='task_preset' )
 				with task_c2:
-					st.selectbox( label='Response Format',
-						options=get_response_formats( ), key='response_format' )
-				
+					st.selectbox( label='Task Detail', options=TASK_DETAIL_OPTIONS, key='task_detail' )
 				with task_c3:
-					st.toggle( label='Use Conversation History',
-						value=bool( st.session_state.get( 'use_chat_history', True ) ),
-						key='use_chat_history' )
-				
-				with task_c4:
-					st.toggle( label='Use Document Context',
-						value=bool( st.session_state.get( 'use_document_context', False ) ),
-						key='use_document_context' )
-				
-				with task_c5:
-					st.selectbox( label='Response Language',
-						options=get_spoken_languages( include_auto_detect=False ),
-						key='response_language' )
-				
-				if st.button( label='Reset', key='task_preset_reset',
-						width='stretch', icon='🔄' ):
-					for key in [ 'task_preset', 'response_format', 'response_language',
-					             'use_chat_history', 'use_document_context' ]:
+					st.selectbox( label='Task Focus', options=TASK_FOCUS_OPTIONS, key='task_focus' )
+				if st.button( label='Reset', key='task_preset_reset', width='stretch', icon='🔄' ):
+					for key in [ 'task_preset', 'task_detail', 'task_focus' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-			
+
 			with st.expander( label='Reasoning Controls', icon='🧩', expanded=False ):
 				reason_c1, reason_c2, reason_c3, reason_c4 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
-				
 				with reason_c1:
 					st.selectbox( label='Reasoning Depth', options=[ 'Low', 'Medium', 'High' ],
 						key='reasoning_depth' )
-				
 				with reason_c2:
-					st.toggle( label='Answer Only',
-						value=bool( st.session_state.get( 'answer_only', False ) ),
+					st.toggle( label='Answer Only', value=bool( st.session_state.get( 'answer_only', False ) ),
 						key='answer_only' )
-				
 				with reason_c3:
-					st.toggle( label='Use Self-Check',
-						value=bool( st.session_state.get( 'use_self_check', False ) ),
+					st.toggle( label='Use Self-Check', value=bool( st.session_state.get( 'use_self_check', False ) ),
 						key='use_self_check' )
-				
 				with reason_c4:
 					st.toggle( label='Prefer Deterministic Reasoning',
 						value=bool( st.session_state.get( 'deterministic_reasoning', False ) ),
 						key='deterministic_reasoning' )
-				
-				if st.button( label='Reset', key='reasoning_controls_reset',
-						width='stretch', icon='🔄'  ):
-					for key in [ 'reasoning_depth', 'answer_only', 'use_self_check',
-					             'deterministic_reasoning' ]:
+				if st.button( label='Reset', key='reasoning_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'reasoning_depth', 'answer_only', 'use_self_check', 'deterministic_reasoning' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-			
+
 			with st.expander( label='Coding Controls', icon='🧾', expanded=False ):
 				code_c1, code_c2, code_c3, code_c4, code_c5 = st.columns(
 					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
-				
 				with code_c1:
-					st.selectbox( label='Code Language',
-						options=CODING_LANGUAGE_OPTIONS, key='coding_language' )
-				
+					st.selectbox( label='Code Language', options=CODING_LANGUAGE_OPTIONS, key='coding_language' )
 				with code_c2:
-					st.selectbox( label='Coding Task',
-						options=CODING_TASK_OPTIONS, key='coding_task' )
-				
+					st.selectbox( label='Coding Task', options=CODING_TASK_OPTIONS, key='coding_task' )
 				with code_c3:
 					st.toggle( label='Include Comments',
 						value=bool( st.session_state.get( 'coding_include_comments', True ) ),
 						key='coding_include_comments' )
-				
 				with code_c4:
 					st.toggle( label='Use Editor Format',
 						value=bool( st.session_state.get( 'coding_editor_format', True ) ),
 						key='coding_editor_format' )
-				
 				with code_c5:
 					st.toggle( label='Emit Fenced Code',
 						value=bool( st.session_state.get( 'coding_fenced_output', True ) ),
 						key='coding_fenced_output' )
-				
-				translation_col_left, translation_col_right = st.columns( [ 0.5, 0.5 ] )
-				with translation_col_left:
-					st.selectbox( label='Translation Source Language',
-						options=get_spoken_languages( include_auto_detect=True ),
-						key='translation_source_language' )
-				
-				with translation_col_right:
-					st.selectbox( label='Translation Target Language',
-						options=get_spoken_languages( include_auto_detect=False ),
-						key='translation_target_language' )
-				
-				if st.button( label='Reset', key='coding_controls_reset',
-						width='stretch', icon='🔄'  ):
+				if st.button( label='Reset', key='coding_controls_reset', width='stretch', icon='🔄' ):
 					for key in [ 'coding_language', 'coding_task', 'coding_include_comments',
-					             'coding_editor_format', 'coding_fenced_output',
-					             'translation_source_language', 'translation_target_language' ]:
+							'coding_editor_format', 'coding_fenced_output' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					st.rerun( )
 
 			with st.expander( label='Writing Controls', icon='✍️', expanded=False ):
-				write_c1, write_c2, write_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				write_c1, write_c2, write_c3, write_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				with write_c1:
 					st.selectbox( label='Writing Task', options=WRITING_TASK_OPTIONS, key='writing_task' )
 				with write_c2:
 					st.selectbox( label='Tone', options=WRITING_TONE_OPTIONS, key='writing_tone' )
 				with write_c3:
 					st.selectbox( label='Audience', options=WRITING_AUDIENCE_OPTIONS, key='writing_audience' )
+				with write_c4:
+					st.selectbox( label='Length', options=RESPONSE_LENGTH_OPTIONS, key='writing_length' )
 				if st.button( label='Reset', key='writing_controls_reset', width='stretch', icon='🔄' ):
-					for key in [ 'writing_task', 'writing_tone', 'writing_audience' ]:
+					for key in [ 'writing_task', 'writing_tone', 'writing_audience', 'writing_length' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Translation Controls', icon='🌐', expanded=False ):
+				trans_c1, trans_c2, trans_c3, trans_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				with trans_c1:
+					st.selectbox( label='Source Language', options=get_spoken_languages( True ),
+						key='translation_source_language' )
+				with trans_c2:
+					st.selectbox( label='Target Language', options=get_spoken_languages( False ),
+						key='translation_target_language' )
+				with trans_c3:
+					st.selectbox( label='Translation Mode', options=TRANSLATION_MODE_OPTIONS,
+						key='translation_mode' )
+				with trans_c4:
+					st.toggle( label='Preserve Formatting',
+						value=bool( st.session_state.get( 'translation_preserve_formatting', True ) ),
+						key='translation_preserve_formatting' )
+				if st.button( label='Reset', key='translation_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'translation_source_language', 'translation_target_language',
+							'translation_mode', 'translation_preserve_formatting' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					st.rerun( )
 
 			with st.expander( label='Classification Controls', icon='🏷️', expanded=False ):
-				class_c1, class_c2, class_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				class_c1, class_c2, class_c3, class_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				with class_c1:
 					st.selectbox( label='Classification Type', options=CLASSIFICATION_TYPE_OPTIONS,
 						key='classification_type' )
@@ -4141,113 +4593,120 @@ if mode == 'Text Generation':
 					st.toggle( label='Allow Unknown',
 						value=bool( st.session_state.get( 'classification_allow_unknown', True ) ),
 						key='classification_allow_unknown' )
+				with class_c4:
+					st.toggle( label='Explain Classification',
+						value=bool( st.session_state.get( 'classification_explain', False ) ),
+						key='classification_explain' )
 				if st.button( label='Reset', key='classification_controls_reset', width='stretch', icon='🔄' ):
 					for key in [ 'classification_type', 'classification_confidence',
-					             'classification_allow_unknown' ]:
+							'classification_allow_unknown', 'classification_explain' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					st.rerun( )
-			
+
 			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
-				mind_c1, mind_c2, mind_c3, mind_c4 = st.columns(
+				resp_c1, resp_c2, resp_c3, resp_c4 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
-				
-				with mind_c1:
-					st.slider( label='Temperature', min_value=0.0, max_value=1.0,
-						help=cfg.TEMPERATURE, key='temperature' )
-					temperature = st.session_state[ 'temperature' ]
-				
-				with mind_c2:
-					st.slider( label='Top-P', min_value=0.0, max_value=1.0,
-						step=0.01, key='top_percent', help=cfg.TOP_P )
-					top_percent = st.session_state[ 'top_percent' ]
-				
-				with mind_c3:
-					st.slider( label='Top-K', min_value=0, max_value=50,
-						step=1, key='top_k', help=cfg.TOP_K )
-					top_k = st.session_state[ 'top_k' ]
-				
-				with mind_c4:
-					st.toggle( label='Use Grounding',
-						value=bool( st.session_state.get( 'is_grounded', False ) ),
-						key='is_grounded' )
-					
-					is_grounded = st.session_state[ 'is_grounded' ]
-				
-				if st.button( label='Reset', key='response_controls_reset',
-						width='stretch', icon='🔄'  ):
-					for key in [ 'top_k', 'top_percent', 'temperature', 'is_grounded' ]:
+				with resp_c1:
+					st.selectbox( label='Response Format', options=get_response_formats( ), key='response_format' )
+				with resp_c2:
+					st.selectbox( label='Response Language', options=get_spoken_languages( False ),
+						key='response_language' )
+				with resp_c3:
+					st.selectbox( label='Response Length', options=RESPONSE_LENGTH_OPTIONS,
+						key='response_length' )
+				with resp_c4:
+					st.toggle( label='Include Headings',
+						value=bool( st.session_state.get( 'response_include_headings', True ) ),
+						key='response_include_headings' )
+				if st.button( label='Reset', key='response_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'response_format', 'response_language', 'response_length',
+							'response_include_headings' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-			
+
 			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
-				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns(
+				inf_c1, inf_c2, inf_c3, inf_c4, inf_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
+				with inf_c1:
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0,
+						key='temperature', help=cfg.TEMPERATURE )
+				with inf_c2:
+					st.slider( label='Top-P', min_value=0.0, max_value=1.0, step=0.01,
+						key='top_percent', help=cfg.TOP_P )
+				with inf_c3:
+					st.slider( label='Top-K', min_value=0, max_value=50, step=1,
+						key='top_k', help=cfg.TOP_K )
+				with inf_c4:
+					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='repeat_penalty', help=cfg.REPEAT_PENALTY )
+				with inf_c5:
+					st.slider( label='Repeat Window', min_value=0, max_value=1024, step=16,
+						key='repeat_window', help=cfg.REPEAT_WINDOW )
+				inf_c6, inf_c7, inf_c8, inf_c9 = st.columns(
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
-				
-				with prob_c1:
-					st.slider( label='Repeat Window', min_value=0, max_value=1024,
-						step=16, key='repeat_window', help=cfg.REPEAT_WINDOW )
-					repeat_window = st.session_state[ 'repeat_window' ]
-				
-				with prob_c2:
-					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
-						key='repeat_penalty', step=0.05, help=cfg.REPEAT_PENALTY )
-					repeat_penalty = st.session_state[ 'repeat_penalty' ]
-				
-				with prob_c3:
-					st.slider( label='Presence Penalty', min_value=0.0,
-						max_value=2.0, key='presense_penalty', step=0.05,
-						help=cfg.PRESENCE_PENALTY )
-					presense_penalty = st.session_state[ 'presense_penalty' ]
-				
-				with prob_c4:
-					st.slider( label='Frequency Penalty', min_value=0.0,
-						max_value=2.0, key='frequency_penalty',
-						step=0.05, help=cfg.FREQUENCY_PENALTY )
-					frequency_penalty = st.session_state[ 'frequency_penalty' ]
-				
-				if st.button( label='Reset', key='probability_controls_reset',
-						width='stretch', icon='🔄' ):
-					for key in [ 'frequency_penalty', 'presense_penalty', 'temperature',
-							'repeat_penalty', 'repeat_window' ]:
+				with inf_c6:
+					st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='presense_penalty', help=cfg.PRESENCE_PENALTY )
+				with inf_c7:
+					st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='frequency_penalty', help=cfg.FREQUENCY_PENALTY )
+				with inf_c8:
+					st.slider( label='Random Seed', min_value=0, max_value=4096, step=1,
+						key='random_seed', help=cfg.SEED )
+				with inf_c9:
+					st.slider( label='Max Tokens', min_value=0, max_value=8192, step=128,
+						key='max_tokens', help=cfg.MAX_TOKENS )
+				if st.button( label='Reset', key='probability_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'temperature', 'top_percent', 'top_k', 'repeat_penalty', 'repeat_window',
+							'presense_penalty', 'frequency_penalty', 'random_seed', 'max_tokens' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-			
+
 			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
-				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns(
-					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
-				
+				ctx_c1, ctx_c2, ctx_c3, ctx_c4, ctx_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
 				with ctx_c1:
-					st.slider( label='Context Window', min_value=0, max_value=131072,
-						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
-					context_window = st.session_state[ 'context_window' ]
-				
+					st.slider( label='Context Window', min_value=0, max_value=131072, step=512,
+						key='context_window', help=cfg.CONTEXT_WINDOW )
 				with ctx_c2:
-					st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
-						key='cpu_threads', step=1, help=cfg.CPU_CORES )
-					cpu_threads = st.session_state[ 'cpu_threads' ]
-				
+					st.toggle( label='Use Conversation History',
+						value=bool( st.session_state.get( 'use_chat_history', True ) ), key='use_chat_history' )
 				with ctx_c3:
-					st.slider( label='Max Tokens', min_value=0, max_value=8192,
-						step=128, key='max_tokens', help=cfg.MAX_TOKENS )
-					max_tokens = st.session_state[ 'max_tokens' ]
-				
+					st.toggle( label='Use Document Context',
+						value=bool( st.session_state.get( 'use_document_context', False ) ),
+						key='use_document_context' )
 				with ctx_c4:
-					st.slider( label='Random Seed', min_value=0, max_value=4096,
-						step=1, key='random_seed', help=cfg.SEED )
-				
-				if st.button( label='Reset', key='context_controls_reset',
-						width='stretch', icon='🔄'  ):
-					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
+					st.toggle( label='Use Semantic Context',
+						value=bool( st.session_state.get( 'use_semantic', False ) ), key='use_semantic' )
+				with ctx_c5:
+					st.toggle( label='Use Grounding',
+						value=bool( st.session_state.get( 'is_grounded', False ) ), key='is_grounded' )
+				if st.button( label='Reset', key='context_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'context_window', 'use_chat_history', 'use_document_context', 'use_semantic',
+							'is_grounded' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-		
+
+			with st.expander( label='Runtime Settings', icon='⚙️', expanded=False ):
+				run_c1, run_c2, run_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with run_c1:
+					st.slider( label='CPU Threads', min_value=1, max_value=max( 1, cfg.CORES ), step=1,
+						key='cpu_threads', help=cfg.CPU_CORES )
+				with run_c2:
+					st.slider( label='Batch Size', min_value=64, max_value=2048, step=64, key='batch_size' )
+				with run_c3:
+					st.slider( label='Micro Batch Size', min_value=32, max_value=1024, step=32,
+						key='micro_batch_size' )
+				if st.button( label='Reset', key='runtime_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'cpu_threads', 'batch_size', 'micro_batch_size' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
@@ -4286,6 +4745,137 @@ if mode == 'Text Generation':
 			st.session_state.messages = [ ]
 			st.rerun( )
 
+
+# ==============================================================================
+# IMAGE TO TEXT MODE
+# ==============================================================================
+elif mode == 'Image to Text':
+	left, center, right = st.columns( [ 0.025, 0.95, 0.025 ] )
+	with center:
+		st.subheader( '🖼️ Image to Text' )
+		st.divider( )
+		if not vision_runtime_available( ):
+			st.warning( 'Image-to-Text requires a compatible Gemma 3 mmproj GGUF file. Configure '
+				'cfg.MMPROJ_PATH / cfg.MM_PROJ_PATH, BRO_MMPROJ_PATH, GEMMA_MMPROJ_PATH, or place '
+				'an mmproj*.gguf file beside the model GGUF.' )
+
+		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
+			with st.expander( label='Vision Controls', icon='👁️', expanded=False ):
+				vis_c1, vis_c2, vis_c3, vis_c4, vis_c5, vis_c6 = st.columns(
+					[ 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6 ], border=True, gap='medium' )
+				with vis_c1:
+					st.selectbox( label='Vision Task', options=VISION_TASK_OPTIONS, key='vision_task' )
+				with vis_c2:
+					st.selectbox( label='Image Detail', options=VISION_DETAIL_OPTIONS, key='vision_detail' )
+				with vis_c3:
+					st.selectbox( label='Response Format', options=get_response_formats( ),
+						key='vision_response_format' )
+				with vis_c4:
+					st.selectbox( label='Response Language', options=get_spoken_languages( False ),
+						key='vision_response_language' )
+				with vis_c5:
+					st.toggle( label='Preserve Layout',
+						value=bool( st.session_state.get( 'vision_preserve_layout', True ) ),
+						key='vision_preserve_layout' )
+				with vis_c6:
+					st.toggle( label='Include Visible Text',
+						value=bool( st.session_state.get( 'vision_include_visible_text', True ) ),
+						key='vision_include_visible_text' )
+				if st.button( label='Reset', key='vision_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'vision_task', 'vision_detail', 'vision_response_format',
+							'vision_response_language', 'vision_preserve_layout', 'vision_include_visible_text' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
+				inf_c1, inf_c2, inf_c3, inf_c4, inf_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
+				with inf_c1:
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0, key='temperature',
+						help=cfg.TEMPERATURE )
+				with inf_c2:
+					st.slider( label='Top-P', min_value=0.0, max_value=1.0, step=0.01,
+						key='top_percent', help=cfg.TOP_P )
+				with inf_c3:
+					st.slider( label='Top-K', min_value=0, max_value=50, step=1, key='top_k', help=cfg.TOP_K )
+				with inf_c4:
+					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='repeat_penalty', help=cfg.REPEAT_PENALTY )
+				with inf_c5:
+					st.slider( label='Repeat Window', min_value=0, max_value=1024, step=16,
+						key='repeat_window', help=cfg.REPEAT_WINDOW )
+				inf_c6, inf_c7, inf_c8, inf_c9 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				with inf_c6:
+					st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='presense_penalty', help=cfg.PRESENCE_PENALTY )
+				with inf_c7:
+					st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='frequency_penalty', help=cfg.FREQUENCY_PENALTY )
+				with inf_c8:
+					st.slider( label='Random Seed', min_value=0, max_value=4096, step=1,
+						key='random_seed', help=cfg.SEED )
+				with inf_c9:
+					st.slider( label='Max Tokens', min_value=0, max_value=8192, step=128,
+						key='max_tokens', help=cfg.MAX_TOKENS )
+				if st.button( label='Reset', key='vision_inference_reset', width='stretch', icon='🔄' ):
+					for key in [ 'temperature', 'top_percent', 'top_k', 'repeat_penalty', 'repeat_window',
+							'presense_penalty', 'frequency_penalty', 'random_seed', 'max_tokens' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Runtime Settings', icon='⚙️', expanded=False ):
+				run_c1, run_c2, run_c3, run_c4, run_c5 = st.columns(
+					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
+				with run_c1:
+					st.slider( label='Context Window', min_value=0, max_value=131072, step=512,
+						key='context_window', help=cfg.CONTEXT_WINDOW )
+				with run_c2:
+					st.slider( label='CPU Threads', min_value=1, max_value=max( 1, cfg.CORES ), step=1,
+						key='cpu_threads', help=cfg.CPU_CORES )
+				with run_c3:
+					st.slider( label='Batch Size', min_value=64, max_value=2048, step=64, key='batch_size' )
+				with run_c4:
+					st.slider( label='Micro Batch Size', min_value=32, max_value=1024, step=32,
+						key='micro_batch_size' )
+				with run_c5:
+					st.selectbox( label='Projector Device', options=[ 'CPU', 'GPU' ],
+						key='vision_projector_device' )
+				if st.button( label='Reset', key='vision_runtime_reset', width='stretch', icon='🔄' ):
+					for key in [ 'context_window', 'cpu_threads', 'batch_size', 'micro_batch_size',
+							'vision_projector_device' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+		with st.expander( label='System Instructions', icon='🖥️', expanded=False, width='stretch' ):
+			render_system_instructions_controls( include_preset=False, include_preview=False )
+
+		uploaded_images = st.file_uploader( label='Upload Image(s)',
+			type=[ 'png', 'jpg', 'jpeg', 'webp' ], accept_multiple_files=True, key='vision_uploads' )
+		image_payloads: List[ Dict[ str, Any ] ] = [ ]
+		if uploaded_images:
+			preview_columns = st.columns( min( 4, len( uploaded_images ) ) )
+			for image_index, uploaded_image in enumerate( uploaded_images ):
+				image_bytes = uploaded_image.getvalue( )
+				mime_type = str( getattr( uploaded_image, 'type', '' ) or 'image/png' )
+				image_payloads.append( { 'name': uploaded_image.name, 'bytes': image_bytes,
+					'mime_type': mime_type } )
+				with preview_columns[ image_index % len( preview_columns ) ]:
+					st.image( image_bytes, caption=uploaded_image.name, use_container_width=True )
+		vision_question = st.text_area( label='Image Request', height=100,
+			placeholder='Optional question or instruction for the selected image task.',
+			key='vision_user_request' )
+		if st.button( label='Run Image Analysis', icon='🖼️', width='stretch',
+				key='vision_run_analysis', disabled=not bool( image_payloads ) ):
+			with st.chat_message( 'assistant' ):
+				vision_output = st.empty( )
+				response = run_vision_turn( image_payloads=image_payloads, user_input=vision_question,
+					stream=True, output=vision_output, show_errors=True )
+				st.session_state[ 'vision_last_response' ] = response
+
 # ==============================================================================
 # RETRIEVAL AUGMENTATION
 # ==============================================================================
@@ -4314,249 +4904,258 @@ elif mode == 'Document Q&A':
 		# Expander — Mind Controls
 		# ------------------------------------------------------------------
 		with st.expander( label='Mind Controls', icon='🧠', expanded=False ):
-			
 			with st.expander( label='Retrieval Controls', icon='🧲', expanded=False ):
-				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
-				
+				ret_c1, ret_c2, ret_c3, ret_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 				with ret_c1:
 					st.slider( label='Chunks to Retrieve', min_value=1, max_value=20, step=1,
 						key='retrieval_k' )
-				
 				with ret_c2:
 					st.slider( label='Chunk Size', min_value=256, max_value=4000, step=64,
 						key='retrieval_chunk_size' )
-				
 				with ret_c3:
 					st.slider( label='Chunk Overlap', min_value=0, max_value=1000, step=25,
 						key='retrieval_chunk_overlap' )
-				
 				with ret_c4:
-					st.toggle( label='Show Retrieved Chunks', value=bool( st.session_state.get(
-						'show_retrieved_chunks', True ) ), key='show_retrieved_chunks' )
-				
-				ret_c5, ret_c6, ret_c7, ret_c8 = st.columns( [ 0.25, 0.25, 0.25,  0.25 ], border=True,
-					gap='medium' )
-				
-				with ret_c5:
-					st.toggle( label='Require Grounding', value=bool( st.session_state.get(
-						'require_grounding', True ) ), key='require_grounding' )
-				
-				with ret_c6:
-					st.toggle( label='Answer From Excerpts Only', value=bool(
-						st.session_state.get( 'answer_from_excerpts_only', True ) ),
-						key='answer_from_excerpts_only' )
-				
-				with ret_c7:
-					st.toggle( label='Use sqlite-vec', value=bool( st.session_state.get(
-						'prefer_sqlite_vec', True ) ), key='prefer_sqlite_vec' )
-				
-				with ret_c8:
-					st.toggle( label='Fallback Cosine Search', value=bool( st.session_state.get(
-						'allow_similarity_fallback', True ) ), key='allow_similarity_fallback' )
-				
-				if st.button( label='Reset', key='doc_retrieval_controls_reset', width='stretch',
-						icon='🔄'  ):
+					st.toggle( label='Show Retrieved Chunks',
+						value=bool( st.session_state.get( 'show_retrieved_chunks', True ) ),
+						key='show_retrieved_chunks' )
+				if st.button( label='Reset', key='doc_retrieval_controls_reset', width='stretch', icon='🔄' ):
 					for key in [ 'retrieval_k', 'retrieval_chunk_size', 'retrieval_chunk_overlap',
-					             'show_retrieved_chunks', 'require_grounding',
-					             'answer_from_excerpts_only', 'prefer_sqlite_vec',
-					             'allow_similarity_fallback' ]:
+							'show_retrieved_chunks' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-			
+
+			with st.expander( label='Grounding Controls', icon='🛡️', expanded=False ):
+				ground_c1, ground_c2, ground_c3 = st.columns(
+					[ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with ground_c1:
+					st.toggle( label='Require Grounding',
+						value=bool( st.session_state.get( 'require_grounding', True ) ), key='require_grounding' )
+				with ground_c2:
+					st.toggle( label='Answer From Excerpts Only',
+						value=bool( st.session_state.get( 'answer_from_excerpts_only', True ) ),
+						key='answer_from_excerpts_only' )
+				with ground_c3:
+					st.selectbox( label='If Evidence Is Insufficient', options=GROUNDING_FAILURE_OPTIONS,
+						key='grounding_failure_behavior' )
+				if st.button( label='Reset', key='doc_grounding_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'require_grounding', 'answer_from_excerpts_only',
+							'grounding_failure_behavior' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Retrieval Backend', icon='🧮', expanded=False ):
+				back_c1, back_c2, back_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with back_c1:
+					st.selectbox( label='Backend', options=RETRIEVAL_BACKEND_OPTIONS, key='retrieval_backend' )
+				with back_c2:
+					st.toggle( label='Fallback Cosine Search',
+						value=bool( st.session_state.get( 'allow_similarity_fallback', True ) ),
+						key='allow_similarity_fallback' )
+				with back_c3:
+					st.toggle( label='Rebuild Index Each Query',
+						value=bool( st.session_state.get( 'docqna_rebuild_each_query', False ) ),
+						key='docqna_rebuild_each_query' )
+				st.session_state[ 'prefer_sqlite_vec' ] = st.session_state.get( 'retrieval_backend' ) != 'Cosine Similarity'
+				if st.button( label='Reset', key='doc_backend_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'retrieval_backend', 'allow_similarity_fallback', 'docqna_rebuild_each_query' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
 			with st.expander( label='Document Actions', icon='🗂️', expanded=False ):
-				action_c1, action_c2 = st.columns( [ 0.6, 0.4 ], border=True )
-				
+				action_c1, action_c2, action_c3 = st.columns( [ 0.5, 0.25, 0.25 ], border=True, gap='medium' )
 				with action_c1:
-					st.selectbox( label='Action', options=[ 'Answer Question',
-					                                        'Summarize Active Document',
-					                                        'Extract Key Points',
-					                                        'Generate Outline', 'Extract Entities',
-					                                        'Extract Tables',
-					                                        'Compare Active Documents',
-					                                        'Classify Document', 'Find Evidence',
-					                                        'Generate Executive Summary', 'Extract Dates',
-					                                        'Extract Organizations', 'Extract Requirements',
-					                                        'Extract Action Items', 'Identify Contradictions',
-					                                        'Identify Missing Information' ],
-						key='docqna_action' )
-				
+					st.selectbox( label='Action', options=[ 'Answer Question', 'Summarize Active Document',
+						'Extract Key Points', 'Generate Outline', 'Extract Entities', 'Extract Tables',
+						'Compare Active Documents', 'Classify Document', 'Find Evidence',
+						'Generate Executive Summary', 'Extract Dates', 'Extract Organizations',
+						'Extract Requirements', 'Extract Action Items', 'Identify Contradictions',
+						'Identify Missing Information' ], key='docqna_action' )
 				with action_c2:
+					st.selectbox( label='Action Detail', options=DOC_ACTION_DETAIL_OPTIONS,
+						key='docqna_action_detail' )
+				with action_c3:
 					st.markdown( '<br>', unsafe_allow_html=True )
-					if st.button( label='Run Action', key='doc_run_action',
-							width='stretch', icon='🏃' ):
-						action_name = str( st.session_state.get(
-							'docqna_action', 'Answer ' 'Question' ) or 'Answer Question' ).strip( )
-						
-						action_prompts = {
-								'Summarize Active Document': 'Summarize the active document set clearly and faithfully.',
-								'Extract Key Points': 'Extract the key points from the active document set.',
-								'Generate Outline': 'Generate an outline of the active document set.',
-								'Extract Entities': 'Extract named entities, dates, organizations, and references from the active document set.',
-								'Extract Tables': 'Describe the tabular or structured information visible in the active document set.',
-								'Compare Active Documents': 'Compare the active documents and explain major agreements, differences, and gaps.',
-								'Classify Document': 'Classify the active document set using supported evidence.',
-								'Find Evidence': 'Find excerpts that directly support or contradict the requested proposition.',
-								'Generate Executive Summary': 'Generate an executive summary of the active document set.',
-								'Extract Dates': 'Extract important dates and their associated events or obligations.',
-								'Extract Organizations': 'Extract named organizations and their supported roles.',
-								'Extract Requirements': 'Extract explicit requirements, constraints, and acceptance criteria.',
-								'Extract Action Items': 'Extract action items and responsible parties when supported.',
-								'Identify Contradictions': 'Identify material contradictions or inconsistencies across the active documents.',
-								'Identify Missing Information': 'Identify information required by the request that is absent from the active documents.' }
-						
-						if action_name != 'Answer Question':
-							action_prompt = action_prompts.get(
-								action_name, 'Summarize the active ' 'document set.' )
-							
-							with st.chat_message( 'assistant' ):
-								out = st.empty( )
-								response = run_llm_turn( user_input=build_docqna_input(
-									user_query=action_prompt, k=int( st.session_state.get(
-										'retrieval_k', 6 ) ) ), temperature=float(
-									st.session_state.get( 'temperature', 0.0 ) ), top_p=float(
-									st.session_state.get( 'top_percent', 0.95 ) ),
-									repeat_penalty=float( st.session_state.get( 'repeat_penalty',
-										1.1 ) ), max_tokens=int( st.session_state.get(
-										'max_tokens', 1024 ) ) or 1024, stream=True, output=out )
-							
-							save_message( 'assistant', response )
-							st.session_state.messages.append( ('assistant', response) )
-			
-			with st.expander( label='Document Parsing', icon='📄', expanded=False ):
-				parse_c1, parse_c2, parse_c3, parse_c4 = st.columns( [ 0.25, 0.25, 0.25,  0.25 ],
-					border=True, gap='medium' )
-				
-				with parse_c1:
-					st.toggle( label='Enable OCR', value=bool( st.session_state.get(
-						'ocr_enabled', False ) ), key='ocr_enabled' )
-				
-				with parse_c2:
-					st.toggle( label='Prefer Native PDF Text', value=bool( st.session_state.get(
-						'prefer_native_pdf_text', True ) ), key='prefer_native_pdf_text' )
-				
-				with parse_c3:
-					st.toggle( label='Include Page Markers', value=bool( st.session_state.get(
-						'include_page_markers', False ) ), key='include_page_markers' )
-				
-				with parse_c4:
-					st.toggle( label='Show Diagnostics', value=bool( st.session_state.get(
-						'show_docqna_diagnostics', False ) ), key='show_docqna_diagnostics' )
-				
-				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch',
-						icon='🔄' ):
-					for key in [ 'ocr_enabled', 'prefer_native_pdf_text', 'include_page_markers',
-					             'show_docqna_diagnostics' ]:
+					run_action = st.button( 'Run Action', key='doc_run_action', width='stretch' )
+				if run_action:
+					action_name = str( st.session_state.get( 'docqna_action', 'Answer Question' ) )
+					action_detail = str( st.session_state.get( 'docqna_action_detail', 'Standard' ) )
+					action_prompts = {
+						'Summarize Active Document': 'Summarize the active document set clearly and faithfully.',
+						'Extract Key Points': 'Extract the key points from the active document set.',
+						'Generate Outline': 'Generate an outline of the active document set.',
+						'Extract Entities': 'Extract named entities, dates, organizations, and references from the active document set.',
+						'Extract Tables': 'Describe the tabular or structured information visible in the active document set.',
+						'Compare Active Documents': 'Compare the active documents and explain major agreements, differences, and gaps.',
+						'Classify Document': 'Classify the active document set using supported evidence.',
+						'Find Evidence': 'Find excerpts that directly support or contradict the requested proposition.',
+						'Generate Executive Summary': 'Generate an executive summary of the active document set.',
+						'Extract Dates': 'Extract important dates and their associated events or obligations.',
+						'Extract Organizations': 'Extract named organizations and their supported roles.',
+						'Extract Requirements': 'Extract explicit requirements, constraints, and acceptance criteria.',
+						'Extract Action Items': 'Extract action items and responsible parties when supported.',
+						'Identify Contradictions': 'Identify material contradictions or inconsistencies across the active documents.',
+						'Identify Missing Information': 'Identify information required by the request that is absent from the active documents.' }
+					if action_name != 'Answer Question':
+						action_prompt = action_prompts.get( action_name, 'Summarize the active document set.' )
+						action_prompt += f'\nDetail Level: {action_detail}.'
+						with st.chat_message( 'assistant' ):
+							out = st.empty( )
+							response = run_llm_turn( user_input=build_docqna_input( user_query=action_prompt,
+								k=int( st.session_state.get( 'retrieval_k', 6 ) ) ),
+								temperature=float( st.session_state.get( 'temperature', 0.0 ) ),
+								top_p=float( st.session_state.get( 'top_percent', 0.95 ) ),
+								repeat_penalty=float( st.session_state.get( 'repeat_penalty', 1.1 ) ),
+								max_tokens=int( st.session_state.get( 'max_tokens', 1024 ) ) or 1024,
+								stream=True, output=out )
+						save_message( 'assistant', response )
+						st.session_state.messages.append( ('assistant', response) )
+				if st.button( label='Reset', key='doc_action_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'docqna_action', 'docqna_action_detail' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
 					st.rerun( )
-			
-			with st.expander( label='Response Settings', icon='↔️', expanded=False ):
-				if st.session_state.get( 'response_format' ) not in get_response_formats( ):
-					st.session_state[ 'response_format' ] = 'Markdown'
-				if st.session_state.get( 'response_language' ) not in get_spoken_languages( False ):
-					st.session_state[ 'response_language' ] = 'English'
-				mind_c1, mind_c2, mind_c3, mind_c4, mind_c5 = st.columns(
+
+			with st.expander( label='Document Parsing', icon='📄', expanded=False ):
+				parse_c1, parse_c2, parse_c3, parse_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				with parse_c1:
+					st.toggle( label='Enable OCR', value=bool( st.session_state.get( 'ocr_enabled', False ) ),
+						key='ocr_enabled' )
+				with parse_c2:
+					st.toggle( label='Prefer Native PDF Text',
+						value=bool( st.session_state.get( 'prefer_native_pdf_text', True ) ),
+						key='prefer_native_pdf_text' )
+				with parse_c3:
+					st.toggle( label='Include Page Markers',
+						value=bool( st.session_state.get( 'include_page_markers', False ) ),
+						key='include_page_markers' )
+				with parse_c4:
+					st.selectbox( label='OCR Page Limit', options=OCR_PAGE_LIMIT_OPTIONS, key='ocr_page_limit' )
+				if st.button( label='Reset', key='doc_parsing_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'ocr_enabled', 'prefer_native_pdf_text', 'include_page_markers', 'ocr_page_limit' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.session_state[ 'docqna_ocr_cache' ] = { }
+					st.rerun( )
+
+
+			with st.expander( label='Diagnostics', icon='🔎', expanded=False ):
+				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with diag_c1:
+					st.toggle( label='Show Diagnostics',
+						value=bool( st.session_state.get( 'show_docqna_diagnostics', False ) ),
+						key='show_docqna_diagnostics' )
+				with diag_c2:
+					st.toggle( label='Show OCR Status',
+						value=bool( st.session_state.get( 'show_ocr_status', True ) ), key='show_ocr_status' )
+				with diag_c3:
+					st.toggle( label='Show Runtime Metadata',
+						value=bool( st.session_state.get( 'show_runtime_metadata', False ) ),
+						key='show_runtime_metadata' )
+				if st.button( label='Reset', key='doc_diagnostics_reset', width='stretch', icon='🔄' ):
+					for key in [ 'show_docqna_diagnostics', 'show_ocr_status', 'show_runtime_metadata' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Response Controls', icon='↔️', expanded=False ):
+				resp_c1, resp_c2, resp_c3, resp_c4 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				with resp_c1:
+					st.selectbox( label='Response Format', options=get_response_formats( ), key='response_format' )
+				with resp_c2:
+					st.selectbox( label='Response Language', options=get_spoken_languages( False ),
+						key='response_language' )
+				with resp_c3:
+					st.selectbox( label='Response Length', options=RESPONSE_LENGTH_OPTIONS, key='response_length' )
+				with resp_c4:
+					st.toggle( label='Include Headings',
+						value=bool( st.session_state.get( 'response_include_headings', True ) ),
+						key='response_include_headings' )
+				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'response_format', 'response_language', 'response_length',
+							'response_include_headings' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
+				inf_c1, inf_c2, inf_c3, inf_c4, inf_c5 = st.columns(
 					[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
-				
-				with mind_c1:
-					st.slider( label='Temperature', min_value=0.0, max_value=1.0, value=float(
-						st.session_state.get( 'temperature', 0.0 ) ), help=cfg.TEMPERATURE,
-						key='temperature' )
-					temperature = st.session_state[ 'temperature' ]
-				
-				with mind_c2:
+				with inf_c1:
+					st.slider( label='Temperature', min_value=0.0, max_value=1.0, key='temperature',
+						help=cfg.TEMPERATURE )
+				with inf_c2:
 					st.slider( label='Top-P', min_value=0.0, max_value=1.0, step=0.01,
 						key='top_percent', help=cfg.TOP_P )
-					top_percent = st.session_state[ 'top_percent' ]
-				
-				with mind_c3:
-					st.slider( label='Top-K', min_value=0, max_value=50, step=1, key='top_k',
-						help=cfg.TOP_K )
-					top_k = st.session_state[ 'top_k' ]
-				
-				with mind_c4:
-					st.selectbox( label='Response Format', options=get_response_formats( ),
-						key='response_format' )
-				
-				with mind_c5:
-					st.selectbox( label='Response Language',
-						options=get_spoken_languages( include_auto_detect=False ), key='response_language' )
-				
-				if st.button( label='Reset', key='doc_response_controls_reset', width='stretch',
-						icon='🔄' ):
-					for key in [ 'top_k', 'top_percent', 'temperature', 'response_format',
-					             'response_language' ]:
-						if key in st.session_state:
-							del st.session_state[ key ]
-					st.rerun( )
-			
-			with st.expander( label='Inference Settings', icon='🎚️', expanded=False ):
-				prob_c1, prob_c2, prob_c3, prob_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
-				
-				with prob_c1:
+				with inf_c3:
+					st.slider( label='Top-K', min_value=0, max_value=50, step=1, key='top_k', help=cfg.TOP_K )
+				with inf_c4:
+					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='repeat_penalty', help=cfg.REPEAT_PENALTY )
+				with inf_c5:
 					st.slider( label='Repeat Window', min_value=0, max_value=1024, step=16,
 						key='repeat_window', help=cfg.REPEAT_WINDOW )
-					repeat_window = st.session_state[ 'repeat_window' ]
-				
-				with prob_c2:
-					st.slider( label='Repeat Penalty', min_value=0.0, max_value=2.0,
-						key='repeat_penalty', step=0.05, help=cfg.REPEAT_PENALTY )
-					repeat_penalty = st.session_state[ 'repeat_penalty' ]
-				
-				with prob_c3:
-					st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0,
-						key='presense_penalty', step=0.05, help=cfg.PRESENCE_PENALTY )
-					presense_penalty = st.session_state[ 'presense_penalty' ]
-				
-				with prob_c4:
-					st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0,
-						key='frequency_penalty', step=0.05, help=cfg.FREQUENCY_PENALTY )
-					frequency_penalty = st.session_state[ 'frequency_penalty' ]
-				
-				if st.button( label='Reset', key='doc_probability_controls_reset', width='stretch',
-						icon='🔄' ):
-					for key in [ 'frequency_penalty', 'presense_penalty', 'temperature',
-					             'repeat_penalty', 'repeat_window' ]:
-						if key in st.session_state:
-							del st.session_state[ key ]
-					
-					st.rerun( )
-			
-			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
-				ctx_c1, ctx_c2, ctx_c3, ctx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-					border=True, gap='medium' )
-				
-				with ctx_c1:
-					st.slider( label='Context Window', min_value=0, max_value=131072,
-						key='context_window', step=512, help=cfg.CONTEXT_WINDOW )
-					context_window = st.session_state[ 'context_window' ]
-				
-				with ctx_c2:
-					st.slider( label='CPU Threads', min_value=0, max_value=cfg.CORES,
-						key='cpu_threads', step=1, help=cfg.CPU_CORES )
-					cpu_threads = st.session_state[ 'cpu_threads' ]
-				
-				with ctx_c3:
-					st.slider( label='Max Tokens', min_value=0, max_value=8192, step=128,
-						key='max_tokens', help=cfg.MAX_TOKENS )
-					max_tokens = st.session_state[ 'max_tokens' ]
-				
-				with ctx_c4:
+				inf_c6, inf_c7, inf_c8, inf_c9 = st.columns(
+					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
+				with inf_c6:
+					st.slider( label='Presence Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='presense_penalty', help=cfg.PRESENCE_PENALTY )
+				with inf_c7:
+					st.slider( label='Frequency Penalty', min_value=0.0, max_value=2.0, step=0.05,
+						key='frequency_penalty', help=cfg.FREQUENCY_PENALTY )
+				with inf_c8:
 					st.slider( label='Random Seed', min_value=0, max_value=4096, step=1,
 						key='random_seed', help=cfg.SEED )
-				
-				if st.button( label='Reset', key='doc_context_controls_reset', width='stretch',
-						icon='🔄' ):
-					for key in [ 'random_seed', 'max_tokens', 'cpu_threads', 'context_window' ]:
+				with inf_c9:
+					st.slider( label='Max Tokens', min_value=0, max_value=8192, step=128,
+						key='max_tokens', help=cfg.MAX_TOKENS )
+				if st.button( label='Reset', key='doc_probability_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'temperature', 'top_percent', 'top_k', 'repeat_penalty', 'repeat_window',
+							'presense_penalty', 'frequency_penalty', 'random_seed', 'max_tokens' ]:
 						if key in st.session_state:
 							del st.session_state[ key ]
-					
 					st.rerun( )
-		
+
+			with st.expander( label='Context Controls', icon='🎛️', expanded=False ):
+				ctx_c1, ctx_c2, ctx_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with ctx_c1:
+					st.slider( label='Context Window', min_value=0, max_value=131072, step=512,
+						key='context_window', help=cfg.CONTEXT_WINDOW )
+				with ctx_c2:
+					st.toggle( label='Include Semantic Context',
+						value=bool( st.session_state.get( 'docqna_include_semantic_context', True ) ),
+						key='docqna_include_semantic_context' )
+				with ctx_c3:
+					st.selectbox( label='Context Order', options=DOC_CONTEXT_ORDER_OPTIONS,
+						key='docqna_context_order' )
+				if st.button( label='Reset', key='doc_context_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'context_window', 'docqna_include_semantic_context', 'docqna_context_order' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
+			with st.expander( label='Runtime Settings', icon='⚙️', expanded=False ):
+				run_c1, run_c2, run_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+				with run_c1:
+					st.slider( label='CPU Threads', min_value=1, max_value=max( 1, cfg.CORES ), step=1,
+						key='cpu_threads', help=cfg.CPU_CORES )
+				with run_c2:
+					st.slider( label='Batch Size', min_value=64, max_value=2048, step=64, key='batch_size' )
+				with run_c3:
+					st.slider( label='Micro Batch Size', min_value=32, max_value=1024, step=32,
+						key='micro_batch_size' )
+				if st.button( label='Reset', key='doc_runtime_controls_reset', width='stretch', icon='🔄' ):
+					for key in [ 'cpu_threads', 'batch_size', 'micro_batch_size' ]:
+						if key in st.session_state:
+							del st.session_state[ key ]
+					st.rerun( )
+
 		# ------------------------------------------------------------------
 		# Expander — System Instructions
 		# ------------------------------------------------------------------
@@ -4625,6 +5224,14 @@ elif mode == 'Document Q&A':
 						f'| Chunk Overlap: {int( st.session_state.get( 'retrieval_chunk_overlap', 200 ) )} '
 						f'| Index Ready: {bool( st.session_state.get( 'docqna_vec_ready', False ) )} '
 						f'| Chunk Count: {int( st.session_state.get( 'docqna_chunk_count', 0 ) )}' )
+				if bool( st.session_state.get( 'show_ocr_status', True ) ):
+					st.caption( f'OCR Enabled: {bool( st.session_state.get( "ocr_enabled", False ) )} '
+						f'| Vision Runtime: {vision_runtime_available( )} '
+						f'| OCR Page Limit: {str( st.session_state.get( "ocr_page_limit", "5 Pages" ) )}' )
+				if bool( st.session_state.get( 'show_runtime_metadata', False ) ):
+					st.caption( f'Context Window: {int( st.session_state.get( "context_window", cfg.DEFAULT_CTX ) or cfg.DEFAULT_CTX )} '
+						f'| CPU Threads: {int( st.session_state.get( "cpu_threads", cfg.CORES ) or cfg.CORES )} '
+						f'| Retrieval Backend: {str( st.session_state.get( "retrieval_backend", "Automatic" ) )}' )
 			
 			with doc_right:
 				if st.session_state.get( 'active_docs' ):
@@ -4754,30 +5361,26 @@ elif mode == 'Semantic Search':
 		st.divider( )
 		
 		with st.expander( label='Index Builder', icon='🧱', expanded=False ):
-			idx_c1, idx_c2, idx_c3, idx_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ],
-				border=True, gap='medium' )
-			
+			idx_c1, idx_c2, idx_c3, idx_c4, idx_c5 = st.columns(
+				[ 0.2, 0.2, 0.2, 0.2, 0.2 ], border=True, gap='medium' )
 			with idx_c1:
 				st.slider( label='Chunk Size', min_value=256, max_value=4000, step=64,
 					key='semantic_chunk_size' )
-			
 			with idx_c2:
 				st.slider( label='Chunk Overlap', min_value=0, max_value=1000, step=25,
 					key='semantic_chunk_overlap' )
-			
 			with idx_c3:
 				st.toggle( label='Clear Existing Index',
 					value=bool( st.session_state.get( 'semantic_clear_existing', True ) ),
 					key='semantic_clear_existing' )
-			
 			with idx_c4:
 				st.toggle( label='Append to Existing Index',
 					value=bool( st.session_state.get( 'semantic_append_existing', False ) ),
 					key='semantic_append_existing' )
-			
-			st.toggle( label='Show Embedding Diagnostics',
-				value=bool( st.session_state.get( 'semantic_show_diagnostics', True ) ),
-				key='semantic_show_diagnostics' )
+			with idx_c5:
+				st.toggle( label='Show Embedding Diagnostics',
+					value=bool( st.session_state.get( 'semantic_show_diagnostics', True ) ),
+					key='semantic_show_diagnostics' )
 			
 			semantic_files = st.file_uploader( label='Upload for embedding',
 				accept_multiple_files=True, type=[ 'pdf', 'txt', 'docx' ],
@@ -4792,6 +5395,13 @@ elif mode == 'Semantic Search':
 						st.error( str( result.get( 'message', 'Index build failed.' ) ) )
 				else:
 					st.info( 'Upload one or more files before building the index.' )
+			
+			if st.button( label='Reset', key='semantic_index_builder_reset', width='stretch', icon='🔄' ):
+				for key in [ 'semantic_chunk_size', 'semantic_chunk_overlap', 'semantic_clear_existing',
+						'semantic_append_existing', 'semantic_show_diagnostics' ]:
+					if key in st.session_state:
+						del st.session_state[ key ]
+				st.rerun( )
 			
 			if bool( st.session_state.get( 'semantic_show_diagnostics', True ) ):
 				diag_c1, diag_c2, diag_c3 = st.columns( [ 0.33, 0.33, 0.34 ], border=True )
@@ -4830,6 +5440,15 @@ elif mode == 'Semantic Search':
 				rows = query_semantic_index( semantic_query )
 				if len( rows ) == 0:
 					st.info( 'No semantic matches found.' )
+			
+			if st.button( label='Reset', key='semantic_query_reset', width='stretch', icon='🔄' ):
+				for key in [ 'semantic_top_k', 'semantic_min_similarity', 'semantic_group_by_document',
+						'semantic_query_text' ]:
+					if key in st.session_state:
+						del st.session_state[ key ]
+				st.session_state[ 'semantic_result_rows' ] = [ ]
+				st.session_state[ 'semantic_selected_rows' ] = [ ]
+				st.rerun( )
 			
 			result_rows = st.session_state.get( 'semantic_result_rows', [ ] )
 			if isinstance( result_rows, list ) and len( result_rows ) > 0:
@@ -4887,7 +5506,7 @@ elif mode == 'Semantic Search':
 					rows = decode_embedding_rows( )
 					st.session_state[ 'semantic_index_chunk_count' ] = len( rows )
 					if len( rows ) > 0:
-						st.session_state[ 'semantic_index_dim' ] = int( rows[ 0 ][ 1 ].shape[ 0 ] )
+						st.session_state[ 'semantic_index_dim' ] = int( rows[ 0 ][ 2 ].shape[ 0 ] )
 					else:
 						st.session_state[ 'semantic_index_dim' ] = 0
 					st.success( 'Diagnostics refreshed.' )
@@ -5120,6 +5739,13 @@ elif mode == 'Prompt Engineering':
 		# Prompt actions
 		# ------------------------------------------------------------------
 		with st.expander( '⚙️ Prompt Actions', expanded=False ):
+			app_c1, app_c2, app_c3 = st.columns( [ 0.34, 0.33, 0.33 ], border=True, gap='medium' )
+			with app_c1:
+				st.selectbox( 'Task Type', get_prompt_task_types( ), key='pe_task_type_edit' )
+			with app_c2:
+				st.selectbox( 'Response Format', get_response_formats( ), key='prompt_response_format' )
+			with app_c3:
+				st.selectbox( 'Response Language', get_spoken_languages( False ), key='pe_language_edit' )
 			act_c1, act_c2, act_c3, act_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
 			with act_c1:
 				if st.button( 'Apply to Text Generation', width='stretch' ):
@@ -5159,6 +5785,12 @@ elif mode == 'Prompt Engineering':
 						language=st.session_state.get( 'pe_language_edit', 'English' ) )
 					st.success( 'Starter prompt generated into the edit surface.' )
 		
+			if st.button( label='Reset', key='prompt_actions_reset', width='stretch', icon='🔄' ):
+				for key in [ 'pe_task_type_edit', 'prompt_response_format', 'pe_language_edit' ]:
+					if key in st.session_state:
+						del st.session_state[ key ]
+				st.rerun( )
+
 		# ------------------------------------------------------------------
 		# Prompt generator
 		# ------------------------------------------------------------------
@@ -5193,24 +5825,27 @@ elif mode == 'Prompt Engineering':
 			if st.session_state.get( 'pe_generated_template', '' ):
 				st.text_area( 'Generated Draft', value=st.session_state.get( 'pe_generated_template', '' ),
 					height=180, disabled=True )
+			if st.button( label='Reset', key='prompt_generator_reset', width='stretch', icon='🔄' ):
+				for key in [ 'prompt_category_draft', 'prompt_task_generator', 'prompt_format', 'pe_language',
+						'pe_generator_style', 'pe_generator_goal', 'pe_generator_constraints', 'pe_generated_template' ]:
+					if key in st.session_state:
+						del st.session_state[ key ]
+				st.rerun( )
 		
 		# ------------------------------------------------------------------
 		# Edit Prompt
 		# ------------------------------------------------------------------
 		with st.expander( '🖊️ Edit Prompt', expanded=False ):
-			meta_c1, meta_c2, meta_c3, meta_c4 = st.columns( [ 0.25, 0.25, 0.25, 0.25 ] )
+			meta_c1, meta_c2, meta_c3, meta_c4 = st.columns(
+				[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='medium' )
 			with meta_c1:
 				st.text_input( 'ID', value=st.session_state.pe_selected_id or '', disabled=True )
 			with meta_c2:
 				st.selectbox( 'Category', available_categories, key='pe_category' )
 			with meta_c3:
-				st.selectbox( 'Task Type', get_prompt_task_types( ), key='pe_task_type_edit' )
+				st.text_input( 'Caption', key='pe_caption' )
 			with meta_c4:
-				st.selectbox( 'Response Format', get_response_formats( ), key='prompt_response_format' )
-			st.text_input( 'Caption', key='pe_caption' )
-			st.text_input( 'Name', key='pe_name' )
-			st.selectbox( 'Language', get_spoken_languages( include_auto_detect=False ),
-				key='pe_language_edit' )
+				st.text_input( 'Name', key='pe_name' )
 			st.text_area( 'Text', key='pe_text', height=260 )
 			
 			c1, c2, c3 = st.columns( 3 )
@@ -5235,6 +5870,7 @@ elif mode == 'Prompt Engineering':
 					st.success( 'Deleted.' )
 			with c3:
 				st.button( '🧹 Clear Selection', on_click=reset_prompt_selection )
+
 
 # ==============================================================================
 # DATA MANAGEMENT MODE
