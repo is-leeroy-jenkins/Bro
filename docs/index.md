@@ -1,4 +1,7 @@
 # Bro
+![](img/bro-project.png)
+
+___
 
 Bro is a local-first Streamlit application built around **Gemma 3 4B IT in GGUF format**. It
 combines local text generation, Gemma multimodal Image-to-Text, document-grounded retrieval,
