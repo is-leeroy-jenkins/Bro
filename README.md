@@ -93,40 +93,40 @@ The project model repository remains available here:
 
 ## ✨ Key Features
 
-| Feature                            | Description                                                                                                                                                                                                                                                            |
-|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Local Gemma 3 GGUF inference       | Runs Gemma 3 4B IT locally through `llama-cpp-python` with configurable context, CPU threads, batching, micro-batching, sampling, penalties, seed, and token limits.                                                                                                   |
-| Gemma-compatible chat completion   | Uses `create_chat_completion()` for text generation so the GGUF chat template controls model serialization.                                                                                                                                                            |
-| Image-to-Text / vision             | Uses Gemma 3 multimodal inference with a matching `mmproj` GGUF for visible-text extraction, image description, screenshot/chart/diagram analysis, structured extraction, image Q&A, and image comparison.                                                             |
-| Vision-assisted PDF OCR            | Document Q&A can fall back to Gemma 3 Image-to-Text for image-only PDF pages when OCR is enabled and a compatible multimodal projector is available.                                                                                                                   |
-| Expanded text tasks                | Chat, Analysis, Reasoning, Coding, Writing, Editing, Summarization, Extraction, Classification, Translation, Comparison, and Structured Output.                                                                                                                        |
-| Bounded task controls              | Enumerable parameters such as task type, spoken/written language, translation mode, response format, coding language, classification type, and vision task use bounded Streamlit controls rather than free-form entry.                                                 |
-| Structured responses               | Plain Text, Markdown, Bullet List, Numbered List, Markdown Table, JSON, XML, YAML, CSV, and Code response contracts. JSON can use llama.cpp's structured response format support.                                                                                      |
-| Persistent chat history            | Saves local role/content chat messages to SQLite and restores history on startup.                                                                                                                                                                                      |
-| Category-aware system instructions | Filters prompt templates by persisted `Prompts.Category`, selects templates by primary key, supports manual editing, reset, XML ↔ Markdown conversion, presets, and effective-prompt preview.                                                                          |
-| Document Q&A                       | Uploads PDF, TXT, or DOCX files, chunks extracted content, retrieves relevant excerpts, applies grounding policies, and sends the resulting context through the shared Gemma chat path.                                                                                |
-| Expanded document actions          | Answer questions, summarize, extract key points/entities/tables/dates/organizations/requirements/action items, generate outlines/executive summaries, find evidence, classify documents, compare documents, identify contradictions, and identify missing information. |
-| Semantic search                    | Builds a local semantic index, filters by minimum similarity, supports Top-K retrieval, and can group results by source document.                                                                                                                                      |
-| sqlite-vec + cosine retrieval      | Supports sqlite-vec when available and a guarded cosine-similarity fallback.                                                                                                                                                                                           |
-| Prompt engineering                 | Searches, filters, sorts, pages, edits, creates, clones, generates, deletes, and applies prompt templates using the authoritative five-column `Prompts` schema.                                                                                                        |
-| Data management                    | Imports Excel data into SQLite; browses, edits, profiles, filters, aggregates, visualizes, administers schemas/indexes, and runs guarded read-only SQL.                                                                                                                |
-| AI asset governance                | Registers document, chunk, embedding, and image metadata in governed local SQLite tables.                                                                                                                                                                              |
-| Runtime-safe capability gating     | Model, embedding, sqlite-vec, PDF parsing, and multimodal features degrade through controlled application paths when an optional dependency or model artifact is unavailable.                                                                                          |
-| Fixed status footer                | Displays current mode and important generation/runtime/context state.                                                                                                                                                                                                  |
+| Feature | Description |
+| --- | --- |
+| Local Gemma 3 GGUF inference | Runs Gemma 3 4B IT locally through `llama-cpp-python` with configurable context, CPU threads, batching, micro-batching, sampling, penalties, seed, and token limits. |
+| Gemma-compatible chat completion | Uses `create_chat_completion()` for text generation so the GGUF chat template controls model serialization. |
+| Image-to-Text / vision | Uses Gemma 3 multimodal inference with a matching `mmproj` GGUF for visible-text extraction, image description, screenshot/chart/diagram analysis, structured extraction, image Q&A, and image comparison. |
+| Vision-assisted PDF OCR | Document Q&A can fall back to Gemma 3 Image-to-Text for image-only PDF pages when OCR is enabled and a compatible multimodal projector is available. |
+| Expanded text tasks | Chat, Analysis, Reasoning, Coding, Writing, Editing, Summarization, Extraction, Classification, Translation, Comparison, and Structured Output. |
+| Bounded task controls | Enumerable parameters such as task type, spoken/written language, translation mode, response format, coding language, classification type, and vision task use bounded Streamlit controls rather than free-form entry. |
+| Structured responses | Plain Text, Markdown, Bullet List, Numbered List, Markdown Table, JSON, XML, YAML, CSV, and Code response contracts. JSON can use llama.cpp's structured response format support. |
+| Persistent chat history | Saves local role/content chat messages to SQLite and restores history on startup. |
+| Category-aware system instructions | Filters prompt templates by persisted `Prompts.Category`, selects templates by primary key, supports manual editing, reset, XML ↔ Markdown conversion, presets, and effective-prompt preview. |
+| Document Q&A | Uploads PDF, TXT, or DOCX files, chunks extracted content, retrieves relevant excerpts, applies grounding policies, and sends the resulting context through the shared Gemma chat path. |
+| Expanded document actions | Answer questions, summarize, extract key points/entities/tables/dates/organizations/requirements/action items, generate outlines/executive summaries, find evidence, classify documents, compare documents, identify contradictions, and identify missing information. |
+| Semantic search | Builds a local semantic index, filters by minimum similarity, supports Top-K retrieval, and can group results by source document. |
+| sqlite-vec + cosine retrieval | Supports sqlite-vec when available and a guarded cosine-similarity fallback. |
+| Prompt engineering | Searches, filters, sorts, pages, edits, creates, clones, generates, deletes, and applies prompt templates using the authoritative five-column `Prompts` schema. |
+| Data management | Imports Excel data into SQLite; browses, edits, profiles, filters, aggregates, visualizes, administers schemas/indexes, and runs guarded read-only SQL. |
+| AI asset governance | Registers document, chunk, embedding, and image metadata in governed local SQLite tables. |
+| Runtime-safe capability gating | Model, embedding, sqlite-vec, PDF parsing, and multimodal features degrade through controlled application paths when an optional dependency or model artifact is unavailable. |
+| Fixed status footer | Displays current mode and important generation/runtime/context state. |
 
 ## 🧭 Application Modes
 
 Bro exposes six functional modes. `Image to Text` is appended to the configured mode list by
 `app.py` when it is not already present in `cfg.MODES`.
 
-| Mode                   | Purpose                                                                              | Major Controls / Outputs                                                                                                                                                                       |
-|------------------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Text Generation**    | Primary Gemma 3 text-generation and chat interface.                                  | Task presets; reasoning, coding, writing, translation, classification, response, inference, context, and runtime controls; category-aware system instructions; prompt preview; streaming chat. |
-| **Image to Text**      | Gemma 3 multimodal image understanding and visible-text extraction.                  | Vision task, image detail, response format/language, layout/text preservation, inference controls, runtime controls, image upload, optional user request, streaming vision response.           |
-| **Document Q&A**       | Retrieval-augmented analysis over uploaded documents with optional Gemma vision OCR. | Retrieval, grounding, backend, document-action, parsing/OCR, diagnostics, response, inference, context, and runtime controls; document inventory; retrieved chunks.                            |
-| **Semantic Search**    | Build and query a reusable local semantic chunk index.                               | Index builder, diagnostics, Top-K, minimum similarity, group-by-document, selectable results, context-routing actions, maintenance controls.                                                   |
-| **Prompt Engineering** | Manage reusable prompt templates and application metadata.                           | Search/filter/sort/page, Go-to-ID, prompt actions, prompt generator, application settings, create/edit/delete/clone, cascade to Text Generation or Document Q&A.                               |
-| **Data Management**    | Manage local SQLite tables and AI asset metadata.                                    | Excel import, browse, CRUD, explore, filter, aggregate, visualize, schema administration, index creation, asset governance, guarded SQL.                                                       |
+| Mode | Purpose | Major Controls / Outputs |
+| --- | --- | --- |
+| **Text Generation** | Primary Gemma 3 text-generation and chat interface. | Task presets; reasoning, coding, writing, translation, classification, response, inference, context, and runtime controls; category-aware system instructions; prompt preview; streaming chat. |
+| **Image to Text** | Gemma 3 multimodal image understanding and visible-text extraction. | Vision task, image detail, response format/language, layout/text preservation, inference controls, runtime controls, image upload, optional user request, streaming vision response. |
+| **Document Q&A** | Retrieval-augmented analysis over uploaded documents with optional Gemma vision OCR. | Retrieval, grounding, backend, document-action, parsing/OCR, diagnostics, response, inference, context, and runtime controls; document inventory; retrieved chunks. |
+| **Semantic Search** | Build and query a reusable local semantic chunk index. | Index builder, diagnostics, Top-K, minimum similarity, group-by-document, selectable results, context-routing actions, maintenance controls. |
+| **Prompt Engineering** | Manage reusable prompt templates and application metadata. | Search/filter/sort/page, Go-to-ID, prompt actions, prompt generator, application settings, create/edit/delete/clone, cascade to Text Generation or Document Q&A. |
+| **Data Management** | Manage local SQLite tables and AI asset metadata. | Excel import, browse, CRUD, explore, filter, aggregate, visualize, schema administration, index creation, asset governance, guarded SQL. |
 
 ## 🏛 Architecture
 
@@ -209,15 +209,15 @@ The exact GGUF filenames are controlled by configuration and are not hard-coded 
 
 ## ⚙️ System Requirements
 
-| Requirement      |                               Minimum |                                                             Recommended |
-|------------------|--------------------------------------:|------------------------------------------------------------------------:|
-| Operating system | Windows 10/11 64-bit, Linux, or macOS |                                              Windows 11 64-bit or Linux |
-| Python           |                                  3.10 |                                                                    3.11 |
-| RAM              |                                  8 GB |                                                           16 GB or more |
-| CPU              |                        Modern x64 CPU |                                              AVX2-capable multicore CPU |
-| Storage          |                           5–7 GB free | 10+ GB for model/projector files, SQLite assets, and uploaded documents |
-| GPU              |                          Not required |  Optional acceleration where supported by the installed llama.cpp build |
-| Vision projector |        Not required for text-only use |        Matching Gemma 3 `mmproj*.gguf` for Image-to-Text and vision OCR |
+| Requirement | Minimum | Recommended |
+| --- | ---: | ---: |
+| Operating system | Windows 10/11 64-bit, Linux, or macOS | Windows 11 64-bit or Linux |
+| Python | 3.10 | 3.11 |
+| RAM | 8 GB | 16 GB or more |
+| CPU | Modern x64 CPU | AVX2-capable multicore CPU |
+| Storage | 5–7 GB free | 10+ GB for model/projector files, SQLite assets, and uploaded documents |
+| GPU | Not required | Optional acceleration where supported by the installed llama.cpp build |
+| Vision projector | Not required for text-only use | Matching Gemma 3 `mmproj*.gguf` for Image-to-Text and vision OCR |
 
 Large context windows and high output-token limits materially increase memory requirements.
 
@@ -286,16 +286,14 @@ Bro resolves the projector in this order:
 2. `cfg.MM_PROJ_PATH`
 3. `BRO_MMPROJ_PATH`
 4. `GEMMA_MMPROJ_PATH`
-5. the first `mmproj*.gguf` found beside `cfg.MODEL_PATH`
-
 Example:
 
 ```powershell
 $env:BRO_MMPROJ_PATH="C:\Users\you\models\mmproj-gemma-3-4b-it-f16.gguf"
 ```
 
-If no compatible projector is found, text functionality remains available and **Image to Text**
-shows a controlled warning instead of attempting an invalid multimodal call.
+If no compatible projector is explicitly configured, text functionality remains available and
+**Image to Text** shows a controlled warning instead of attempting an invalid multimodal call.
 
 ## ▶️ Running Bro
 
@@ -310,25 +308,25 @@ appended by `app.py` when necessary.
 
 ## 🔧 Configuration
 
-| Configuration Item                      | Purpose                                                                                          |
-|-----------------------------------------|--------------------------------------------------------------------------------------------------|
-| `cfg.MODEL_PATH`                        | Path to the local Gemma 3 4B IT GGUF.                                                            |
-| `cfg.MMPROJ_PATH` / `cfg.MM_PROJ_PATH`  | Optional configured Gemma 3 multimodal-projector path.                                           |
-| `BRO_MMPROJ_PATH` / `GEMMA_MMPROJ_PATH` | Environment-variable alternatives for the multimodal projector.                                  |
-| `cfg.DEFAULT_CTX`                       | Default llama.cpp context window.                                                                |
-| `cfg.CORES`                             | Maximum CPU thread count exposed by runtime controls.                                            |
-| `cfg.DB_PATH`                           | SQLite database used by chat, prompts, embeddings, documents, chunks, images, and imported data. |
-| `cfg.FAVICON`                           | Streamlit page icon.                                                                             |
-| `cfg.LOGO`                              | Sidebar logo.                                                                                    |
-| `cfg.APP_SUBTITLE`                      | Startup caption.                                                                                 |
-| `cfg.MODES`                             | Configured sidebar application modes.                                                            |
-| `cfg.BLUE_DIVIDER`                      | Shared divider styling.                                                                          |
-| `cfg.XML_BLOCK_PATTERN`                 | XML-like prompt-section pattern used by conversion utilities.                                    |
-| `cfg.TEXT_GENERATION`                   | Text Generation help text.                                                                       |
-| `cfg.RETRIEVAL_AUGMENTATION`            | Document Q&A help text.                                                                          |
-| `cfg.SEMANTIC_SEARCH`                   | Semantic Search help text.                                                                       |
-| `cfg.PROMPT_ENGINEERING`                | Prompt Engineering help text.                                                                    |
-| `cfg.DATA_MANAGEMENT`                   | Data Management help text.                                                                       |
+| Configuration Item | Purpose |
+| --- | --- |
+| `cfg.MODEL_PATH` | Path to the local Gemma 3 4B IT GGUF. |
+| `cfg.MMPROJ_PATH` / `cfg.MM_PROJ_PATH` | Optional configured Gemma 3 multimodal-projector path. |
+| `BRO_MMPROJ_PATH` / `GEMMA_MMPROJ_PATH` | Environment-variable alternatives for the multimodal projector. |
+| `cfg.DEFAULT_CTX` | Default llama.cpp context window. |
+| `cfg.CORES` | Maximum CPU thread count exposed by runtime controls. |
+| `cfg.DB_PATH` | SQLite database used by chat, prompts, embeddings, documents, chunks, images, and imported data. |
+| `cfg.FAVICON` | Streamlit page icon. |
+| `cfg.LOGO` | Sidebar logo. |
+| `cfg.APP_SUBTITLE` | Startup caption. |
+| `cfg.MODES` | Configured sidebar application modes. |
+| `cfg.BLUE_DIVIDER` | Shared divider styling. |
+| `cfg.XML_BLOCK_PATTERN` | XML-like prompt-section pattern used by conversion utilities. |
+| `cfg.TEXT_GENERATION` | Text Generation help text. |
+| `cfg.RETRIEVAL_AUGMENTATION` | Document Q&A help text. |
+| `cfg.SEMANTIC_SEARCH` | Semantic Search help text. |
+| `cfg.PROMPT_ENGINEERING` | Prompt Engineering help text. |
+| `cfg.DATA_MANAGEMENT` | Data Management help text. |
 
 ## 💬 Text Generation
 
@@ -375,11 +373,11 @@ Structured Output
 
 ### 🧭 Task Preset
 
-| Control     | Options / Purpose                         |
-|-------------|-------------------------------------------|
-| Task Type   | Complete supported task list shown above. |
-| Task Detail | Concise, Standard, Detailed.              |
-| Task Focus  | Accuracy, Balanced, Creativity.           |
+| Control | Options / Purpose |
+| --- | --- |
+| Task Type | Complete supported task list shown above. |
+| Task Detail | Concise, Standard, Detailed. |
+| Task Focus | Accuracy, Balanced, Creativity. |
 
 ### 🧩 Reasoning Controls
 
@@ -390,13 +388,13 @@ Structured Output
 
 ### 🧾 Coding Controls
 
-| Control           | Options / Purpose                                                                                                     |
-|-------------------|-----------------------------------------------------------------------------------------------------------------------|
-| Code Language     | Python, C, C++, C#, Java, JavaScript, TypeScript, SQL, VBA, PowerShell, Bash, HTML, CSS, Markdown, JSON, YAML, Other. |
-| Coding Task       | Generate, Complete, Refactor, Debug, Review, Explain, Optimize, Convert, Test, Document, Design.                      |
-| Include Comments  | Includes useful documentation/comments.                                                                               |
-| Use Editor Format | Requests editor-ready code.                                                                                           |
-| Emit Fenced Code  | Wraps code in Markdown fences when enabled.                                                                           |
+| Control | Options / Purpose |
+| --- | --- |
+| Code Language | Python, C, C++, C#, Java, JavaScript, TypeScript, SQL, VBA, PowerShell, Bash, HTML, CSS, Markdown, JSON, YAML, Other. |
+| Coding Task | Generate, Complete, Refactor, Debug, Review, Explain, Optimize, Convert, Test, Document, Design. |
+| Include Comments | Includes useful documentation/comments. |
+| Use Editor Format | Requests editor-ready code. |
+| Emit Fenced Code | Wraps code in Markdown fences when enabled. |
 
 ### ✍️ Writing Controls
 
@@ -513,14 +511,14 @@ Multiple images can be uploaded for comparison.
 
 ### 👁️ Vision Controls
 
-| Control              | Purpose                                                                 |
-|----------------------|-------------------------------------------------------------------------|
-| Vision Task          | Selects the multimodal operation.                                       |
-| Image Detail         | Concise, Standard, Detailed.                                            |
-| Response Format      | Uses Bro's standard bounded response formats.                           |
-| Response Language    | Uses the same bounded human-language vocabulary as text generation.     |
-| Preserve Layout      | Requests preservation of visible spatial/text structure when practical. |
-| Include Visible Text | Requests explicit transcription of visible text in the response.        |
+| Control | Purpose |
+| --- | --- |
+| Vision Task | Selects the multimodal operation. |
+| Image Detail | Concise, Standard, Detailed. |
+| Response Format | Uses Bro's standard bounded response formats. |
+| Response Language | Uses the same bounded human-language vocabulary as text generation. |
+| Preserve Layout | Requests preservation of visible spatial/text structure when practical. |
+| Include Visible Text | Requests explicit transcription of visible text in the response. |
 
 Supported Vision Tasks:
 
@@ -557,7 +555,6 @@ Vision uses the same generation settings as the text runtime:
 - CPU Threads
 - Batch Size
 - Micro Batch Size
-- Projector Device: CPU or GPU
 
 The multimodal runtime is created with `MTMDChatHandler` and the matching `mmproj` GGUF. Vision
 execution is capability-gated so a missing projector produces a controlled application message.
@@ -637,6 +634,8 @@ Document actions also expose a bounded detail level.
 
 #### Vision OCR Flow
 
+PDF extraction is evaluated page-by-page, allowing digital and scanned pages to coexist in the same document.
+
 When OCR is enabled:
 
 ```text
@@ -707,21 +706,14 @@ The loader provides:
 
 Semantic Search creates and queries a reusable local embedding index.
 
-| Section        | Controls / Outputs                                                                  |
-|----------------|-------------------------------------------------------------------------------------|
-| Index Builder  | Upload files, chunk size, overlap, clear/append behavior, diagnostics, build index. |
-| Diagnostics    | Indexed documents, indexed chunks, vector dimension.                                |
-| Semantic Query | Query text, Top-K, minimum similarity, Group by Document.                           |
-| Results        | Selectable ranked chunks with document name, score, chunk text, and length.         |
-| Actions        | Send selected chunks to Text Generation, Document Q&A, or shared prompt context.    |
-| Maintenance    | Delete/rebuild index state and clear result state.                                  |
-
-### Group by Document
-
-`Group by Document` is functional. When enabled, query processing retains the highest-ranked matching
-chunk for each source document before applying the result limit.
-
-The `embeddings` table therefore includes document identity in addition to chunk/vector data.
+| Section | Controls / Outputs |
+| --- | --- |
+| Index Builder | Upload files, chunk size, overlap, clear/append behavior, diagnostics, build index. |
+| Diagnostics | Indexed documents, indexed chunks, vector dimension. |
+| Semantic Query | Query text, Top-K, minimum similarity, and embedding diagnostics. |
+| Results | Selectable ranked chunks with document name, score, chunk text, and length. |
+| Actions | Send selected chunks to Text Generation, Document Q&A, or shared prompt context. |
+| Maintenance | Delete/rebuild index state and clear result state. |
 
 ## 📝 Prompt Engineering
 
@@ -743,71 +735,115 @@ CREATE TABLE IF NOT EXISTS Prompts
 
 ### Prompt Categories
 
-Supported application categories include:
+Bro preserves the existing `Prompts.Category` values rather than replacing them with a new taxonomy.
+The project/database category vocabulary includes values such as:
 
 ```text
-General Assistant
-Analysis & Reasoning
-Software Development
-Writing & Editing
-Summarization
-Information Extraction
-Classification
-Translation
-Structured Output
-Document Analysis
-Vision & Image Analysis
-Federal / Administrative Analysis
+Business / Finance / Marketing
+Compliance / Legal / Budget
+Data Analytics & Governance
+Instruction/ Training / Planning
+Prompt Engineering
+Research / Academic
+Software Engineering
+Writing / Administrative
+Image Analysis
+Image Editing
+Image Generation
+Speech API
+Transcription API
+Translation API
 ```
 
-Persisted database categories are merged with the supported application vocabulary for the
-category-aware selectors.
+Model-facing selectors do not rewrite these values. Instead, each workflow defines which existing
+categories are appropriate and then shows only those categories that actually contain usable prompt
+templates.
+
+### Mode-specific category filtering
+
+The `Prompts` table remains authoritative and unchanged.
+
+For **Text Generation**, Bro can expose populated templates from:
+
+```text
+Writing / Administrative
+Research / Academic
+Data Analytics & Governance
+Software Engineering
+Business / Finance / Marketing
+Compliance / Legal / Budget
+Prompt Engineering
+Instruction/ Training / Planning
+```
+
+For **Document Q&A**, Bro can expose populated templates from:
+
+```text
+Research / Academic
+Data Analytics & Governance
+Business / Finance / Marketing
+Compliance / Legal / Budget
+Instruction/ Training / Planning
+Writing / Administrative
+```
+
+For **Image to Text**, Bro can expose populated `Image Analysis` templates only when the multimodal
+runtime is available.
+
+`Speech API`, `Transcription API`, `Image Generation`, and `Image Editing` remain preserved in SQLite
+for Prompt Engineering/database management but are not offered to incompatible Gemma execution
+paths.
 
 ### Capabilities
 
-| Capability           | Description                                                                                                                 |
-|----------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| Search and filter    | Search prompt content and filter using persisted Category.                                                                  |
-| Sort and pagination  | Sort records and page through prompt results.                                                                               |
-| Go to ID             | Jump directly to an integer `Prompts.ID`.                                                                                   |
-| Template selection   | Uses the database primary key instead of assuming Caption is unique.                                                        |
-| Prompt actions       | Apply to Text Generation, apply to Document Q&A, clone, or create a starter template.                                       |
-| Prompt generator     | Generates editable prompt text from bounded task, response, language, style, goal, and constraint controls.                 |
-| Edit surface         | Edits schema-backed fields: ID, Category, Caption, Name, and Text.                                                          |
+| Capability | Description |
+| --- | --- |
+| Search and filter | Search prompt content and filter using persisted Category. |
+| Sort and pagination | Sort records and page through prompt results. |
+| Go to ID | Jump directly to an integer `Prompts.ID`. |
+| Template selection | Uses the database primary key instead of assuming Caption is unique. |
+| Prompt actions | Apply to Text Generation, apply to Document Q&A, clone, or create a starter template. |
+| Prompt generator | Generates editable prompt text from bounded task, response, language, style, goal, and constraint controls. |
+| Edit surface | Edits schema-backed fields: ID, Category, Caption, Name, and Text. |
 | Application settings | Task Type, Response Format, and Response Language are treated as application/cascade settings rather than database columns. |
-| Create/update/delete | CRUD operations use the authoritative five-column schema.                                                                   |
-| Legacy migration     | Existing legacy prompt records are migrated into the current schema when necessary.                                         |
+| Create/update/delete | CRUD operations use the authoritative five-column schema. |
 
 Selecting a generic response language does not silently overwrite the separate Translation Target
 Language setting.
 
 ## 🗄️ Data Management
 
+> **Database contract:** Bro does not rebuild or normalize the `Prompts` table to satisfy UI
+> taxonomy changes. It validates that `ID`, `Caption`, `Name`, `Category`, and `Text` exist and
+> otherwise leaves stored prompt values unchanged. The semantic `embeddings` table also retains
+> its existing `id`, `chunk`, and `vector` persistence contract.
+
+
 Data Management continues to provide general SQLite administration and AI asset governance.
 
-| Tab              | Purpose                                                                                   |
-|------------------|-------------------------------------------------------------------------------------------|
-| **📥 Import**    | Import Excel workbooks into SQLite and register active AI assets.                         |
-| **🗂 Browse**    | Browse SQLite tables.                                                                     |
-| **💉 CRUD**      | Insert, update, and delete table records with type-aware controls.                        |
-| **📊 Explore**   | Page through records and inspect table contents.                                          |
-| **🔎 Filter**    | Filter selected table data.                                                               |
-| **🧮 Aggregate** | Compute aggregate metrics over supported columns.                                         |
-| **📈 Visualize** | Render Plotly-based visualizations.                                                       |
-| **⚙ Admin**     | Inspect schemas, manage tables/columns/indexes, profile data, and manage AI asset tables. |
-| **🧠 SQL**       | Execute guarded read-only SQL and export query results.                                   |
+| Tab | Purpose |
+| --- | --- |
+| **📥 Import** | Import Excel workbooks into SQLite and register active AI assets. |
+| **🗂 Browse** | Browse SQLite tables. |
+| **💉 CRUD** | Insert, update, and delete table records with type-aware controls. |
+| **📊 Explore** | Page through records and inspect table contents. |
+| **🔎 Filter** | Filter selected table data. |
+| **🧮 Aggregate** | Compute aggregate metrics over supported columns. |
+| **📈 Visualize** | Render Plotly-based visualizations. |
+| **⚙ Admin** | Inspect schemas, manage tables/columns/indexes, profile data, and manage AI asset tables. |
+| **🧠 SQL** | Execute guarded read-only SQL and export query results. |
 
 ### Core SQLite Tables
 
-| Table                 | Purpose                                                 |
-|-----------------------|---------------------------------------------------------|
-| `chat_history`        | Persistent local chat history.                          |
-| `embeddings`          | Semantic-search chunks, document identity, and vectors. |
-| `Prompts`             | `ID`, `Caption`, `Name`, `Category`, `Text`.            |
-| `documents`           | Registered document metadata.                           |
-| `document_chunks`     | Registered document chunks.                             |
-| `document_embeddings` | Document embedding metadata.                            |
-| `images`              | Uploaded-image governance metadata.                     |
+| Table | Purpose |
+| --- | --- |
+| `chat_history` | Persistent local chat history. |
+| `embeddings` | Semantic-search chunks and vectors. |
+| `Prompts` | `ID`, `Caption`, `Name`, `Category`, `Text`. |
+| `documents` | Registered document metadata. |
+| `document_chunks` | Registered document chunks. |
+| `document_embeddings` | Document embedding metadata. |
+| `images` | Uploaded-image governance metadata. |
 
 ## 📊 Status Footer
 
@@ -820,53 +856,53 @@ tokens, context window, CPU threads, semantic state, and shared document count.
 Use `requirements.txt` as the version-pinning source of truth. The current application functionality
 depends on the following packages or standard-library modules.
 
-| Requirement           | Package / Import                              | Purpose                                                           | Used By                                              |
-|-----------------------|-----------------------------------------------|-------------------------------------------------------------------|------------------------------------------------------|
-| Python                | `python>=3.10`                                | Runtime and modern typing syntax.                                 | Entire application                                   |
-| Streamlit             | `streamlit`                                   | UI, chat, uploaders, expanders, controls, tables, session state.  | All modes                                            |
-| llama-cpp-python      | `llama_cpp`                                   | Local GGUF text and multimodal inference.                         | Text Generation, Image to Text, Document Q&A         |
-| MTMD chat handler     | `llama_cpp.llama_chat_format.MTMDChatHandler` | Connects the Gemma 3 GGUF to the matching multimodal projector.   | Image to Text, vision OCR                            |
-| NumPy                 | `numpy`                                       | Vector math and embedding-array handling.                         | Document Q&A, Semantic Search                        |
-| Pandas                | `pandas`                                      | Dataframes, SQL results, prompt tables, imports, inventories.     | Prompt Engineering, Data Management, retrieval views |
-| Plotly Express        | `plotly.express`                              | Interactive database visualizations.                              | Data Management                                      |
-| SQLite                | `sqlite3`                                     | Local persistence.                                                | All persistent workflows                             |
-| sqlite-vec            | `sqlite_vec`                                  | Optional vector-search backend.                                   | Document Q&A                                         |
-| sentence-transformers | `sentence_transformers`                       | Local `all-MiniLM-L6-v2` embeddings.                              | Document Q&A, Semantic Search                        |
-| PyMuPDF               | `fitz` / `pymupdf`                            | Native PDF text extraction and PDF-page rendering for vision OCR. | Document Q&A                                         |
-| OpenPyXL              | `openpyxl`                                    | Excel workbook support through pandas.                            | Data Management                                      |
-| python-docx           | `python-docx`                                 | DOCX parsing when available in the document extraction path.      | Document Q&A                                         |
-| Pillow                | `pillow`                                      | Supporting image handling.                                        | Image workflows / metadata                           |
-| boogr                 | `Error`, `Logger`                             | Application error logging.                                        | Guarded execution paths                              |
-| pathlib               | Standard library                              | Model/projector/filesystem handling.                              | Runtime/configuration                                |
-| base64                | Standard library                              | Image data-URI and UI image support.                              | Image to Text / utilities                            |
-| hashlib               | Standard library                              | Stable document/image fingerprints.                               | Retrieval / governance                               |
-| re                    | Standard library                              | Prompt conversion, text normalization, identifier/query guards.   | Utilities / data management                          |
+| Requirement | Package / Import | Purpose | Used By |
+| --- | --- | --- | --- |
+| Python | `python>=3.10` | Runtime and modern typing syntax. | Entire application |
+| Streamlit | `streamlit` | UI, chat, uploaders, expanders, controls, tables, session state. | All modes |
+| llama-cpp-python | `llama_cpp` | Local GGUF text and multimodal inference. | Text Generation, Image to Text, Document Q&A |
+| MTMD chat handler | `llama_cpp.llama_chat_format.MTMDChatHandler` | Connects the Gemma 3 GGUF to the matching multimodal projector. | Image to Text, vision OCR |
+| NumPy | `numpy` | Vector math and embedding-array handling. | Document Q&A, Semantic Search |
+| Pandas | `pandas` | Dataframes, SQL results, prompt tables, imports, inventories. | Prompt Engineering, Data Management, retrieval views |
+| Plotly Express | `plotly.express` | Interactive database visualizations. | Data Management |
+| SQLite | `sqlite3` | Local persistence. | All persistent workflows |
+| sqlite-vec | `sqlite_vec` | Optional vector-search backend. | Document Q&A |
+| sentence-transformers | `sentence_transformers` | Local `all-MiniLM-L6-v2` embeddings. | Document Q&A, Semantic Search |
+| PyMuPDF | `fitz` / `pymupdf` | Native PDF text extraction and PDF-page rendering for vision OCR. | Document Q&A |
+| OpenPyXL | `openpyxl` | Excel workbook support through pandas. | Data Management |
+| python-docx | `python-docx` | Native DOCX paragraph/table text extraction. | Document Q&A |
+| Pillow | `pillow` | Supporting image handling. | Image workflows / metadata |
+| boogr | `Error`, `Logger` | Application error logging. | Guarded execution paths |
+| pathlib | Standard library | Model/projector/filesystem handling. | Runtime/configuration |
+| base64 | Standard library | Image data-URI and UI image support. | Image to Text / utilities |
+| hashlib | Standard library | Stable document/image fingerprints. | Retrieval / governance |
+| re | Standard library | Prompt conversion, text normalization, identifier/query guards. | Utilities / data management |
 
 A recent `llama-cpp-python` build with Gemma 3 multimodal/MTMD support is required for the
 Image-to-Text path.
 
 ## 🔒 Privacy & Design Philosophy
 
-| Principle                | Implementation                                                                                                                                 |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| Local-first inference    | Gemma text and vision inference operate against local GGUF assets.                                                                             |
-| Local multimodal assets  | Vision uses a local `mmproj` projector; no external vision API is required by the implemented path.                                            |
-| Local persistence        | Chat history, prompts, embeddings, documents, chunks, images, and imported tables use SQLite.                                                  |
-| Inspectable retrieval    | Retrieved chunks and diagnostics can be displayed in Document Q&A.                                                                             |
-| Explicit grounding       | Grounding behavior is controlled independently from retrieval and response formatting.                                                         |
+| Principle | Implementation |
+| --- | --- |
+| Local-first inference | Gemma text and vision inference operate against local GGUF assets. |
+| Local multimodal assets | Vision uses a local `mmproj` projector; no external vision API is required by the implemented path. |
+| Local persistence | Chat history, prompts, embeddings, documents, chunks, images, and imported tables use SQLite. |
+| Inspectable retrieval | Retrieved chunks and diagnostics can be displayed in Document Q&A. |
+| Explicit grounding | Grounding behavior is controlled independently from retrieval and response formatting. |
 | Capability-aware failure | Missing model/projector/embedder/vector dependencies produce controlled application behavior instead of advertising unavailable functionality. |
-| Bounded configuration    | Enumerated parameters are selected from explicit options instead of manually typed values.                                                     |
-| SQL safety               | The SQL console blocks mutation statements and permits guarded read-only forms.                                                                |
-| Operational transparency | The footer and diagnostic controls expose relevant runtime state.                                                                              |
+| Bounded configuration | Enumerated parameters are selected from explicit options instead of manually typed values. |
+| SQL safety | The SQL console blocks mutation statements and permits guarded read-only forms. |
+| Operational transparency | The footer and diagnostic controls expose relevant runtime state. |
 
 ## 🧬 Related Applications
 
-| Application | Role                                                                                        |
-|-------------|---------------------------------------------------------------------------------------------|
-| Leeroy      | Entry-level instruction assistant.                                                          |
-| Bro         | Local Gemma 3 text, vision, retrieval, prompt-engineering, and data-management application. |
-| Gipity      | Larger multimodal/OpenAI-centered workflow application.                                     |
-| Chonky      | Text-processing, tokenization, embeddings, and vector-persistence pipeline.                 |
+| Application | Role |
+| --- | --- |
+| Leeroy | Entry-level instruction assistant. |
+| Bro | Local Gemma 3 text, vision, retrieval, prompt-engineering, and data-management application. |
+| Gipity | Larger multimodal/OpenAI-centered workflow application. |
+| Chonky | Text-processing, tokenization, embeddings, and vector-persistence pipeline. |
 
 ## 📜 License
 

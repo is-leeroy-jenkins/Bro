@@ -1,105 +1,55 @@
 # Semantic Search
 
-Semantic Search builds and queries a local embedding index from uploaded documents. It retrieves text chunks by conceptual similarity rather than exact keyword matching.
+Semantic Search builds a reusable local semantic index from uploaded documents and retrieves the most
+similar chunks for a query.
 
-## 🧭 Purpose
+## Index Builder
 
-This mode helps users discover relevant passages across uploaded files, select useful context, and route selected chunks into Text Generation or Document Q&A. It is useful when the user does not know the exact wording used in the source documents.
+The index builder supports:
 
-## 🧱 Workflow Position
+- PDF/TXT/DOCX upload;
+- Chunk Size;
+- Chunk Overlap;
+- Clear Existing Index;
+- Append to Existing Index;
+- embedding diagnostics.
 
-```text
-Upload files
-  ▼
-Extract text
-  ▼
-Chunk text
-  ▼
-Generate embeddings
-  ▼
-Store vectors in SQLite
-  ▼
-Embed query
-  ▼
-Rank chunks by cosine similarity
-  ▼
-Select and route context
-```
+Embeddings are generated locally through `sentence-transformers`.
 
-## 📥 Index Builder
+## Document identity
 
-The index builder processes uploaded files and stores vectors in the local `embeddings` table.
+The `embeddings` table retains source-document identity in addition to chunk text and vector data.
+This enables document-aware query behavior.
 
-| Control | Description |
-| --- | --- |
-| Chunk size | Maximum character length per semantic chunk. |
-| Chunk overlap | Overlap between adjacent chunks to preserve surrounding context. |
-| Clear existing index | Removes previous embedding rows before indexing. |
-| Append existing index | Adds new chunks without clearing existing rows. |
-| Show diagnostics | Displays document count, chunk count, and vector dimension. |
+## Semantic Query
 
-## 🔎 Query Controls
+Controls include:
 
-| Control | Description |
-| --- | --- |
-| Query text | User search request converted into an embedding vector. |
-| Top-k | Maximum number of ranked chunks returned. |
-| Minimum similarity | Filters out weak matches below the selected threshold. |
-| Group by document | Organizes results by source document when enabled. |
+- Top K;
+- Minimum Similarity;
+- Group by Document;
+- query text.
 
-## 📊 Result Rows
+## Group by Document
 
-Semantic results are represented as selectable rows.
+`Group by Document` is functional rather than decorative.
 
-| Field | Meaning |
-| --- | --- |
-| Selected | Indicates whether the row should be routed as context. |
-| Rank | Position in the similarity-sorted result list. |
-| Score | Cosine similarity score. |
-| Chunk | Retrieved text. |
-| Length | Character length of the chunk. |
+When enabled:
 
-## 🔁 Context Routing
+1. chunks are scored by cosine similarity;
+2. results are ordered by similarity;
+3. only the strongest result for each source document is retained;
+4. Top K is applied to the document-grouped result set.
 
-Selected semantic chunks can be routed to other workflows.
+## Result routing
 
-| Action | Destination |
-| --- | --- |
-| Send to Text Generation | Adds selected chunks to shared document context and enables semantic context for general generation. |
-| Send to Document Q&A | Adds selected chunks to the semantic context buffer used during grounded answering. |
-| Save as prompt context | Preserves selected chunks for reuse in prompt-oriented workflows. |
+Selected semantic chunks can be:
 
-## 🧪 Example Workflow
+- sent to Text Generation;
+- sent to Document Q&A;
+- saved into shared prompt/document context.
 
-1. Open **Semantic Search**.
-2. Upload one or more documents.
-3. Set chunk size and overlap.
-4. Build the index.
-5. Enter a conceptual query.
-6. Review ranked chunks.
-7. Select the best chunks.
-8. Route selected chunks to Text Generation or Document Q&A.
+## Failure behavior
 
-## 🧠 Similarity Behavior
-
-Semantic Search compares the query embedding against stored chunk embeddings. A high score indicates conceptual similarity between the query and the chunk. It does not guarantee that the chunk fully answers the question; it identifies candidate evidence for review or routing.
-
-## ✅ Recommended Settings
-
-| Scenario | Suggested Setting |
-| --- | --- |
-| Broad discovery | Higher top-k and moderate chunk size. |
-| Precise lookup | Lower top-k and smaller chunks. |
-| Long policy documents | Larger chunks with overlap. |
-| High-confidence routing | Use a minimum similarity threshold. |
-| Re-indexing new files | Clear existing index unless intentionally combining corpora. |
-
-## 🧯 Failure Handling
-
-Semantic indexing depends on text extraction and the embedding model. If an uploaded file cannot be read, that file should be skipped without blocking the entire batch. If the embedding model is unavailable, the mode should report that semantic search cannot run and preserve application stability.
-
-## 🔗 Related Pages
-
-- [Text Generation](text-generation.md)
-- [Document Q&A](document-qna.md)
-- [Data Management](data-management.md)
+Missing embedding support or malformed/stale vector dimensions degrade through guarded paths rather
+than producing an uncaught UI-to-model exception.

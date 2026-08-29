@@ -1,50 +1,41 @@
-site_name: Bro Documentation
-site_description: Documentation for Bro, a local-first Streamlit application for text generation, document Q&A, semantic search, prompt engineering, and data management.
+site_name: Bro
+site_description: Local-first Gemma 3 text, vision, retrieval, prompt-engineering, semantic-search, and SQLite data-management application.
 site_author: Terry D. Eppler
 site_url: https://is-leeroy-jenkins.github.io/Bro/
 
-repo_url: https://github.com/is-leeroy-jenkins/Bro
 repo_name: is-leeroy-jenkins/Bro
-edit_uri: edit/main/docs/
+repo_url: https://github.com/is-leeroy-jenkins/Bro
 
-copyright: Copyright &copy; 2026 Terry D. Eppler
+docs_dir: docs
+site_dir: site
+strict: true
 
 theme:
   name: material
   language: en
-  favicon: img/favicon.ico
-  logo: img/favicon.ico
-  icon:
-    repo: fontawesome/brands/github
   features:
     - navigation.instant
-    - navigation.instant.progress
     - navigation.tracking
     - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.sections
     - navigation.expand
     - navigation.path
     - navigation.top
+    - navigation.footer
     - toc.follow
+    - search.suggest
     - search.highlight
     - search.share
-    - search.suggest
     - content.code.copy
     - content.code.select
-    - content.action.edit
-    - content.action.view
+    - content.tabs.link
   palette:
     - scheme: slate
       primary: blue
-      accent: blue
-  font:
-    text: Roboto
-    code: Roboto Mono
+      accent: light blue
 
 plugins:
   - search
-  - autorefs
   - mkdocstrings:
       handlers:
         python:
@@ -55,31 +46,20 @@ plugins:
             show_source: true
             show_root_heading: true
             show_root_full_path: false
-            show_root_members_full_path: false
-            show_object_full_path: false
-            show_category_heading: true
-            show_if_no_docstring: false
-            show_signature: true
             show_signature_annotations: true
             separate_signature: true
             members_order: source
             inherited_members: false
-            merge_init_into_class: true
-            docstring_section_style: table
-            heading_level: 2
             filters:
               - "!^_"
 
 markdown_extensions:
   - admonition
   - attr_list
-  - def_list
-  - footnotes
   - md_in_html
   - tables
   - toc:
       permalink: true
-      toc_depth: 3
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight:
@@ -99,26 +79,20 @@ extra_css:
 extra_javascript:
   - assets/js/bro.js
 
-extra:
-  generator: false
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/is-leeroy-jenkins/Bro
-      name: Lil Bro
-
 nav:
   - Home: index.md
   - Architecture: architecture.md
   - Local Model: local-model.md
-  - User Guide:
+  - Application Modes:
       - Text Generation: text-generation.md
+      - Image to Text: image-to-text.md
       - Document Q&A: document-qna.md
       - Semantic Search: semantic-search.md
       - Prompt Engineering: prompt-engineering.md
       - Data Management: data-management.md
   - API Reference:
       - Overview: api/index.md
-      - Application: api/app.md
+      - App: api/app.md
       - Configuration: api/config.md
       - Logging: api/boogr.md
   - Development: development.md

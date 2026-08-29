@@ -1,129 +1,109 @@
 # Document Q&A
 
-Document Q&A provides retrieval-augmented answering over uploaded documents. It extracts text, chunks the content, builds or refreshes a retrieval index, retrieves relevant excerpts, and sends a grounded prompt to the local model.
+Document Q&A provides local retrieval-augmented analysis over uploaded PDF, TXT, and DOCX files.
 
-## 🧭 Purpose
-
-This mode is used when answers must be grounded in uploaded source material. It is appropriate for document review, policy analysis, technical-documentation review, contract review, research notes, and structured extraction from local files.
-
-## 🧱 Workflow Position
+## Workflow
 
 ```text
-Upload documents
-  ▼
-Select active documents
-  ▼
-Extract text
-  ▼
-Chunk text
-  ▼
-Embed chunks
-  ▼
-Retrieve top-k excerpts
-  ▼
-Build grounded prompt
-  ▼
-Generate local answer
+load documents
+    -> extract/OCR text
+    -> chunk
+    -> embed
+    -> retrieve
+    -> apply grounding policy
+    -> build Gemma request
+    -> create_chat_completion()
 ```
 
-## 📥 Document Intake
+## 🧲 Retrieval Controls
 
-Bro supports local upload workflows. The application stores file bytes in session state and tracks active document names. The document inventory can display size, extracted text length, chunk count, and load status.
+- Chunks to Retrieve
+- Chunk Size
+- Chunk Overlap
+- Show Retrieved Chunks
 
-| Intake Element | Role |
-| --- | --- |
-| Uploaded files | Source files provided through the Streamlit interface. |
-| Active documents | User-selected files included in the current Q&A workflow. |
-| Document bytes | Runtime byte cache used for extraction and fingerprinting. |
-| Fingerprint | Stable hash used to detect changes in selected document content. |
-| Inventory rows | Diagnostic summary of loaded documents and chunk counts. |
+These values govern retrieval, not grounding policy or response presentation.
 
-## 🧾 Text Extraction
+## 🛡️ Grounding Controls
 
-Document Q&A uses native PDF text extraction when available and falls back to decoded text when appropriate.
+- Require Grounding
+- Answer From Excerpts Only
+- Insufficient-Evidence Behavior
 
-| Setting | Description |
-| --- | --- |
-| Prefer native PDF text | Uses PyMuPDF extraction for PDF files when available. |
-| Include page markers | Adds page markers to extracted text when enabled. |
-| OCR enabled | Reserved for workflows where OCR is explicitly configured. |
-| Show diagnostics | Displays document-processing details for troubleshooting. |
+Supported insufficient-evidence behaviors include:
 
-## 🧩 Chunking
+- State Insufficient Information
+- Return Retrieved Excerpts
+- Best Supported Answer
 
-Chunks are built from extracted text and controlled by retrieval settings.
+## 🧮 Retrieval Backend
 
-| Setting | Description |
-| --- | --- |
-| Retrieval chunk size | Maximum character length for each chunk. |
-| Retrieval chunk overlap | Overlap between adjacent chunks to preserve context. |
-| Retrieval k | Number of chunks retrieved for the question. |
+Bro can use:
 
-A larger chunk size provides more local context per retrieved result. A smaller chunk size can improve targeted retrieval but may split related facts across chunks.
+- Automatic
+- sqlite-vec
+- Cosine Similarity
 
-## 🔎 Retrieval Backends
+Additional controls govern cosine fallback and whether the index is rebuilt for a query.
 
-Bro supports two retrieval paths.
+## 🗂️ Document Actions
 
-| Backend | Use |
-| --- | --- |
-| `sqlite-vec` | Preferred vector search path when the SQLite extension is available. |
-| Cosine fallback | In-memory fallback over stored vector blobs when `sqlite-vec` is unavailable or disabled. |
+The bounded action selector includes:
 
-The fallback path is important because local development environments may not always have the SQLite vector extension available.
+- Answer Question
+- Summarize Active Document
+- Extract Key Points
+- Generate Outline
+- Extract Entities
+- Extract Tables
+- Compare Active Documents
+- Classify Document
+- Find Evidence
+- Generate Executive Summary
+- Extract Dates
+- Extract Organizations
+- Extract Requirements
+- Extract Action Items
+- Identify Contradictions
+- Identify Missing Information
 
-## 🧠 Grounded Prompt Construction
+## 📄 Document Parsing
 
-The document prompt combines instructions, active document names, retrieved excerpts, optional semantic context, and the user request.
+- Enable OCR
+- Prefer Native PDF Text
+- Include Page Markers
+- OCR Page Limit
 
-```text
-Document Q&A Instructions
-  + Active document list
-  + Retrieved excerpts
-  + Optional semantic context
-  + User request
-  + Answer instruction
-```
+OCR Page Limit is bounded rather than manually entered.
 
-## 🧪 Document Actions
+### Vision-assisted OCR
 
-| Action | Purpose |
-| --- | --- |
-| Answer Question | Answers the user's question using retrieved excerpts. |
-| Summarize Active Document | Produces a structured summary of active documents. |
-| Extract Key Points | Extracts the most important points from the evidence. |
-| Generate Outline | Builds an outline from retrieved document content. |
-| Extract Entities | Identifies names, organizations, dates, and references. |
-| Extract Tables | Describes or extracts structured tabular content visible in excerpts. |
-| Compare Active Documents | Compares active documents for alignment, differences, and gaps. |
+When native PDF text is unavailable and OCR is enabled, Bro can render eligible PDF pages as images
+and route them through the Gemma multimodal runtime.
 
-## ✅ Recommended Sequence
+The OCR path therefore requires the same compatible `mmproj` configuration as
+[Image to Text](image-to-text.md).
 
-1. Upload documents.
-2. Confirm active documents.
-3. Review inventory and text extraction status.
-4. Set chunk size and overlap.
-5. Set retrieval count.
-6. Enable grounding and answer-from-excerpts behavior.
-7. Ask the question or select a document action.
-8. Review retrieved chunks when diagnostics are needed.
+## 🔎 Diagnostics
 
-## ⚠️ Practical Notes
+Diagnostics are separated from parsing controls:
 
-| Issue | Resolution |
-| --- | --- |
-| Empty answer | Confirm text was extracted and active documents are selected. |
-| Weak retrieval | Increase retrieval count or adjust chunk size. |
-| Missing PDF text | Confirm PyMuPDF is installed and the PDF contains selectable text. |
-| Slow indexing | Reduce active document set or use larger chunks. |
-| Hallucinated answer | Enable answer-from-excerpts-only and require grounding. |
+- Show Diagnostics
+- Show OCR Status
+- Show Runtime Metadata
 
-## 🧯 Failure Handling
+## Response, inference, context, and runtime controls
 
-Document processing should preserve safe fallback behavior. Extraction, vector loading, indexing, and retrieval failures should be logged through the project logger while allowing the UI to report unavailable text, unavailable vector search, or empty retrieval results.
+Document Q&A uses the same conceptual ownership as Text Generation:
 
-## 🔗 Related Pages
+- Response Controls describe output;
+- Inference Settings feed generation;
+- Context Controls govern context assembly;
+- Runtime Settings govern llama.cpp initialization.
 
-- [Text Generation](text-generation.md)
-- [Semantic Search](semantic-search.md)
-- [Data Management](data-management.md)
+This keeps the same session-state parameter from having different semantic homes in different modes.
+
+## Retrieved chunks
+
+When enabled, Bro renders retrieved chunks with source information and score/distance metadata so the
+user can inspect the evidence base used by the answer.

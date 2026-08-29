@@ -1,175 +1,136 @@
+# Architecture
 
-![](./img/bro-architecture.png)
+Bro uses a local-first architecture in which Streamlit owns interaction state, SQLite owns local
+persistence, sentence-transformers provides local embeddings, and llama.cpp executes Gemma 3 text
+and multimodal inference.
 
-___
+## Component topology
 
+```text
+Streamlit UI
+    |
+    +-- Text Generation
+    |     +-- task instruction builder
+    |     +-- system instructions
+    |     +-- context/message builder
+    |     +-- inference controls
+    |     +-- runtime controls
+    |     +-- Llama.create_chat_completion()
+    |     +-- Gemma 3 4B IT GGUF
+    |
+    +-- Image to Text
+    |     +-- image uploader
+    |     +-- vision instruction builder
+    |     +-- MTMDChatHandler
+    |     +-- mmproj GGUF
+    |     +-- Gemma 3 4B IT GGUF
+    |     +-- text result
+    |
+    +-- Document Q&A
+    |     +-- PDF/TXT/DOCX parsing
+    |     +-- optional Gemma vision OCR
+    |     +-- chunking
+    |     +-- sentence-transformers
+    |     +-- sqlite-vec or cosine fallback
+    |     +-- grounding policy
+    |     +-- shared text-generation path
+    |
+    +-- Semantic Search
+    |     +-- document-aware embeddings table
+    |     +-- similarity ranking
+    |     +-- optional group-by-document
+    |     +-- context routing
+    |
+    +-- Prompt Engineering
+    |     +-- Prompts(ID, Caption, Name, Category, Text)
+    |     +-- capability-filtered category-aware selectors
+    |     +-- prompt application metadata
+    |
+    +-- Data Management
+          +-- SQLite CRUD
+          +-- Excel import
+          +-- profile/filter/aggregate/visualize
+          +-- schema/index administration
+          +-- AI asset governance
+```
 
-Bro is a local-first Streamlit application organized around a central user interface, shared runtime configuration, local model execution, local document retrieval, and SQLite-backed persistence.
+## Text-generation request flow
 
-## 🧭 Purpose
+1. A user selects a bounded **Task Type**.
+2. Task-specific controls are read from `st.session_state`.
+3. `build_task_instruction_block()` converts task and response selections into model instructions.
+4. `build_chat_messages()` adds system instructions, history, document context, and semantic context.
+5. Runtime controls resolve the cached llama.cpp model configuration.
+6. Inference controls are passed to `create_chat_completion()`.
+7. The result is streamed or rendered as text.
+8. Chat history is persisted locally.
 
-This page explains how Bro's application layers interact. It is intended for developers, maintainers, and analysts who need to understand where state is stored, how document context reaches the model, and how each mode participates in the overall workflow.
+## Vision request flow
 
-## 🧱 Architectural Layers
+```text
+uploaded image(s)
+    |
+    +-- build vision instruction
+    |
+    +-- image -> data URI / multimodal message content
+    |
+    +-- MTMDChatHandler + matching mmproj
+    |
+    +-- Gemma 3 4B IT
+    |
+    +-- text output
+```
 
-| Layer | Primary Responsibility |
+The multimodal path is capability-gated. A missing projector does not silently route an image into
+the text-only model.
+
+## Document OCR flow
+
+When `Enable OCR` is active, Bro prefers native PDF text when configured to do so. A page with no
+usable native text can be rendered to an image and routed through the same Gemma vision runtime used
+by Image to Text.
+
+```text
+PDF page
+  |
+  +-- native text available? -- yes --> use text
+  |
+  no
+  |
+  +-- OCR enabled?
+        |
+        +-- multimodal runtime available?
+              |
+              +-- render page -> image -> Gemma vision -> extracted text
+```
+
+## State ownership
+
+Controls are grouped by execution responsibility:
+
+| Group | Function responsibility |
 | --- | --- |
-| Streamlit UI | Renders sidebar mode selection, controls, tabs, forms, chat messages, tables, and visualizations. |
-| Session State | Preserves runtime values such as selected mode, prompts, model parameters, active documents, retrieval settings, and semantic-search results. |
-| Configuration | Defines application paths, constants, default model settings, mode names, labels, regex patterns, and logging paths. |
-| Local Model Runtime | Loads the configured GGUF model through `llama-cpp-python` and executes prompt turns. |
-| Document Processing | Extracts PDF or text content, chunks text, computes fingerprints, and prepares retrieved excerpts. |
-| Embedding Runtime | Loads sentence-transformer embeddings and converts chunks or queries into vector representations. |
-| Retrieval Storage | Uses `sqlite-vec` when available and cosine-similarity fallback when the extension is unavailable. |
-| SQLite Persistence | Stores chat history, prompts, embeddings, document metadata, chunks, embedding metadata, and image metadata. |
-| Error Logging | Wraps exceptions with `Error` and persists diagnostic records through `Logger`. |
+| Task Preset / task-specific controls | Prompt/instruction construction |
+| Response Controls | Output format, language, length, headings |
+| Context Controls | History, document context, semantic context, grounding, context window |
+| Inference Settings | Sampling, penalties, seed, output-token limit |
+| Runtime Settings | CPU threads, batch size, micro-batch size |
+| Vision Runtime Settings | Context/runtime plus projector device |
 
-## 🏛 System View
+Each expander owns one Reset action that resets the controls within that expander.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                         Streamlit UI                         │
-│  Sidebar mode selector, controls, tabs, chat, tables, charts │
-└───────────────┬─────────────────────────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       Session State                          │
-│  messages, prompts, model settings, active docs, retrieval   │
-│  settings, semantic rows, data-management selections          │
-└───────┬───────────────┬─────────────────┬───────────────────┘
-        │               │                 │
-        ▼               ▼                 ▼
-┌──────────────┐ ┌────────────────┐ ┌────────────────────────┐
-│ Text Runtime │ │ Document Q&A   │ │ Semantic Search         │
-│ llama.cpp    │ │ extraction +   │ │ chunking + embeddings   │
-│ GGUF model   │ │ retrieval      │ │ ranked vector results   │
-└──────┬───────┘ └───────┬────────┘ └──────────┬─────────────┘
-       │                 │                     │
-       └──────────────┬──┴──────────────┬──────┘
-                      ▼                 ▼
-           ┌──────────────────┐ ┌──────────────────┐
-           │ SQLite Database  │ │ sqlite-vec /     │
-           │ chat, prompts,   │ │ cosine fallback  │
-           │ assets, chunks   │ │ retrieval        │
-           └────────┬─────────┘ └──────────────────┘
-                    │
-                    ▼
-           ┌──────────────────┐
-           │ Error Logging    │
-           │ Error + Logger   │
-           └──────────────────┘
-```
+## Persistence
 
-## 🔄 Runtime Flow
+SQLite persists:
 
-### Text Generation
+- `chat_history`;
+- `Prompts`;
+- `embeddings`;
+- `documents`;
+- `document_chunks`;
+- `document_embeddings`;
+- `images`;
+- user-imported tables.
 
-```text
-User input
-  ▼
-System instructions + task controls
-  ▼
-Optional chat history and document context
-  ▼
-Prompt construction
-  ▼
-llama.cpp local model call
-  ▼
-Response display and optional chat-history persistence
-```
-
-### Document Q&A
-
-```text
-Uploaded document bytes
-  ▼
-Text extraction
-  ▼
-Chunking
-  ▼
-Embedding
-  ▼
-sqlite-vec table or fallback vector rows
-  ▼
-Top-k retrieval
-  ▼
-Grounded prompt construction
-  ▼
-Local model answer
-```
-
-### Semantic Search
-
-```text
-Uploaded files
-  ▼
-Text extraction
-  ▼
-Chunking
-  ▼
-Embedding
-  ▼
-SQLite embeddings table
-  ▼
-Query embedding
-  ▼
-Cosine similarity ranking
-  ▼
-Selectable context rows
-```
-
-### Prompt Engineering
-
-```text
-Prompt table
-  ▼
-Search, sort, page, edit, clone, generate, apply
-  ▼
-Shared system instructions and task metadata
-  ▼
-Text Generation or Document Q&A
-```
-
-### Data Management
-
-```text
-SQLite database
-  ▼
-Tables, schemas, rows, profiles, filters, aggregations
-  ▼
-CRUD, visualization, read-only SQL, AI asset registration
-```
-
-## 🧩 Core Modules
-
-| Module | Role |
-| --- | --- |
-| `app.py` | Main Streamlit UI, runtime orchestration, LLM utilities, retrieval utilities, prompt utilities, and SQLite operations. |
-| `config.py` | Configuration constants, environment helpers, paths, labels, modes, and descriptive text. |
-| `boogr.py` | Exception wrapper and SQLite-backed logging utility. |
-
-## 🧠 State Model
-
-Bro relies heavily on `st.session_state`. Session-state keys support:
-
-| State Group | Examples |
-| --- | --- |
-| Mode and UI state | `mode`, selected tabs, prompt-selection fields. |
-| Chat state | `messages`, `system_instructions`, chat history. |
-| Runtime controls | `context_window`, `cpu_threads`, `max_tokens`, `temperature`, `top_percent`, `top_k`. |
-| Text-generation presets | `task_preset`, `response_format`, `reasoning_depth`, coding and translation controls. |
-| Document Q&A | `active_docs`, `doc_bytes`, retrieval controls, chunk counts, diagnostics, fallback rows. |
-| Semantic Search | chunk size, overlap, top-k, threshold, indexed document count, result rows. |
-| Prompt Engineering | category, task, style, generated template, selected prompt fields. |
-| Data Management | selected asset table, import flags, asset sync status, asset counts. |
-
-## ✅ Design Constraints
-
-| Constraint | Rationale |
-| --- | --- |
-| Preserve local-first execution | Bro is intended to operate with local files, local model runtime, and local SQLite persistence. |
-| Preserve safe fallback behavior | Optional components such as `sqlite-vec`, PyMuPDF, and embedding models may be unavailable. |
-| Preserve session-state names | Streamlit mode transitions and tab workflows depend on stable keys. |
-| Keep API pages source-driven | MkDocs should reflect the source docstrings rather than duplicating manual prose. |
-| Log without masking failures | Logging failures should not obscure the original application failure. |
+The `Prompts` table uses the authoritative schema documented in
+[Prompt Engineering](prompt-engineering.md).

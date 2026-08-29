@@ -1,106 +1,132 @@
 # Prompt Engineering
 
-Prompt Engineering manages reusable prompt templates stored in the local SQLite database. It supports searching, editing, cloning, generating, applying, and cascading prompt metadata into other application modes.
+Prompt Engineering manages reusable system/prompt templates stored in SQLite.
 
-## 🧭 Purpose
+## Authoritative schema
 
-This mode turns prompt design into a governed local asset. Analysts can store reusable system instructions, categorize prompt templates, apply them to Text Generation or Document Q&A, and generate starter templates from structured metadata.
-
-## 🧱 Workflow Position
-
-```text
-Prompt metadata
-  ▼
-Prompt table
-  ▼
-Search, edit, clone, generate, apply
-  ▼
-Shared system instructions
-  ▼
-Text Generation or Document Q&A
+```sql
+CREATE TABLE IF NOT EXISTS Prompts
+(
+    ID INTEGER NOT NULL UNIQUE,
+    Caption TEXT(80),
+    Name TEXT(80),
+    Category TEXT(80),
+    Text TEXT(2048),
+    PRIMARY KEY(ID AUTOINCREMENT)
+);
 ```
 
-## 🗃 Prompt Table
+`ID` is the database identity. `Category` is persisted metadata and is no longer inferred from prompt
+text during normal operation.
 
-Prompt templates are stored in the local `Prompts` table.
+## Categories
 
-| Field | Use |
+Bro's supported category vocabulary includes:
+
+- General Assistant
+- Analysis & Reasoning
+- Software Development
+- Writing & Editing
+- Summarization
+- Information Extraction
+- Classification
+- Translation
+- Structured Output
+- Document Analysis
+- Vision & Image Analysis
+- Federal / Administrative Analysis
+
+## Capability-filtered categories
+
+The SQLite database may retain legacy prompt categories from earlier provider or model iterations.
+Those records are preserved, but they are not automatically valid for the currently loaded model.
+
+Model-facing selectors apply this contract:
+
+```text
+persisted Prompts.Category values
+        ∩
+supported Gemma 3 categories
+        ∩
+effective runtime capabilities
+        =
+categories exposed in the UI
+```
+
+For the current Gemma 3 4B IT runtime:
+
+| Category / capability | UI treatment |
 | --- | --- |
-| `PromptsId` | Primary key for prompt records. |
-| `Caption` | User-facing prompt label. |
-| `Name` | Internal or descriptive prompt name. |
-| `Text` | Prompt body or system instruction text. |
-| `Version` | Version label for template tracking. |
-| `ID` | Optional external or user-defined identifier. |
+| Speech API | Excluded |
+| Transcription API | Excluded |
+| Text-to-Speech | Excluded |
+| Audio Generation | Excluded |
+| Image Generation | Excluded |
+| Vision & Image Analysis | Included only when the multimodal projector runtime is available |
+| Translation | Included |
+| Structured Output | Included |
+| Software Development | Included |
+| Document Analysis | Included |
 
-## 🔎 Search and Browse
+This prevents a stale SQLite category from advertising functionality the current model/runtime cannot
+execute.
 
-Prompt Engineering supports prompt discovery by searching prompt metadata and content. Pagination and direct ID navigation help maintain large local prompt libraries.
+Persisted database categories are filtered against the supported Gemma 3 category vocabulary
+and the effective runtime capabilities before being exposed in model-facing selectors.
 
-| Capability | Description |
-| --- | --- |
-| Search | Searches captions, names, and prompt text. |
-| Sort | Orders prompt records for review. |
-| Pagination | Displays manageable slices of the prompt table. |
-| Go to ID | Opens a known prompt by primary key. |
-| Category inference | Infers prompt category from caption, name, and text content. |
+## Category-aware System Instructions
 
-## 🧠 Prompt Categories
+System-instruction template selection follows:
 
-Bro can classify prompt templates into practical task categories.
+```text
+Category
+   -> prompts in Category
+   -> selected Prompts.ID
+   -> Text
+   -> system_instructions
+```
 
-| Category | Typical Use |
-| --- | --- |
-| General Chat | General assistant behavior. |
-| Reasoning | Structured analysis and careful conclusion generation. |
-| Coding | Code generation, refactoring, debugging, or review. |
-| Translation | Language conversion. |
-| Summarization | Concise condensation of longer content. |
-| Extraction | Pulling facts from text. |
-| Document Extraction | Evidence-based extraction from uploaded material. |
-| OCR | Text extraction or cleanup workflows. |
-| JSON Output | Machine-readable responses. |
+Caption is a display label, not the database key.
 
-## 🧰 Prompt Actions
+## Prompt management
 
-| Action | Result |
-| --- | --- |
-| Apply to Text Generation | Copies prompt text into shared system instructions for Text Generation. |
-| Apply to Document Q&A | Copies prompt text into shared system instructions and enables grounded-answer settings. |
-| Clone | Creates a new editable prompt draft based on an existing record. |
-| Generate starter prompt | Uses metadata such as task type, format, language, goal, constraints, and style to draft a template. |
-| Create | Inserts a new prompt record. |
-| Update | Saves changes to an existing prompt record. |
-| Delete | Removes a prompt record. |
-| Clear | Resets the edit surface. |
+Prompt Engineering preserves:
 
-## 🧪 Example Workflow
+- search;
+- category filter;
+- sort;
+- pagination;
+- Go to ID;
+- table selection;
+- apply to Text Generation;
+- apply to Document Q&A;
+- clone as new template;
+- starter-prompt generation;
+- prompt generator;
+- create;
+- update;
+- delete;
+- clear/reset.
 
-1. Open **Prompt Engineering**.
-2. Search for an existing template.
-3. Select a prompt record.
-4. Review category, task type, response format, and language.
-5. Apply the prompt to Text Generation or Document Q&A.
-6. Adjust mode-specific settings.
-7. Run the target workflow.
+## Edit surface
 
-## 🧷 Prompt Design Guidance
+The database edit surface corresponds to persisted fields:
 
-| Pattern | Recommendation |
-| --- | --- |
-| System instructions | State role, task, constraints, and output format clearly. |
-| Extraction prompts | Define fields and missing-value behavior. |
-| Coding prompts | Specify language, target framework, formatting, and validation expectations. |
-| Document prompts | Require grounding in retrieved excerpts. |
-| JSON prompts | Require valid JSON only and specify the schema. |
-| Reusable templates | Keep project-specific assumptions explicit. |
+- ID
+- Category
+- Caption
+- Name
+- Text
 
-## 🧯 Failure Handling
+Task Type, Response Format, and Response Language are application/cascade settings rather than fake
+database columns.
 
-Prompt database operations should preserve the local SQLite workflow. Lookup failures should return safe defaults where the UI expects optional records, while write failures should be logged with stable method signatures and without persisting prompt text inside the method field.
+## Language controls
 
-## 🔗 Related Pages
+Human-language values are bounded selectbox options. A generic response-language selection does not
+silently overwrite the separate Translation Target Language setting.
 
-- [Text Generation](text-generation.md)
-- [Document Q&A](document-qna.md)
-- [Data Management](data-management.md)
+## Legacy migration
+
+Bro can migrate the previous prompt schema into the current five-column contract while preserving
+existing prompt records.

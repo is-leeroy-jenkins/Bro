@@ -8,6 +8,7 @@ pandas==2.2.2
 reportlab>=4.0.8
 plotly-express==0.4.1
 pydantic>=2.7,<2.10
+python-docx
 typing_extensions>=4.11,<5
 PyMuPDF==1.24.9
 sqlite-vec==0.1.3
